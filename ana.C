@@ -7,7 +7,8 @@
 #include "TCanvas.h"
 #include "TH3F.h"
 #include "TColor.h"
-
+#include <cmath>
+#include <math.h>
 #include "FemtoPairFormat.h"
 
 // ClassImp( FemtoPair );
@@ -21,11 +22,12 @@ void makeCan() {
 
 void ana() {
     //    Create a file for output (saving) of histograms we compute
-    TFile * fo = new TFile( "data.root", "RECREATE" );
+    TFile * fo = new TFile( "inpuit.root", "RECREATE" );
 
     // Create a ROOT 1D histogram
-    auto * hdca = new TH1F("dca", "Run19 Au+Au data;dca (cm); counts", 500, 0, 5);
-
+    TH1F * hdca = new TH1F("dca", "Run19 Au+Au data;dca (cm); counts", 500, 0, 5);
+    // Create a ROOT 1D histogram for parent Mass
+    TH1F * mass = new TH1F("parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 500, 0, 5);
     // Open the file containing the tree (INPUT data).
     TFile *myFile = TFile::Open("input.root");
     //This setsup the reader, access the data
@@ -38,9 +40,11 @@ void ana() {
     // Lorentz vectors (4-vectors) for kinematics in special relativity
     TLorentzVector lv1, lv2, lv;
 
+    float parent_mass;
    // // Loop over all entries of the TTree or TChain.
     while (myReader.Next()) {
         // get their distance to closest approach ( info about track pair)
+        double parent_mass = 0;
         double dca1 = pair->d1_mDCA;
         double dca2 = pair->d2_mDCA;
 
@@ -54,8 +58,26 @@ void ana() {
             lv2.SetPtEtaPhiM( pair->d2_mPt, pair->d2_mEta, pair->d2_mPhi, 0.493 );
 
             // compute parent particle lorentz vector from daughters
+            // chis is to be updated. I believe there are easier way to compute 
+            //
+            // compute the four-momentum vector for particle 1
+            double px1 = cos(pair->d1_mPhi) * (pair->d1_mPt);
+            double py1 = sin(pair->d1_mPhi) * (pair->d1_mPt);
+            double pz1 = sinh(pair-> d1_mEta) * (pair-> d1_mPt);
+            double e1 = fabs(px1) + fabs(py1) + fabs(pz1) + 0.493;
+            // compute the four-momentum vector for particle 2
+            double px2 = cos(pair->d2_mPhi) * (pair->d2_mPt);
+            double py2 = sin(pair->d2_mPhi) * (pair->d2_mPt);
+            double pz2 = sinh(pair-> d2_mEta) * (pair-> d2_mPt);
+            double e2 = fabs(px2) + fabs(py2) + fabs(pz2) + 0.493;
 
-            
+            // use conservation of momentum and energy to set the four-momentum
+            // vector for parent particle.
+            lv.SetPxPyPzE(px1+px2, py1 + py2, pz1 + pz2, e1 + e2);
+            // extract the parent mass from the parent four vector
+            parent_mass = lv.E() - fabs(lv.Px()) - fabs(lv.Py()) - fabs(lv.Pz());
+
+            mass->Fill( parent_mass );
         } // selection
     } // loop on events
 
@@ -63,12 +85,13 @@ void ana() {
 
     makeCan();
     // draw histogram here
-    
-    hdca->Draw();
+    // hdca->Draw();
+    mass->Draw();
+    gPad->Print( "parent_mass.pdf" );
     gPad->SetLogy(1); // set semilog-y
 
     // save plot to a PDF
-    gPad->Print( "plot0.pdf" );
+    gPad->Print( "parent_mass_log.pdf" );
 
     // write all histograms to output data file
     fo->Write();
