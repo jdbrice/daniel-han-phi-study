@@ -52,4 +52,4 @@ I will definitely need to review my special relativity knowledge and get familia
 
 ![parent_mass_log](parent_mass_log.jpg)
 
-I think the resonance mass is just below 1GeV, which is slightly different from the $\phi_{1020}$ measurement from the PDG.
+I think the resonance mass is just around 1GeV. 

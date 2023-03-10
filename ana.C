@@ -40,7 +40,7 @@ void ana() {
     // Lorentz vectors (4-vectors) for kinematics in special relativity
     TLorentzVector lv1, lv2, lv;
 
-    float parent_mass;
+    double parent_mass;
    // // Loop over all entries of the TTree or TChain.
     while (myReader.Next()) {
         // get their distance to closest approach ( info about track pair)
@@ -64,18 +64,19 @@ void ana() {
             double px1 = cos(pair->d1_mPhi) * (pair->d1_mPt);
             double py1 = sin(pair->d1_mPhi) * (pair->d1_mPt);
             double pz1 = sinh(pair-> d1_mEta) * (pair-> d1_mPt);
-            double e1 = fabs(px1) + fabs(py1) + fabs(pz1) + 0.493;
+            double e1 = sqrt(pow(px1, 2.)+pow(py1, 2.)+pow(pz1,2.) + pow(0.493,2.));
             // compute the four-momentum vector for particle 2
             double px2 = cos(pair->d2_mPhi) * (pair->d2_mPt);
             double py2 = sin(pair->d2_mPhi) * (pair->d2_mPt);
             double pz2 = sinh(pair-> d2_mEta) * (pair-> d2_mPt);
-            double e2 = fabs(px2) + fabs(py2) + fabs(pz2) + 0.493;
+            double e2 = sqrt(pow(px2, 2.)+pow(py2, 2.)+pow(pz2,2.) + pow(0.493,2.));
 
             // use conservation of momentum and energy to set the four-momentum
             // vector for parent particle.
             lv.SetPxPyPzE(px1+px2, py1 + py2, pz1 + pz2, e1 + e2);
             // extract the parent mass from the parent four vector
             parent_mass = lv.E() - fabs(lv.Px()) - fabs(lv.Py()) - fabs(lv.Pz());
+            parent_mass = sqrt(pow(lv.E(),2) - pow(lv.Px(), 2.)+pow(lv.Py(), 2.)+pow(lv.Pz(),2.));
 
             mass->Fill( parent_mass );
         } // selection
