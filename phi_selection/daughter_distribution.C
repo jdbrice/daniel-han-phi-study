@@ -29,8 +29,8 @@ void daughter_distribution() {
     // Create a ROOT 1D histogram
     TH1F * hdca = new TH1F("dca", "Run19 Au+Au data;dca (cm); counts", 500, 0, 5);
     // Create a ROOT 1D histogram for parent Mass
-    TH1F * mass = new TH1F("parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 500, 0, 5);
-    TH2F * pt_mass = new TH2F("pt_mass",";mass(GeV);pt(GeV)", 5000,0,5, 500,0,5);
+    TH1F * mass = new TH1F("parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 500, 0, 3);
+    TH2F * pt_mass = new TH2F("pt_mass",";mass(GeV);pt(GeV)", 5000,0,5, 500,0,1.5);
 
     // Create a ROOT 2D histogram for Pion/Kaon distributions
     TH2F * track1_sigma_KP= new TH2F("Track1",";d1_N_sigma_kaon;d1_N_sigma_pion", 500, -5 , 5, 500, -5, 5);
@@ -74,17 +74,29 @@ void daughter_distribution() {
             // vector for parent particle.
             lv = lv1 + lv2;
 
-            // extract the parent mass from the parent four vector
-            parent_mass = lv.M();
-            pt_mass -> Fill(lv.M(), lv.Pt());
 
             track1_sigma_KP -> Fill(pair->d1_mNSigmaKaon, pair->d1_mNSigmaPion);
             track2_sigma_KP -> Fill(pair->d2_mNSigmaKaon, pair->d2_mNSigmaPion);
 
 
             // We apply the selection rule to select Kaon, and fill the phi_pt values for phi mass += 15MeV 
-            if(fabs(pair->d1_mNSigmaKaon) < .5 && fabs(pair->d2_mNSigmaKaon) < .5 &&lv.M()>= 1.019+ 0.015 && pair->d1_mPt > 0.01 && pair->d2_mPt > 0.01){
+            if(fabs(pair->d1_mNSigmaKaon) < 5 && fabs(pair->d2_mNSigmaKaon) < 5 &&
+                    lv.M()>= 1. && lv.M()<= 1.2 &&
+                    pair->d1_mPt > 0.01 && pair->d2_mPt > 0.01 && 
+                    fabs(pair->d1_mNSigmaPion) > 5 && fabs(pair->d2_mNSigmaPion > 5)&&
+                    fabs(pair->d1_mNSigmaProton) > 5 && fabs(pair->d2_mNSigmaProton)>5){
+
                 phi_pt-> Fill(lv.Pt());
+                pt_mass-> Fill(lv.Pt(),lv.M());
+            }
+
+            if(fabs(pair->d1_mNSigmaKaon) < 5 && fabs(pair->d2_mNSigmaKaon) < 5 &&
+    //                lv.M()>= 1. && lv.M()<= 1.2 &&
+                    pair->d1_mPt < 0.04 && pair->d2_mPt < 0.04 && 
+                    fabs(pair->d1_mNSigmaPion) > 5 && fabs(pair->d2_mNSigmaPion > 5)&&
+                    fabs(pair->d1_mNSigmaProton) > 5 && fabs(pair->d2_mNSigmaProton)>5){
+
+                mass-> Fill(lv.M());
             }
         } // selection
     } // loop on events
@@ -95,11 +107,12 @@ void daughter_distribution() {
 
     // pt_mass-> Draw("colz");
     
-    // track1_sigma_KP-> Draw("colz");
-    // track2_sigma_KP-> Draw("colz");
+    //track1_sigma_KP-> Draw("colz");
+    //track2_sigma_KP-> Draw("colz");
 
     phi_pt->Draw();
-
+    mass->Draw();
+    // pt_mass->Draw("colz");
     // write all histograms to output data file
     fo->Write();
   }             
