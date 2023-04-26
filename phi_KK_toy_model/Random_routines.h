@@ -46,9 +46,15 @@ double get_random_gaussian_std(double mean, double stdev, unsigned long int seed
 double get_random_gaussian_root(double mean, double stdev, unsigned long int seed);
 double get_random_gaussian_gsl(double mean, double stdev, unsigned long int seed);
 
+// return random double based on flat distribution
+// in the range [min, max]
+double get_random_flat_std(double min, double max, unsigned long int seed);
+double get_random_flat_root(double min, double max, unsigned long int seed);
+double get_random_flat_gsl(double min, double max, unsigned long int seed);
+
 // return a Lorentz vector ptr with a fixed mass, random transverse momentum
 // Pt with a range, random Peta with a range, random phi with a range
-TLorentzVector *get_randomized_lorentz_ptr(double mass, double Pt_min,
+TLorentzVector *get_uniform_randomized_lorentz_ptr(double mass, double Pt_min,
                                            double Pt_max, double Peta_min,
                                            double Peta_max, double phi_min,
                                            double phi_max, unsigned long int seed);
