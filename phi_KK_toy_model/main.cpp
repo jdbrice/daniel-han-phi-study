@@ -8,8 +8,8 @@ double PI = M_PI;
 double MAX_ITREATION = 10000;
 double PT_MIN = 0.;
 double PT_MAX = 3.;
-double PETA_MIN = 0.;
-double PETA_MAX = 3.;
+double ETA_MIN = 0.;
+double ETA_MAX = 4.;
 double M_KAON = 0.493;
 double M_PHI = 1.019;
 
@@ -19,7 +19,7 @@ int main(){
   // test run for phi--> K+ K- decay process
   // THIS IS TO BE FANILIZED INTO A FUNCTION! TESTING ONLY
     
-  TLorentzVector* phi_ptr = (Random_routines::get_uniform_randomized_lorentz_ptr(M_PHI, PT_MIN, PT_MAX, PETA_MIN, PETA_MAX, 0., 2. * PI, 0));
+  TLorentzVector* phi_ptr = (Random_routines::get_uniform_randomized_lorentz_ptr(M_PHI, PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, 0., 2. * PI, 0));
   TLorentzVector* kaon1_ptr = new TLorentzVector;
   TLorentzVector* kaon2_ptr = new TLorentzVector;
 
@@ -55,7 +55,7 @@ int main(){
   std::cout << "Kaon 1: pT = " << kaon1_ptr->Pt() << ", Eta = " << kaon1_ptr->Eta() << ", Phi = " << kaon1_ptr->Phi() << ", M = " << kaon1_ptr->M() << std::endl;
   std::cout << "Kaon 2: pT = " << kaon2_ptr->Pt() << ", Eta = " << kaon2_ptr->Eta() << ", Phi = " << kaon2_ptr->Phi() << ", M = " << kaon2_ptr->M() << std::endl;
   std::cout << "Phi: pT = " << phi_ptr->Pt() << ", Eta = " << phi_ptr->Eta() << ", Phi = " << phi_ptr->Phi() << ", M = " << phi_ptr->M() << std::endl;
-  std::cout << "Delta pT = " << fabs(phi_ptr->Pt() - (kaon1_ptr->Pt() + kaon2_ptr->Pt())) ;
+  std::cout << "Delta pT = " << fabs(phi_ptr->Pt() - (kaon1_ptr->Pt() + kaon2_ptr->Pt())) << std::endl ;
 
   return 0;
 
