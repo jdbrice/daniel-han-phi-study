@@ -24,7 +24,7 @@ int Random_routines::get_random_int_std(int lower_bound, int upper_bound,
 double Random_routines::get_random_double_std(double lower_bound,
                                               double upper_bound,
                                               unsigned long int seed) {
-  std::uniform_real_distribution<double> dist(lower_bound, upper_bound + 2e-32);
+  std::uniform_real_distribution<double> dist(lower_bound, upper_bound);
   if (seed == 0) {
     return dist(global_rng);
   }
@@ -45,7 +45,7 @@ double Random_routines::get_random_gaussian_std(double mean, double stdev,
 double Random_routines::get_random_flat_std(double lower_bound,
                                             double upper_bound,
                                             unsigned long seed) {
-  std::uniform_real_distribution<double> dist(lower_bound, upper_bound + 2e-32);
+  std::uniform_real_distribution<double> dist(lower_bound, upper_bound);
   if (seed == 0) {
     return dist(global_rng);
   }
@@ -71,12 +71,4 @@ TLorentzVector *Random_routines::get_uniform_randomized_lorentz_ptr(
   TLorentzVector *lorentz_vector_ptr = new TLorentzVector();
   lorentz_vector_ptr->SetPtEtaPhiM(pt, peta, phi, mass);
   return lorentz_vector_ptr;
-}
-
-int main() {
-  for (int i = 0; i < 100; i++) {
-    TLorentzVector* random_lorentz_vector_ptr = Random_routines::get_uniform_randomized_lorentz_ptr(0.493, 0., 1., 1., 2., 0., 6.28, 0);
-    random_lorentz_vector_ptr->Print();
-  }
-  return 0;
 }
