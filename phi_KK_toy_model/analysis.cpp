@@ -100,6 +100,23 @@ symmetrical_two_body_decay(TLorentzVector *parent_particle,
 }
 
 
+void add_uniform_pt_error(TLorentzVector *target_vector,
+                                           double percent_error) {
+  double max_error = percent_error / 100. * target_vector->Pt();
+  double random_error = rng.Uniform(-max_error, max_error);
+  target_vector->SetPtEtaPhiE(target_vector->Pt() + random_error,
+                              target_vector->Eta(), target_vector->Phi(),
+                              target_vector->E());
+}
+
+void add_gaussian_pt_error(TLorentzVector *target_vector,
+                                           double percent_error) {
+  double stdev = percent_error / 100. * target_vector->Pt();
+  double random_error = rng.Gaus(0., stdev);
+  target_vector->SetPtEtaPhiE(target_vector->Pt() + random_error,
+                              target_vector->Eta(), target_vector->Phi(),
+                              target_vector->E());
+}
 
 void analysis()
 {
@@ -112,12 +129,14 @@ void analysis()
         TLorentzVector* parent_particle_ptr =  get_random_lorentz_vector(PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, PHI_MASS);
         parent_vector.push_back(parent_particle_ptr);
         std::vector<TLorentzVector*> daughter_ptr_pair =  symmetrical_two_body_decay(parent_particle_ptr, KAON_MASS);
+        add_gaussian_pt_error(daughter_ptr_pair[0], 10);
+        add_gaussian_pt_error(daughter_ptr_pair[1], 10);
         daughter1_vector.push_back(daughter_ptr_pair[0]);
         daughter2_vector.push_back(daughter_ptr_pair[1]);
 
     }
                         
-    TH1F* combined_masses = new TH1F("Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count", 500, 1.0, 1.1);
+    TH1F* combined_masses = new TH1F("Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count", 500, 0.8, 1.3);
     for (int i = 0; i < SAMPLE_SIZE; i++)
     {
        TLorentzVector reconstructed_parent_vector = *daughter1_vector[i] + *daughter2_vector[i]; 

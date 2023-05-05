@@ -80,3 +80,20 @@ Random_routines::symmetrical_two_body_decay(TLorentzVector *parent_particle,
   return daughter_list;
 }
 
+void Random_routines::add_uniform_pt_error(TLorentzVector *target_vector,
+                                           double percent_error) {
+  double max_error = percent_error / 100. * target_vector->Pt();
+  double random_error = rng.Uniform(-max_error, max_error);
+  target_vector->SetPtEtaPhiE(target_vector->Pt() + max_error,
+                              target_vector->Eta(), target_vector->Phi(),
+                              target_vector->E());
+}
+
+void Random_routines::add_gaussian_pt_error(TLorentzVector *target_vector,
+                                           double percent_error) {
+  double stdev = percent_error / 100. * target_vector->Pt();
+  double random_error = rng.Gaus(0., stdev);
+  target_vector->SetPtEtaPhiE(target_vector->Pt() + random_error,
+                              target_vector->Eta(), target_vector->Phi(),
+                              target_vector->E());
+}
