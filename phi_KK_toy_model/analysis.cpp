@@ -19,7 +19,7 @@ double ETA_MIN = 0.;
 double ETA_MAX = 0.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 2e6;
+double SAMPLE_SIZE = 2e4;
 
 int main(int argc, char **argv) {
   std::vector<TLorentzVector *> parent_vector;
@@ -35,15 +35,17 @@ int main(int argc, char **argv) {
     std::vector<TLorentzVector *> daughter_ptr_pair =
         Random_routines::symmetrical_two_body_decay(parent_particle_ptr,
                                                     KAON_MASS);
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0]);
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1]);
+//    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0]);
+//    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1]);
+    Random_routines::add_uniform_pt_error(daughter_ptr_pair[0], 10.);
+    Random_routines::add_uniform_pt_error(daughter_ptr_pair[1], 10.);
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
 
   TH1F *combined_masses = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      500, 0.8, 1.3);
+      100, 1., 1.1);
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
