@@ -29,7 +29,7 @@ void add_uniform_pt_error(TLorentzVector* target_vector, double percent_error);
 // Add gaussian error with mean 0, stdev = percent_error  
 // to the transverse momentum of 
 // a given TLorentzVector. 
-void add_gaussian_pt_error(TLorentzVector* target_vector, double percent_error);
+void add_gaussian_pt_error(TLorentzVector* target_vector);
 }; // namespace Random_routines
 
 
