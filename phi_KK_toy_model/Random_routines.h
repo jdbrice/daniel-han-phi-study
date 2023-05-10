@@ -21,16 +21,21 @@ std::vector<TLorentzVector *>
 symmetrical_two_body_decay(TLorentzVector *parent_particle,
                            double daughter_mass);
 
-// Add uniform error from zero to max_percent 
+// Add uniform error from zero to max_error 
+void add_uniform_pt_error(TLorentzVector* target_vector, double max_error);
+
+// Add gaussian error with mean 0, stdev = stdev 
 // to the transverse momentum of 
 // a given TLorentzVector. 
-void add_uniform_pt_error(TLorentzVector* target_vector, double percent_error);
+void add_gaussian_pt_error(TLorentzVector* target_vector, double stdev);
 
-// Add gaussian error with mean 0, stdev = percent_error  
-// to the transverse momentum of 
-// a given TLorentzVector. 
-void add_gaussian_pt_error(TLorentzVector* target_vector);
-}; // namespace Random_routines
+// set a given target 4-vector's transverse momentum uniformly distributed 
+// between pt_min to pt_max
+void set_uniform_pt(TLorentzVector* target_vector, double pt_min, double pt_max);
 
+// set a given target 4-vector's transverse momentum with gaussian distribution 
+// with mean = pt_mu, stdev = pt_sigma
+void set_gauss_pt(TLorentzVector* target_vector, double pt_mu, double pt_sigma);
+};
 
 #endif // !RANDOM_ROUTINES

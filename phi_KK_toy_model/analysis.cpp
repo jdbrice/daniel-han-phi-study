@@ -14,7 +14,7 @@
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
 double PT_MIN = 0.;
-double PT_MAX = 2.;
+double PT_MAX = 0.6;
 double ETA_MIN = 0.;
 double ETA_MAX = 0.;
 double PHI_MIN = 0.;
@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
                                                     KAON_MASS);
 //    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0]);
 //    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1]);
-    Random_routines::add_uniform_pt_error(daughter_ptr_pair[0], 10.);
-    Random_routines::add_uniform_pt_error(daughter_ptr_pair[1], 10.);
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0], 0.02);
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1], 0.02);
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -46,17 +46,24 @@ int main(int argc, char **argv) {
   TH1F *combined_masses = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
       100, 1., 1.1);
+
+  TH1F *daughter_momentums = new TH1F(
+      "Daughter momentum", "Toy Model Daughter Momentum;p_T (GeV);count",
+      100, 0., 4.);
+
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
 
     if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06) {
       combined_masses->Fill(reconstructed_parent_vector.M());
+      daughter_momentums->Fill(daughter1_vector[i]->Pt());
+      daughter_momentums->Fill(daughter2_vector[i]->Pt());
     }
   }
-  gROOT->SetBatch(0);
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
   combined_masses->Draw();
+  //daughter_momentums->Draw();
   canvas->Modified();
   canvas->Update();
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
