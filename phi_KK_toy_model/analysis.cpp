@@ -3,6 +3,7 @@
 #include <TApplication.h>
 #include <TCanvas.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TLorentzVector.h>
 #include <TROOT.h>
 #include <TRandom3.h>
@@ -13,10 +14,10 @@
 
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
-double PT_MIN = 0.;
-double PT_MAX = 0.6;
+double PT_MIN = 0.01;
+double PT_MAX = 1.;
 double ETA_MIN = 0.;
-double ETA_MAX = 0.;
+double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
 double SAMPLE_SIZE = 2e4;
@@ -35,10 +36,12 @@ int main(int argc, char **argv) {
     std::vector<TLorentzVector *> daughter_ptr_pair =
         Random_routines::symmetrical_two_body_decay(parent_particle_ptr,
                                                     KAON_MASS);
-//    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0]);
-//    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1]);
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0], 0.02);
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1], 0.02);
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0], 0.01);
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1], 0.01);
+    // Random_routines::add_gaussian_eta_error(daughter_ptr_pair[0], 0.05 * daughter_ptr_pair[0]->Eta());
+    // Random_routines::add_gaussian_eta_error(daughter_ptr_pair[1], 0.05 * daughter_ptr_pair[1]->Eta());
+    // Random_routines::add_gaussian_phi_error(daughter_ptr_pair[0], 0.05 * daughter_ptr_pair[0]->Phi());
+    // Random_routines::add_gaussian_phi_error(daughter_ptr_pair[1], 0.05 * daughter_ptr_pair[1]->Phi());
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -47,23 +50,22 @@ int main(int argc, char **argv) {
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
       100, 1., 1.1);
 
-  TH1F *daughter_momentums = new TH1F(
-      "Daughter momentum", "Toy Model Daughter Momentum;p_T (GeV);count",
-      100, 0., 4.);
+  TH2F *combined_mPt = new TH2F(
+      "Pt vs m", "Combined Transerve Momentum; Combined Pt; Combined M",
+      100, 0., 1.5, 100, 1., 1.1);
 
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
 
-    if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06) {
+    if (daughter1_vector[i]->Pt() > 0.1 && daughter2_vector[i]->Pt() > 0.1) {
       combined_masses->Fill(reconstructed_parent_vector.M());
-      daughter_momentums->Fill(daughter1_vector[i]->Pt());
-      daughter_momentums->Fill(daughter2_vector[i]->Pt());
+      combined_mPt->Fill(reconstructed_parent_vector.Pt(),reconstructed_parent_vector.M());
     }
   }
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
   combined_masses->Draw();
-  //daughter_momentums->Draw();
+  combined_mPt->Draw("coltz");
   canvas->Modified();
   canvas->Update();
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();

@@ -29,6 +29,9 @@ void add_uniform_pt_error(TLorentzVector* target_vector, double max_error);
 // a given TLorentzVector. 
 void add_gaussian_pt_error(TLorentzVector* target_vector, double stdev);
 
+void add_gaussian_eta_error(TLorentzVector* target_vector, double stdev);
+
+void add_gaussian_phi_error(TLorentzVector* target_vector, double stdev);
 // set a given target 4-vector's transverse momentum uniformly distributed 
 // between pt_min to pt_max
 void set_uniform_pt(TLorentzVector* target_vector, double pt_min, double pt_max);

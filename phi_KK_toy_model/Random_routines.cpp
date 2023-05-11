@@ -86,19 +86,37 @@ void Random_routines::add_uniform_pt_error(TLorentzVector *target_vector,
                               target_vector->Eta(), target_vector->Phi(),
                               target_vector->M());
 }
-void Random_routines::add_gaussian_pt_error(TLorentzVector *target_vector, double stdev) {
-  double random_error = rng.Gaus(0., stdev);
-  target_vector->SetPtEtaPhiM(
-      target_vector->Pt() + random_error,
-      target_vector->Eta(), target_vector->Phi(), target_vector->M());
-}
 void Random_routines::set_uniform_pt(TLorentzVector *target_vector,
-                                     double pt_min, double pt_max){
-    target_vector->SetPtEtaPhiM(rng.Uniform(pt_min, pt_max), target_vector->Eta(), target_vector->Phi(), target_vector->M());   
+                                     double pt_min, double pt_max) {
+  target_vector->SetPtEtaPhiM(rng.Uniform(pt_min, pt_max), target_vector->Eta(),
+                              target_vector->Phi(), target_vector->M());
 }
 
 void Random_routines::set_gauss_pt(TLorentzVector *target_vector, double pt_mu,
-                                   double pt_sigma){
+                                   double pt_sigma) {
 
-    target_vector->SetPtEtaPhiM(rng.Gaus(pt_mu, pt_sigma), target_vector->Eta(), target_vector->Phi(), target_vector->M());   
+  target_vector->SetPtEtaPhiM(rng.Gaus(pt_mu, pt_sigma), target_vector->Eta(),
+                              target_vector->Phi(), target_vector->M());
+}
+
+void Random_routines::add_gaussian_pt_error(TLorentzVector *target_vector,
+                                            double stdev) {
+  double random_error = rng.Gaus(0., stdev);
+  target_vector->SetPtEtaPhiM(target_vector->Pt() + random_error,
+                              target_vector->Eta(), target_vector->Phi(),
+                              target_vector->M());
+}
+void Random_routines::add_gaussian_eta_error(TLorentzVector *target_vector,
+                                             double stdev) {
+  target_vector->SetPtEtaPhiM(target_vector->Pt(),
+                              target_vector->Eta() + rng.Gaus(0., stdev),
+                              target_vector->Phi(), target_vector->M());
+}
+
+void Random_routines::add_gaussian_phi_error(TLorentzVector *target_vector,
+                                             double stdev) {
+  target_vector->SetPtEtaPhiM(
+      target_vector->Pt(), target_vector->Eta(),
+      std::fmod((target_vector->Phi() + rng.Gaus(0., stdev)), (2. * pi)),
+      target_vector->M());
 }
