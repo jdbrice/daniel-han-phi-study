@@ -22,13 +22,15 @@ double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
 double SAMPLE_SIZE = 2e4;
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   std::vector<TLorentzVector *> parent_vector;
   std::vector<TLorentzVector *> daughter1_vector;
   std::vector<TLorentzVector *> daughter2_vector;
   TApplication app("app", &argc, argv);
 
-  for (int i = 0; i < SAMPLE_SIZE; i++) {
+  for (int i = 0; i < SAMPLE_SIZE; i++)
+  {
     TLorentzVector *parent_particle_ptr =
         Random_routines::get_random_lorentz_vector(
             PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, PHI_MASS);
@@ -54,13 +56,15 @@ int main(int argc, char **argv) {
       "Pt vs m", "Combined Transerve Momentum; Combined Pt; Combined M",
       100, 0., 1.5, 100, 1., 1.1);
 
-  for (int i = 0; i < SAMPLE_SIZE; i++) {
+  for (int i = 0; i < SAMPLE_SIZE; i++)
+  {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
 
-    if (daughter1_vector[i]->Pt() > 0.1 && daughter2_vector[i]->Pt() > 0.1) {
+    if (daughter1_vector[i]->Pt() > 0.1 && daughter2_vector[i]->Pt() > 0.1)
+    {
       combined_masses->Fill(reconstructed_parent_vector.M());
-      combined_mPt->Fill(reconstructed_parent_vector.Pt(),reconstructed_parent_vector.M());
+      combined_mPt->Fill(reconstructed_parent_vector.Pt(), reconstructed_parent_vector.M());
     }
   }
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
@@ -72,6 +76,5 @@ int main(int argc, char **argv) {
   root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
                        "Terminate()");
   app.Run();
-    double a =4;
   return 0;
 }
