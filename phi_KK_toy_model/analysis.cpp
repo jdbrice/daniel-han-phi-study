@@ -72,5 +72,6 @@ int main(int argc, char **argv) {
   root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
                        "Terminate()");
   app.Run();
+    double a =4;
   return 0;
 }
