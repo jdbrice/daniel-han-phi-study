@@ -15,7 +15,7 @@ class Selector {
 public:
   // constructor for the particle selector. This requires the absolute file path
   // for the "true" dE/dx root file and a fixed blur amount
-  Selector(std::string file_path, double sigma);
+  Selector(double sigma);
 
   // destructor
   ~Selector(){};
@@ -28,16 +28,26 @@ public:
   // reconstruction.
   double get_NSigmaPion(TLorentzVector *mc_ptr);
 
-  // blur the dE/dx file with a fixed amount of percent blur
-  void blur_dEdx_file();
+  // draw the blurred version of dEdx for both particles 
+  void draw_dEdx();
+
+  // draw dEdx for both particles 
+  void draw_dEdx_blurred();
 
 private:
   // fixed percent blur
-  double sigma;
+  double sigma = 0;
 
   // path to true dE/dx root file
-  std::string file_path;
+  std::string file_path = "dEdx.root";
 
+  std::vector<double> pt;
+
+  std::vector<double> dEdx_kaon;
+  std::vector<double> dEdx_pion;
+
+  std::vector<double> dEdx_kaon_blurred;
+  std::vector<double> dEdx_pion_blurred;
 
 };
 
