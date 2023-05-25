@@ -17,15 +17,19 @@ public:
   // for the "true" dE/dx root file and a fixed blur amount
   Selector(double sigma);
 
+  // overloaded constructor for using default values.
+  Selector();
   // destructor
   ~Selector(){};
 
   // calculate NSigmaKaon with a parent vector and its topological
-  // reconstruction.
+  // reconstruction. The target is the exact dEdx of Kaon
+  // , while the "measurement" is the blurred dEdx of the assumed particle 
   double get_NSigmaKaon(TLorentzVector *mc_ptr);
 
   // calculate NSigmaPion with a parent vector and its topological
-  // reconstruction.
+  // reconstruction. The target is the exact dEdx of Pion
+  // , while the "measurement" is the blurred dEdx of the assumed particle 
   double get_NSigmaPion(TLorentzVector *mc_ptr);
 
   // draw the blurred version of dEdx for both particles 
@@ -35,17 +39,23 @@ public:
   void draw_dEdx_blurred();
 
 private:
-  // fixed percent blur
-  double sigma = 0;
+  // fixed blur. This is obtained by adding a gaussian blur of dEdx using 
+  // the precise method of "eyeballing" to match the dEdx measurement graph
+  double sigma = 0.2;
 
   // path to true dE/dx root file
+  // It is assumed that the true dEdx file is named "dEdx.root"
+  // in the directory where the analysis code is compiled.
   std::string file_path = "dEdx.root";
 
+  // mesh for transverse momentum
   std::vector<double> pt;
 
+  // exact dEdx values for kaon/pion
   std::vector<double> dEdx_kaon;
   std::vector<double> dEdx_pion;
 
+  // blurred dEdx value for kaon/pion
   std::vector<double> dEdx_kaon_blurred;
   std::vector<double> dEdx_pion_blurred;
 
