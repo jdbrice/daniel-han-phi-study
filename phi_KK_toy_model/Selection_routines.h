@@ -52,9 +52,9 @@ private:
 
   // Root object for the dEdx file 
   TFile *dEdx_file = new TFile(file_path.c_str());
-  // Root histogram for dEdxKaon
+  // Root histogram for dEdxKaon using most probable value
   TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");
-  // Root histogram for dEdxPion
+  // Root histogram for dEdxPion using most probable value
   TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
 
 };

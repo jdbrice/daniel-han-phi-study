@@ -1,4 +1,4 @@
-#include "selection.h"
+#include "Selection_routines.h"
 #include "Random_routines.h"
 #include <TApplication.h>
 #include <TCanvas.h>
@@ -97,17 +97,23 @@ void Selector::draw_dEdx_blurred() {
 double Selector::get_NSigmaKaon(TLorentzVector *mc_ptr) {
   double NSigmaKaon;
   double mc_pt = mc_ptr->Pt();
+  // retrive exact dEdxKaon from root file
   double dEdxKaon_mc = dEdxKaon->Interpolate(mc_pt) * 1000;
+  // retrive exact dEdxPion from root file
   double dEdxPion_mc = dEdxPion->Interpolate(mc_pt) * 1000;
+  // blur the dEdxKaon by an amount that eyeball to fit the 
+  // experimental data
   double dEdxKaon_rc =
       dEdxKaon->Interpolate(mc_pt) * 1000 + rng_selection.Gaus(0, sigma);
-
+  // case for kaon mass
   if (std::abs(mc_ptr->M() - 0.493) <= 0.001) {
     NSigmaKaon = (dEdxKaon_mc - dEdxKaon_rc) / sigma;
     return NSigmaKaon;
+  // case for pion mass
   } else if (std::abs(mc_ptr->M() - 0.139) <= 0.001) {
     NSigmaKaon = (dEdxPion_mc - dEdxKaon_rc) / sigma;
     return NSigmaKaon;
+  // throw error if neither
   } else {
     std::cout << "Error, particle given has neither Kaon mass nor Pion mass"
               << std::endl;
@@ -118,17 +124,23 @@ double Selector::get_NSigmaKaon(TLorentzVector *mc_ptr) {
 double Selector::get_NSigmaPion(TLorentzVector *mc_ptr) {
   double NSigmaPion;
   double mc_pt = mc_ptr->Pt();
+  // retrive exact dEdxKaon from root file
   double dEdxKaon_mc = dEdxKaon->Interpolate(mc_pt) * 1000;
+  // retrive exact dEdxPion from root file
   double dEdxPion_mc = dEdxPion->Interpolate(mc_pt) * 1000;
+  // blur the dEdxPion by an amount that eyeball to fit the 
+  // experimental data
   double dEdxPion_rc =
       dEdxPion->Interpolate(mc_pt) * 1000 + rng_selection.Gaus(0, sigma);
-
+  // case for kaon mass
   if (std::abs(mc_ptr->M() - 0.493) <= 0.001) {
     NSigmaPion = (dEdxKaon_mc - dEdxPion_rc) / sigma;
     return NSigmaPion;
+  // case for pion mass
   } else if (std::abs(mc_ptr->M() - 0.139) <= 0.001) {
     NSigmaPion = (dEdxPion_mc - dEdxPion_rc) / sigma;
     return NSigmaPion;
+  // throw error if neither
   } else {
     std::cout << "Error, particle given has neither Kaon mass nor Pion mass"
               << std::endl;
