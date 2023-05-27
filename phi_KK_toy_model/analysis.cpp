@@ -1,4 +1,3 @@
-#include "Random_routines.h"
 #include <RtypesCore.h>
 #include <TApplication.h>
 #include <TCanvas.h>
@@ -11,16 +10,18 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include "Random_routines.h"
+
 
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
-double PT_MIN = 0.01;
-double PT_MAX = 1.;
+double PT_MIN = 0.1;
+double PT_MAX = 2.;
 double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 2e4;
+double SAMPLE_SIZE = 2e7;
 
 int main(int argc, char **argv)
 {
@@ -35,15 +36,14 @@ int main(int argc, char **argv)
         Random_routines::get_random_lorentz_vector(
             PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, PHI_MASS);
     parent_vector.push_back(parent_particle_ptr);
+
     std::vector<TLorentzVector *> daughter_ptr_pair =
         Random_routines::symmetrical_two_body_decay(parent_particle_ptr,
                                                     KAON_MASS);
+
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0], 0.01);
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1], 0.01);
-    // Random_routines::add_gaussian_eta_error(daughter_ptr_pair[0], 0.05 * daughter_ptr_pair[0]->Eta());
-    // Random_routines::add_gaussian_eta_error(daughter_ptr_pair[1], 0.05 * daughter_ptr_pair[1]->Eta());
-    // Random_routines::add_gaussian_phi_error(daughter_ptr_pair[0], 0.05 * daughter_ptr_pair[0]->Phi());
-    // Random_routines::add_gaussian_phi_error(daughter_ptr_pair[1], 0.05 * daughter_ptr_pair[1]->Phi());
+
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }

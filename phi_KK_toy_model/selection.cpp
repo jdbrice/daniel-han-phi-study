@@ -7,9 +7,10 @@
 #include <TRandom3.h>
 #include <TRootCanvas.h>
 #include <TTreeReader.h>
+#include "Random_routines.h"
 
 // global rng
-thread_local TRandom3 rng(0);
+thread_local TRandom3 rng_selection(0);
 
 // return the index of an element in an vector<double> such that the element of that index
 // in the array is the closest (smallest 1-d eucledian norm) to the give double
@@ -39,7 +40,7 @@ Selector::Selector(double sigma) {
   TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
 
   // set up momentum mesh
-  for (double p = 0.1; p <= 2.; p += 1e-7) {
+  for (double p = 0.1; p <= 10.; p += 1e-4) {
     pt.push_back(p);
   }
 
@@ -48,14 +49,14 @@ Selector::Selector(double sigma) {
     dEdx_kaon.push_back(dEdxKaon->Interpolate(p) * 1000);
 
     dEdx_kaon_blurred.push_back(dEdxKaon->Interpolate(p) * 1000 +
-                                rng.Gaus(0, sigma));
+                                rng_selection.Gaus(0, sigma));
   }
 
   // fill dEdx in the momentum mesh for Pion
   for (double p : pt) {
     dEdx_pion.push_back(dEdxPion->Interpolate(p) * 1000);
     dEdx_pion_blurred.push_back(dEdxPion->Interpolate(p) * 1000 +
-                                rng.Gaus(0, sigma));
+                                rng_selection.Gaus(0, sigma));
   }
 }
 // constructor and variable init
@@ -68,7 +69,7 @@ Selector::Selector() {
   TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
 
   // set up momentum mesh
-  for (double p = 0.1; p <= 2.; p += 1e-7) {
+  for (double p = 0.1; p <= 10.; p += 1e-4) {
     pt.push_back(p);
   }
 
@@ -77,14 +78,14 @@ Selector::Selector() {
     dEdx_kaon.push_back(dEdxKaon->Interpolate(p) * 1000);
 
     dEdx_kaon_blurred.push_back(dEdxKaon->Interpolate(p) * 1000 +
-                                rng.Gaus(0, sigma));
+                                rng_selection.Gaus(0, sigma));
   }
 
   // fill dEdx in the momentum mesh for Pion
   for (double p : pt) {
     dEdx_pion.push_back(dEdxPion->Interpolate(p) * 1000);
     dEdx_pion_blurred.push_back(dEdxPion->Interpolate(p) * 1000 +
-                                rng.Gaus(0, sigma));
+                                rng_selection.Gaus(0, sigma));
   }
 }
 
@@ -117,11 +118,6 @@ double Selector::get_NSigmaKaon(TLorentzVector *mc_ptr){
 
   double pt_mc = mc_ptr->Pt();
 
-  // detect if input four vector has greater than allowed pt 
-  if (pt_mc > 2.){
-    std:: cout << "Error! Pt greater than 2GeV" << std::endl;
-    return 0;
-  }
   int pt_mc_index = find_closest_index(&pt, pt_mc);
 
   // case where we assume for true Kaon
@@ -151,11 +147,6 @@ double Selector::get_NSigmaPion(TLorentzVector *mc_ptr){
 
   double pt_mc = mc_ptr->Pt();
 
-  // detect if input four vector has greater than allowed pt 
-  if (pt_mc > 2.){
-    std:: cout << "Error! Pt greater than 2GeV" << std::endl;
-    return 0;
-  }
   int pt_mc_index = find_closest_index(&pt, pt_mc);
 
   // case where we assume for true Kaon
@@ -179,16 +170,18 @@ double Selector::get_NSigmaPion(TLorentzVector *mc_ptr){
   }
 }
 
-
 int main(int argc, char **argv) {
-  TApplication app("app", &argc, argv);
-  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
-  TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
-  root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
-                       "Terminate()");
-  std::string file_name = "dEdx.root";
   Selector test_selector = Selector();
-  test_selector.draw_dEdx_blurred();
-  app.Run();
+  
+  std::vector<TLorentzVector*> test;
+  for (int i = 0; i < 100; i++){
+    TLorentzVector* Kaons = Random_routines::get_random_lorentz_vector(0.1 , 0.5, 0., 4, 0, 2* M_PI, 0.493);
+    Random_routines::add_gaussian_pt_error(Kaons, Kaons->Pt() * 0.01);
+    test.push_back(Kaons);
+  }
+  
+  for(TLorentzVector* vectors: test){
+    std::cout<< test_selector.get_NSigmaKaon(vectors) << "   " << test_selector.get_NSigmaPion(vectors)<<std::endl;
+  }
   return 0;
 }
