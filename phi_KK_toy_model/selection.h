@@ -1,4 +1,6 @@
 #include "Random_routines.h"
+#include <TFile.h>
+#include <TH1.h>
 #include <TLorentzVector.h>
 #include <string>
 
@@ -48,16 +50,12 @@ private:
   // in the directory where the analysis code is compiled.
   std::string file_path = "dEdx.root";
 
-  // mesh for transverse momentum
-  std::vector<double> pt;
-
-  // exact dEdx values for kaon/pion
-  std::vector<double> dEdx_kaon;
-  std::vector<double> dEdx_pion;
-
-  // blurred dEdx value for kaon/pion
-  std::vector<double> dEdx_kaon_blurred;
-  std::vector<double> dEdx_pion_blurred;
+  // Root object for the dEdx file 
+  TFile *dEdx_file = new TFile(file_path.c_str());
+  // Root histogram for dEdxKaon
+  TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");
+  // Root histogram for dEdxPion
+  TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
 
 };
 
