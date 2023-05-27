@@ -169,19 +169,3 @@ double Selector::get_NSigmaPion(TLorentzVector *mc_ptr){
     return 0;
   }
 }
-
-int main(int argc, char **argv) {
-  Selector test_selector = Selector();
-  
-  std::vector<TLorentzVector*> test;
-  for (int i = 0; i < 100; i++){
-    TLorentzVector* Kaons = Random_routines::get_random_lorentz_vector(0.1 , 0.5, 0., 4, 0, 2* M_PI, 0.493);
-    Random_routines::add_gaussian_pt_error(Kaons, Kaons->Pt() * 0.01);
-    test.push_back(Kaons);
-  }
-  
-  for(TLorentzVector* vectors: test){
-    std::cout<< test_selector.get_NSigmaKaon(vectors) << "   " << test_selector.get_NSigmaPion(vectors)<<std::endl;
-  }
-  return 0;
-}

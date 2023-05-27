@@ -16,14 +16,14 @@ double RHO_MASS = 0.77;
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
-double PT_MIN = 0.;
-double PT_MAX = 1.;
+double PT_MIN = 0.1;
+double PT_MAX = 10.;
 double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double PHI_SAMPLE_SIZE = 100;
-double RHO_SAMPLE_SIZE = 1000;
+double PHI_SAMPLE_SIZE = 1e6;
+double RHO_SAMPLE_SIZE = 1e7;
 
 int main(int argc, char **argv)
 {
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
   TH1F *combined_masses = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      100, 0., 4.);
+      100, 1., 1.1);
   TH1F *daughter_masses = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
       100, 0., 4.);
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
   Selector PID = Selector();
   
   for (int i = 0; i < parent_vector.size(); i++){
-    if (PID.get_NSigmaKaon(daughter1_vector[i]) <5 && PID.get_NSigmaPion(daughter1_vector[i])>5){
+    if (PID.get_NSigmaKaon(daughter1_vector[i]) <5. && PID.get_NSigmaPion(daughter1_vector[i])>5.){
       TLorentzVector reconstructed_parent = *(daughter1_vector[i]) + *(daughter2_vector[i]);
       combined_masses->Fill(reconstructed_parent.M());
     }
