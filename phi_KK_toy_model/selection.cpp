@@ -136,38 +136,3 @@ double Selector::get_NSigmaPion(TLorentzVector *mc_ptr) {
   }
 }
 
-int main(int argc, char **argv) {
-  std::vector<TLorentzVector *> kaons;
-  Selector pid = Selector();
-  // TH1D *kaon_acceptance = new TH1D(
-  //     "Acceptance rate", "Accepted Kaons from Kaon mc; Pt(Gev);Acceptance Rate", 500, 0, 1);
-  //
-  // TH1D kaon_acceptance_normalized = TH1D(
-  //     "Acceptance rate", "Accepted Kaons from Kaon mc; Pt(Gev);Acceptance Rate", 500, 0, 1);
-  //
-  // int mc_produced = 1e5;
-  // for (double p = 0.; p < 1.; p += 1e-3) {
-  //   for (int i = 0; i < mc_produced; i++) {
-  //     TLorentzVector *random_mc = Random_routines::get_random_lorentz_vector(
-  //         p, p, 0., 4., 0., 2. * M_PI, 0.493);
-  //     Random_routines::add_gaussian_pt_error(random_mc, 0.01 * random_mc->Pt());
-  //     if (pid.get_NSigmaKaon(random_mc) < 5 &&
-  //         pid.get_NSigmaPion(random_mc) > 5) {
-  //       kaon_acceptance->Fill(p);
-  //     }
-  //     delete random_mc;
-  //   }
-  // }
-  TApplication app("app", &argc, argv);
-  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
-  // kaon_acceptance_normalized = *kaon_acceptance * (1. / 2e5);
-  // kaon_acceptance_normalized.Draw();
-  pid.draw_dEdx_blurred();
-  canvas->Modified();
-  canvas->Update();
-  TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
-  root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
-                       "Terminate()");
-  app.Run();
-  return 0;
-}
