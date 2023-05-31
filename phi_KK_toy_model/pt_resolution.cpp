@@ -1,4 +1,7 @@
+#include "Random_routines.h"
+#include "Selection_routines.h"
 #include <RtypesCore.h>
+#include <TSystem.h>
 #include <TApplication.h>
 #include <TCanvas.h>
 #include <TH1F.h>
@@ -10,28 +13,66 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include "Random_routines.h"
-
 
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
 double PT_MIN = 0.1;
-double PT_MAX = 2.;
+double PT_MAX = 10.;
 double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 2e7;
+double SAMPLE_SIZE = 3e4;
 
-int main(int argc, char **argv)
-{
+TH1F *get_simulation_pdf(double pt_blur_percent, int sample_size);
+
+double calculate_pt_blur_p_value(double pt_blur_percent, TH1F *experimental_pdf);
+
+int main(int argc, char **argv) {
+  TApplication app("app", &argc, argv);
+  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
+  canvas->Modified();
+  canvas->Update();
+  TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
+  root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
+                       "Terminate()");
+
+  TFile* processed_experimental_data  = new TFile("processed_phi_exp_data.root");
+
+  TH1F* experimental_pdf =(TH1F *) processed_experimental_data->Get("Phi Selected");
+
+
+  double final_p_value = 0. ;
+  double final_pt_percent_error = 0. ;
+  for (double pt_percent_error = 0.; pt_percent_error <= 10.; pt_percent_error += 0.1){
+    double p_value_max = calculate_pt_blur_p_value(pt_percent_error, experimental_pdf)  ;
+    if (p_value_max > final_p_value){
+      final_p_value = p_value_max;
+      final_pt_percent_error = pt_percent_error;
+    }
+  }
+
+  std::cout<<final_p_value << "    " << final_pt_percent_error<<std::endl;
+
+  TH1F* simulated_pdf =  get_simulation_pdf(final_pt_percent_error, SAMPLE_SIZE);
+
+  gROOT->ForceStyle();
+  experimental_pdf->Draw("PLC");
+  simulated_pdf->Draw("PLC SAME");
+  gPad->BuildLegend();
+  app.Run();
+
+  return 0;
+}
+
+TH1F *get_simulation_pdf(double pt_blur_percent,
+                         int sample_size = SAMPLE_SIZE) {
+
   std::vector<TLorentzVector *> parent_vector;
   std::vector<TLorentzVector *> daughter1_vector;
   std::vector<TLorentzVector *> daughter2_vector;
-  TApplication app("app", &argc, argv);
 
-  for (int i = 0; i < SAMPLE_SIZE; i++)
-  {
+  for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector *parent_particle_ptr =
         Random_routines::get_random_lorentz_vector(
             PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, PHI_MASS);
@@ -41,40 +82,50 @@ int main(int argc, char **argv)
         Random_routines::symmetrical_two_body_decay(parent_particle_ptr,
                                                     KAON_MASS);
 
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0], 0.01);
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1], 0.01);
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
+                                           pt_blur_percent / 100. *
+                                               daughter_ptr_pair[0]->Pt());
+    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
+                                           pt_blur_percent / 100. *
+                                               daughter_ptr_pair[1]->Pt());
 
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
+
+    // manual garbe colleciton
+    daughter_ptr_pair.clear();
   }
 
-  TH1F *combined_masses = new TH1F(
-      "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      100, 1., 1.1);
+  TH1F *combined_masses =
+      new TH1F("Selected Phi Mesons", "Simulated Phi Meson Mass PDF;m_{K^+ K^-}(GeV);probability",
+               100, 1., 1.04);
 
-  TH2F *combined_mPt = new TH2F(
-      "Pt vs m", "Combined Transerve Momentum; Combined Pt; Combined M",
-      100, 0., 1.5, 100, 1., 1.1);
-
-  for (int i = 0; i < SAMPLE_SIZE; i++)
-  {
+  Selector pid = Selector();
+  for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
 
-    if (daughter1_vector[i]->Pt() > 0.1 && daughter2_vector[i]->Pt() > 0.1)
-    {
+    if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06 &&
+        std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
+        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
+        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5. &&
+        std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5.) {
       combined_masses->Fill(reconstructed_parent_vector.M());
-      combined_mPt->Fill(reconstructed_parent_vector.Pt(), reconstructed_parent_vector.M());
     }
   }
-  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
-  combined_masses->Draw();
-  combined_mPt->Draw("coltz");
-  canvas->Modified();
-  canvas->Update();
-  TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
-  root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
-                       "Terminate()");
-  app.Run();
-  return 0;
+
+  daughter1_vector.clear();
+  daughter2_vector.clear();
+  parent_vector.clear();
+  // convert histogram to pdf
+  combined_masses->Scale(1. / combined_masses->Integral());
+
+  return combined_masses;
+}
+
+double calculate_pt_blur_p_value(double pt_blur_percent, TH1F *experimental_pdf) {
+  double p_value = 0;
+  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent);
+  p_value = rc_pdf->Chi2Test(experimental_pdf, "UU;NORM");
+  return p_value;
 }

@@ -12,23 +12,6 @@
 // global rng
 thread_local TRandom3 rng_selection(0);
 
-// return the index of an element in an vector<double> such that the element of
-// that index in the array is the closest (smallest 1-d eucledian norm) to the
-// give double
-int find_closest_index(const std::vector<double> *vec, double target) {
-  double min_diff = std::abs((*vec)[0] - target);
-  int best_index = 0;
-
-  for (int i = 0; i < vec->size(); i++) {
-    double diff = std::abs((*vec)[i] - target);
-    if (diff < min_diff) {
-      min_diff = diff;
-      best_index = i;
-    }
-  }
-  return best_index;
-}
-
 // constructor and variable init
 Selector::Selector(double sigma) { this->sigma = sigma; }
 // constructor and variable init

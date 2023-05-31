@@ -22,8 +22,8 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double PHI_SAMPLE_SIZE = 1e5;
-double RHO_SAMPLE_SIZE = 1e6;
+double PHI_SAMPLE_SIZE = 15000;
+double RHO_SAMPLE_SIZE = 2 * PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -48,9 +48,10 @@ int main(int argc, char **argv) {
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.02 * daughter_ptr_pair[0]->Pt());
+                                           0.07 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.02 * daughter_ptr_pair[1]->Pt());
+                                           0.07 * daughter_ptr_pair[1]->Pt());
+
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
 
@@ -81,9 +82,9 @@ int main(int argc, char **argv) {
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.02 * daughter_ptr_pair[0]->Pt());
+                                           0.07 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.02 * daughter_ptr_pair[1]->Pt());
+                                           0.07 * daughter_ptr_pair[1]->Pt());
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -91,7 +92,7 @@ int main(int argc, char **argv) {
   // create histogram to draw rc mass
   TH1F *parent_rc_mass = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      300, 0.8, 3.);
+      300, 0., 3.);
 
   // create an instance of particle selector
   Selector pid = Selector();
@@ -99,8 +100,8 @@ int main(int argc, char **argv) {
   // select daughter particle to be Kaon
   for (int i = 0; i < parent_vector.size(); i++) {
     if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
         std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
+        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
         std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5.) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
