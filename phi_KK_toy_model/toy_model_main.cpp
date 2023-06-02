@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 
+// add pion uniform distibution between 0.5 GeV to 2* RHo mass 
 double RHO_MASS = 0.77;
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;

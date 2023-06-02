@@ -90,11 +90,13 @@ int main(int argc, char **argv) {
 
   TH1F *acceptance = (TH1F*) rc_mass_pt_selection->ProjectionY()->Clone();
   acceptance->SetXTitle("P_T");
-  acceptance->SetYTitle("Reco Percent");
+  acceptance->SetYTitle("Reco Accepted Percent");
   acceptance->SetName("acceptance_rate");
-  acceptance->SetTitle("Reco Acceptance Rate");
+  acceptance->SetTitle("Toy Reco Acceptance Rate");
   acceptance->Divide(mc_pt);
+  acceptance->Smooth();
   acceptance->Draw("C");
+  // rc_mass_pt_selection->Draw("colz");
   canvas->Modified();
   canvas->Update();
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
