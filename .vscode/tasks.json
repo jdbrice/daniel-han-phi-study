@@ -9,7 +9,7 @@
                 "-g",
                 "${file}",
                 "Random_routines.cpp",
-                "Selection.cpp",
+                "Selection_routines.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-pthread", 
