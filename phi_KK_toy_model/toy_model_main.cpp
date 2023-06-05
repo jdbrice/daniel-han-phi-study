@@ -12,8 +12,11 @@
 #include <fstream>
 #include <iostream>
 
+thread_local TRandom3 rng_toy(0);
+
 // add pion uniform distibution between 0.5 GeV to 2* RHo mass 
-double RHO_MASS = 0.77;
+#define RHO_MASS  rng_toy.Uniform(0.3, 2. * 0.77)
+// double RHO_MASS = 0.77;
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
@@ -24,7 +27,7 @@ double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
 int PHI_SAMPLE_SIZE = 7500;
-int RHO_SAMPLE_SIZE = 2 * PHI_SAMPLE_SIZE;
+int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -103,7 +106,8 @@ int main(int argc, char **argv) {
     if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5.) {
+        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5. &&
+        daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
