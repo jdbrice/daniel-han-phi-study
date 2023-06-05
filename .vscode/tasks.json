@@ -1,3 +1,4 @@
+
 {
     "tasks": [
         {
@@ -5,10 +6,10 @@
             "label": "C/C++: g++ build active file",
             "command": "g++",
             "args": [
-                "-g3",
+                "-g",
                 "${file}",
                 "Random_routines.cpp",
-                "Selection_routines.cpp",
+                "Selection.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-pthread", 
