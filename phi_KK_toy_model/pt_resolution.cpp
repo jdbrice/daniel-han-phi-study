@@ -1,18 +1,23 @@
 #include "Random_routines.h"
 #include "Selection_routines.h"
 #include <RtypesCore.h>
-#include <TSystem.h>
 #include <TApplication.h>
 #include <TCanvas.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TH1.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TLorentzVector.h>
 #include <TROOT.h>
 #include <TRandom3.h>
 #include <TRootCanvas.h>
+#include <TSystem.h>
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
@@ -22,13 +27,37 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 3e4;
+double SAMPLE_SIZE = 1.2e4;
 
-// create a instance of simulation with fixed percentage of pt blur and sample size
+// create a instance of simulation with fixed percentage of pt blur and sample
+// size
 TH1F *get_simulation_pdf(double pt_blur_percent, int sample_size);
 
-// return the p value from a chi2 calculation between a simulation and experiment 
-double calculate_pt_blur_p_value(double pt_blur_percent, TH1F *experimental_pdf);
+// return the p value from a chi2 calculation between a simulation and
+// experiment
+double calculate_pt_blur_p_value(double pt_blur_percent,
+                                 TH1F *experimental_pdf);
+
+double calculate_fitted_pt_blur_chisq(double pt_blur_percent,
+                                        TF1 *target_function);
+
+// funtion definition for fitting
+Double_t fit_function(Double_t *x, Double_t *par) {
+  // par[0] = background
+  // par[1] = amplitude
+  // par[2] = mean
+  // par[3] = sigma
+
+  double background = par[0];
+  double gaussian = par[1] * exp(-0.5 * ((x[0] - par[2]) / (par[3] * x[0])) *
+                                 ((x[0] - par[2]) / (par[3] * x[0])));
+  double xmin = 1.;
+  double xmax = 1.04;
+  if (x[0] < xmin || x[0] > xmax) {
+    gaussian = 0.0;
+  }
+  return background + gaussian;
+}
 
 int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
@@ -38,39 +67,40 @@ int main(int argc, char **argv) {
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
   root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
                        "Terminate()");
-  
-  // load the processed phi experimental data. This comes from ../phi_selection_pt_resolution/pt_resolution_processor.C
-  TFile* processed_experimental_data  = new TFile("processed_phi_exp_data.root");
 
-  // load histogram from file 
-  TH1F* experimental_pdf =(TH1F *) processed_experimental_data->Get("Phi Selected");
+  TF1 *fit_tf1 = new TF1("fit_tf1", fit_function, 1., 1.1, 4);
+  fit_tf1->SetParameter(0, 0.);
+  fit_tf1->SetParameter(1, 5.60000e+01);
+  fit_tf1->SetParameter(2, 1.019e+00);
+  fit_tf1->SetParameter(3, 3.13181e-03);
 
-  // initial pt percent error and its corresponding p value from a chi2 test 
-  double final_p_value = 0. ;
-  double final_pt_percent_error = 0. ;
 
-  // run simulation with pt percent error from 0 percent 1o 10 percent with step size 0.1  
-  // this upper limit is testd experimentally 
-  for (double pt_percent_error = 0.; pt_percent_error <= 10.; pt_percent_error += 0.1){
+  double final_p_value = 0.;
+  double final_chisq = 1e9;
 
-  
-    double p_value_max = calculate_pt_blur_p_value(pt_percent_error, experimental_pdf)  ;
-    // record highest p value and the correponding pt percent error 
+  double final_pt_percent_error = 0.;
+  // run simulation with pt percent error from 0 percent 1o 10 percent with step
+  // size 0.1
+  // this upper limit is testd experimentally
+  for (double pt_percent_error = 0.; pt_percent_error <= 10.;
+       pt_percent_error += 0.1) {
+
+    double chi_sq_min =
+      calculate_fitted_pt_blur_chisq(pt_percent_error, fit_tf1);
+    // record highest p value and the correponding pt percent error
     //
-    if (p_value_max > final_p_value){
-      final_p_value = p_value_max;
+    if (chi_sq_min < final_chisq) {
+      final_chisq = chi_sq_min;
       final_pt_percent_error = pt_percent_error;
     }
   }
 
-  std::cout<<final_p_value << "    " << final_pt_percent_error<<std::endl;
+  std::cout << final_chisq << "    " << final_pt_percent_error << std::endl;
 
-  // get an intance of the resulting histogram from simulation with optimal pt error calculated above  
-  TH1F* simulated_pdf =  get_simulation_pdf(final_pt_percent_error, SAMPLE_SIZE);
+  TH1F* sample_hist = get_simulation_pdf(final_pt_percent_error, SAMPLE_SIZE);
+  sample_hist->Draw();
+  fit_tf1->Draw("same");
 
-  gROOT->ForceStyle();
-  experimental_pdf->Draw("PLC");
-  simulated_pdf->Draw("PLC SAME");
   gPad->BuildLegend();
   app.Run();
 
@@ -83,9 +113,9 @@ TH1F *get_simulation_pdf(double pt_blur_percent,
   std::vector<TLorentzVector *> parent_vector;
   std::vector<TLorentzVector *> daughter1_vector;
   std::vector<TLorentzVector *> daughter2_vector;
-  
+
   // sample from a uniformly distributed parent particle four momentum
-  // with given bounds 
+  // with given bounds
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector *parent_particle_ptr =
         Random_routines::get_random_lorentz_vector(
@@ -112,15 +142,17 @@ TH1F *get_simulation_pdf(double pt_blur_percent,
   }
   // histogram to return
   TH1F *combined_masses =
-      new TH1F("Selected Phi Mesons", "Simulated Phi Meson Mass PDF;m_{K^+ K^-}(GeV);probability",
-               100, 1., 1.04);
+      new TH1F("Selected Phi Mesons",
+               "Simulated Phi Meson Mass PDF;m_{K^+ K^-}(GeV);probability", 100,
+               1., 1.04);
 
   Selector pid = Selector();
 
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector reconstructed_parent_vector =
         *daughter1_vector[i] + *daughter2_vector[i];
-    // selection of kaon particle with conditions exactly the same as the experimental selection
+    // selection of kaon particle with conditions exactly the same as the
+    // experimental selection
     if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06 &&
         std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
@@ -134,14 +166,23 @@ TH1F *get_simulation_pdf(double pt_blur_percent,
   daughter2_vector.clear();
   parent_vector.clear();
   // convert histogram to pdf
-  combined_masses->Scale(1. / combined_masses->Integral());
+  // combined_masses->Scale(1. / combined_masses->Integral());
 
   return combined_masses;
 }
 
-double calculate_pt_blur_p_value(double pt_blur_percent, TH1F *experimental_pdf) {
+double calculate_pt_blur_p_value(double pt_blur_percent,
+                                 TH1F *experimental_pdf) {
   double p_value = 0;
   TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent);
   p_value = rc_pdf->Chi2Test(experimental_pdf, "UU;NORM");
   return p_value;
+}
+
+double calculate_fitted_pt_blur_chisq(double pt_blur_percent,
+                                        TF1 *target_function) {
+  double chisq = 0;
+  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent);
+  chisq = rc_pdf->Chisquare(target_function, "R, 1., 1.04");
+  return chisq;
 }

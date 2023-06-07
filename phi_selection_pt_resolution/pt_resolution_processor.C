@@ -11,6 +11,7 @@
 #include "TTreeReaderValue.h"
 #include <TF1.h>
 #include <TH2.h>
+#include <TString.h>
 #include <TSystem.h>
 #include <cmath>
 #include <math.h>
@@ -25,17 +26,31 @@ void makeCan() {
   can->SetRightMargin(0.01);
 }
 
+// funtion definition for fitting
+Double_t fit_function(Double_t *x, Double_t *par) {
+  // par[0] = background
+  // par[1] = amplitude
+  // par[2] = mean
+  // par[3] = sigma
+
+  double background = par[0];
+  double gaussian = par[1] * exp(-0.5 * ((x[0] - par[2]) / (par[3] * x[0])) *
+                                 ((x[0] - par[2]) / (par[3] * x[0])));
+  double xmin = 1.;
+  double xmax = 1.04;
+  if (x[0] < xmin || x[0] > xmax) {
+    gaussian = 0.0;
+  }
+  return background + gaussian;
+}
+
 void pt_resolution_processor() {
 
   TFile *fo = new TFile("processed_phi_exp_data.root", "RECREATE");
 
-  TH1F *error =
-      new TH1F("Phi in Error Range", "Run19 Au+Au data;rc_mass (GeV); counts",
-               100, 1.04, 1.1);
-
   TH1F *rc_mass = new TH1F(
-      "Phi Selected", "Phi Meson Mass Distribution;rc_mass (GeV); Probability",
-      100, 1., 1.04);
+      "Phi Selected", "Run 19 Au-Au;rc_mass (GeV); Probability",
+      100, 1., 1.1);
 
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
@@ -67,23 +82,32 @@ void pt_resolution_processor() {
           fabs(pair->d2_mNSigmaKaon) < 5 && fabs(pair->d2_mNSigmaPion) > 5 &&
           pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06) {
         rc_mass->Fill(lv.M());
-
-        if (lv.M() > 1.04 && lv.M() <= 1.1) {
-          error->Fill(lv.M());
-        }
       }
     } // selection
   }   // loop on events
 
+  TF1 *fit_tf1 = new TF1("fit_tf1", fit_function, 1., 1.1, 4);
   fo->cd();
+  fit_tf1->SetParameter(0, 4.);
+  int max_bin = rc_mass->GetMaximumBin();
+  double amplitude = rc_mass->GetBinContent(max_bin) - fit_tf1->GetParameter(0);
+  fit_tf1->FixParameter(1, amplitude);
+  fit_tf1->SetParameter(2, 1.019);
+  fit_tf1->SetParameter(3, 0.01);
+  rc_mass->Fit("fit_tf1", "0");
+
+  double background = fit_tf1->GetParameter(0);
+
+  // // Subtract the background from the histogram, accounting for bin widths
+  // for (int i = 1; i <= rc_mass->GetNbinsX(); ++i) {
+  //   double binContent = rc_mass->GetBinContent(i);
+  //   double binWidth = rc_mass->GetBinWidth(i);
+  //   rc_mass->SetBinContent(i, binContent - background);
+  // }
+  // rc_mass->GetXaxis()->SetRangeUser(1., 1.04)  ;
+
   makeCan();
-  error->Fit("pol0");
-  TF1 *error_fit = (TF1 *)error->GetListOfFunctions()->FindObject("pol0");
-  double error_mean = error_fit->GetParameter(0);
-  TF1 *error_fit_result =
-      new TF1("error_estimate", std::to_string(error_mean).c_str(), 0, 10.);
-   rc_mass->Add(error_fit_result, -1);
-   rc_mass->Scale(1. / rc_mass->Integral());
-  rc_mass->Draw("HIST");
-   fo->Write();
+  rc_mass->Draw("hist");
+  fit_tf1->Draw("same");
+  fo->Write();
 }
