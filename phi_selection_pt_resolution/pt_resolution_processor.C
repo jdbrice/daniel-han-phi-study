@@ -49,7 +49,7 @@ void pt_resolution_processor() {
   TFile *fo = new TFile("processed_phi_exp_data.root", "RECREATE");
 
   TH1F *rc_mass = new TH1F(
-      "Phi Selected", "Run 19 Au-Au;rc_mass (GeV); Probability",
+      "RC Phi Selected", "Run 19 Au-Au RC Phi Mass;rc_mass (GeV); Count",
       100, 1., 1.1);
 
   // Open the file containing the tree (INPUT data).
@@ -86,7 +86,7 @@ void pt_resolution_processor() {
     } // selection
   }   // loop on events
 
-  TF1 *fit_tf1 = new TF1("fit_tf1", fit_function, 1., 1.1, 4);
+  TF1 *fit_tf1 = new TF1("Gaussian + Constant Background Fit", fit_function, 1., 1.1, 4);
   fo->cd();
   fit_tf1->SetParameter(0, 4.);
   int max_bin = rc_mass->GetMaximumBin();
@@ -94,9 +94,12 @@ void pt_resolution_processor() {
   fit_tf1->FixParameter(1, amplitude);
   fit_tf1->SetParameter(2, 1.019);
   fit_tf1->SetParameter(3, 0.01);
-  rc_mass->Fit("fit_tf1", "0");
+  rc_mass->Fit("Gaussian + Constant Background Fit", "0");
 
   double background = fit_tf1->GetParameter(0);
+  double mean = fit_tf1->GetParameter(2);
+  double stdev = fit_tf1->GetParameter(3);
+
 
   // // Subtract the background from the histogram, accounting for bin widths
   // for (int i = 1; i <= rc_mass->GetNbinsX(); ++i) {
@@ -109,5 +112,6 @@ void pt_resolution_processor() {
   makeCan();
   rc_mass->Draw("hist");
   fit_tf1->Draw("same");
+  gPad->BuildLegend();
   fo->Write();
 }

@@ -27,7 +27,7 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 1.2e4;
+double SAMPLE_SIZE = 1e5;
 
 // create a instance of simulation with fixed percentage of pt blur and sample
 // size
@@ -68,11 +68,16 @@ int main(int argc, char **argv) {
   root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
                        "Terminate()");
 
-  TF1 *fit_tf1 = new TF1("fit_tf1", fit_function, 1., 1.1, 4);
-  fit_tf1->SetParameter(0, 0.);
-  fit_tf1->SetParameter(1, 5.60000e+01);
-  fit_tf1->SetParameter(2, 1.019e+00);
-  fit_tf1->SetParameter(3, 3.13181e-03);
+  double fitted_background = 0.;
+  double fitted_mean = 1.01794e+00;
+  double fitted_stdev = 3.31181e-03;
+  double normalized_amplitude = 1. / (std::sqrt(2. * M_PI) * fitted_stdev);
+
+  TF1 *fit_tf1 = new TF1("Experimental Fit", fit_function, 1., 1.04, 4);
+  fit_tf1->SetParameter(0, fitted_background);
+  fit_tf1->SetParameter(1, normalized_amplitude);
+  fit_tf1->SetParameter(2, fitted_mean);
+  fit_tf1->SetParameter(3, fitted_stdev);
 
 
   double final_p_value = 0.;
@@ -98,7 +103,7 @@ int main(int argc, char **argv) {
   std::cout << final_chisq << "    " << final_pt_percent_error << std::endl;
 
   TH1F* sample_hist = get_simulation_pdf(final_pt_percent_error, SAMPLE_SIZE);
-  sample_hist->Draw();
+  sample_hist->Draw("hist");
   fit_tf1->Draw("same");
 
   gPad->BuildLegend();
@@ -143,7 +148,7 @@ TH1F *get_simulation_pdf(double pt_blur_percent,
   // histogram to return
   TH1F *combined_masses =
       new TH1F("Selected Phi Mesons",
-               "Simulated Phi Meson Mass PDF;m_{K^+ K^-}(GeV);probability", 100,
+               "Simulated Phi Meson Mass PDF;m_{K^+ K^-}(GeV);Normalized Amplitude", 100,
                1., 1.04);
 
   Selector pid = Selector();
@@ -166,7 +171,7 @@ TH1F *get_simulation_pdf(double pt_blur_percent,
   daughter2_vector.clear();
   parent_vector.clear();
   // convert histogram to pdf
-  // combined_masses->Scale(1. / combined_masses->Integral());
+  combined_masses->Scale(1. / combined_masses->Integral(), "width");
 
   return combined_masses;
 }
@@ -183,6 +188,7 @@ double calculate_fitted_pt_blur_chisq(double pt_blur_percent,
                                         TF1 *target_function) {
   double chisq = 0;
   TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent);
+  rc_pdf->Sumw2();
   chisq = rc_pdf->Chisquare(target_function, "R, 1., 1.04");
   return chisq;
 }
