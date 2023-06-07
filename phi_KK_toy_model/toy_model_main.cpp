@@ -26,7 +26,7 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-int PHI_SAMPLE_SIZE = 7500;
+int PHI_SAMPLE_SIZE = 4000;
 int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv) {
@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.07 * daughter_ptr_pair[0]->Pt());
+                                           0.04 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.07 * daughter_ptr_pair[1]->Pt());
+                                           0.04 * daughter_ptr_pair[1]->Pt());
 
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
@@ -86,9 +86,9 @@ int main(int argc, char **argv) {
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.07 * daughter_ptr_pair[0]->Pt());
+                                           0.04 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.07 * daughter_ptr_pair[1]->Pt());
+                                           0.04 * daughter_ptr_pair[1]->Pt());
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
   // create histogram to draw rc mass
   TH1F *parent_rc_mass = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      100, 1., 1.1);
+      100, 0.8, 2.5);
 
   // create an instance of particle selector
   Selector pid = Selector();

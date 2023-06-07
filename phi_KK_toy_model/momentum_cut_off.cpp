@@ -13,10 +13,8 @@
 #include <fstream>
 #include <iostream>
 
-double RHO_MASS = 0.77;
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
-double PION_MASS = 0.139;
 double PT_MIN = 0.1;
 double PT_MAX = 10.;
 double ETA_MIN = 0.;
@@ -37,7 +35,7 @@ int main(int argc, char **argv) {
   TH2F *rc_mass_pt_selection = new TH2F(
       "pt vs mass",
       "Toy RC Pt v.s. Mass with 60MeV Pt Cut-off;m_{K^+ K^-}(GeV); P_T", 100,
-      0.98, 1.1, 500, 0., 1.5);
+      0.98, 1.1, 100, 0., 1.5);
 
   // simualte decay process for phi -> K+ K-
   for (int i = 0; i < PHI_SAMPLE_SIZE; i++) {
@@ -56,9 +54,9 @@ int main(int argc, char **argv) {
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.07 * daughter_ptr_pair[0]->Pt());
+                                           0.04 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.07 * daughter_ptr_pair[1]->Pt());
+                                           0.04 * daughter_ptr_pair[1]->Pt());
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -86,7 +84,7 @@ int main(int argc, char **argv) {
 
   // drawing the result
   TApplication app("app", &argc, argv);
-  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 1280, 720);
+  TCanvas *canvas = new TCanvas("canvas", "canvas", 0, 0, 1280, 720);
 
   TH1F *acceptance = (TH1F*) rc_mass_pt_selection->ProjectionY()->Clone();
   acceptance->SetXTitle("P_T");
@@ -96,6 +94,8 @@ int main(int argc, char **argv) {
   acceptance->Divide(mc_pt);
   acceptance->Smooth();
   acceptance->Draw("C");
+  TCanvas *canvas2 = new TCanvas("canvas2", "canvas2", 0, 0, 1280, 720);
+  rc_mass_pt_selection->Draw("colz");
   // rc_mass_pt_selection->Draw("colz");
   canvas->Modified();
   canvas->Update();
