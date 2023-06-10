@@ -16,10 +16,15 @@ TLorentzVector *get_random_lorentz_vector(double Pt_min, double Pt_max,
 // simulation random decay process from a parent particle with known mass to two
 // identical daughte particles with known mass.
 //
-// Funtion return a list of lorentz vectors with the pointer of the two dauthers
+// Funtion return a list of lorentz vectors with the pointer of the two dauthers when the two dauthers have the same masses
 std::vector<TLorentzVector *>
 symmetrical_two_body_decay(TLorentzVector *parent_particle,
                            double daughter_mass);
+
+// Funtion return a list of lorentz vectors with the pointer of the two dauthers when the two daughters have different masses
+std::vector<TLorentzVector *>
+two_body_decay(TLorentzVector *parent_particle,
+                           double daughter_1_mass, double daughter_2_mass);
 
 // Add uniform error from zero to max_error 
 void add_uniform_pt_error(TLorentzVector* target_vector, double max_error);
