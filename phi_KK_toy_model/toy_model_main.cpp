@@ -15,7 +15,8 @@
 thread_local TRandom3 rng_toy(0);
 
 // add pion uniform distibution between 0.5 GeV to 2* RHo mass 
-#define RHO_MASS  rng_toy.Uniform(0.3, 2. * 0.77)
+// #define RHO_MASS  rng_toy.Uniform(0.3, 2. * 0.77)
+#define RHO_MASS  rng_toy.Gaus(0.77, 0.3)
 // double RHO_MASS = 0.77;
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
@@ -26,7 +27,7 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-int PHI_SAMPLE_SIZE = 4000;
+int PHI_SAMPLE_SIZE = 4500;
 int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv) {
@@ -96,7 +97,7 @@ int main(int argc, char **argv) {
   // create histogram to draw rc mass
   TH1F *parent_rc_mass = new TH1F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      100, 0.8, 2.5);
+      300, 0., 3.);
 
   // create an instance of particle selector
   Selector pid = Selector();

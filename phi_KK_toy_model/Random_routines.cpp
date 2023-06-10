@@ -78,10 +78,10 @@ Random_routines::symmetrical_two_body_decay(TLorentzVector *parent_particle,
   daughter_two->Boost(boost_vector);
   return daughter_list;
 }
+
 // return a vector that contain two-particle with unequal masses decay process from a
 // given parent particle lorentz vector. The address of both dauthers are
 // contained in the vector.
-
 std::vector<TLorentzVector *>
 Random_routines::two_body_decay(TLorentzVector *parent_particle,
                                             double m1, double m2) {
@@ -99,8 +99,8 @@ Random_routines::two_body_decay(TLorentzVector *parent_particle,
 
   // calculate the rest frame momentum for one particle using
   // special relativity. Note that this calculation is true due to the
-  // conservation of momentum in the rest frame of the parent particle.
-  double kaon1_momentum = sqrt((M*M - (m1 + m2)*(m1 + m2)) * (M*M - (m1 - m2)*(m1 - m2))) / (2*M);
+  // conservation of momentum in the rest frame of the parent particle plus energy conservation.
+  double kaon1_momentum = sqrt((M*M - (m1 + m2)*(m1 + m2)) * (M*M - (m1 - m2)*(m1 - m2))) / (2.*M);
   // calculate the four vector of the first daughter particle
   double kaon1_px =
       kaon1_momentum * std::sin(kaon1_polar) * std::cos(kaon1_azimuth);

@@ -27,7 +27,7 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 1e5;
+double SAMPLE_SIZE = 3e4;
 
 // create a instance of simulation with fixed percentage of pt blur and sample
 // size
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
   // run simulation with pt percent error from 0 percent 1o 10 percent with step
   // size 0.1
   // this upper limit is testd experimentally
-  for (double pt_percent_error = 0.; pt_percent_error <= 10.;
+  for (double pt_percent_error = 1.; pt_percent_error <= 6.;
        pt_percent_error += 0.1) {
 
     double chi_sq_min =
@@ -188,7 +188,7 @@ double calculate_fitted_pt_blur_chisq(double pt_blur_percent,
                                         TF1 *target_function) {
   double chisq = 0;
   TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent);
-  rc_pdf->Sumw2();
+  // rc_pdf->Sumw2();
   chisq = rc_pdf->Chisquare(target_function, "R, 1., 1.04");
   return chisq;
 }
