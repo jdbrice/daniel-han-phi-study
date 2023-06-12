@@ -3,7 +3,9 @@
 #include <RtypesCore.h>
 #include <TApplication.h>
 #include <TCanvas.h>
+#include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TLorentzVector.h>
 #include <TROOT.h>
 #include <TRandom3.h>
@@ -13,11 +15,15 @@
 #include <iostream>
 
 thread_local TRandom3 rng_toy(0);
+// load the pion mass distribution root file
+TFile *pion_mass = new TFile("rho_mass.root");
 
-// add pion uniform distibution between 0.5 GeV to 2* RHo mass 
-// #define RHO_MASS  rng_toy.Uniform(0.3, 2. * 0.77)
-#define RHO_MASS  rng_toy.Gaus(0.77, 0.3)
-// double RHO_MASS = 0.77;
+// load the pion mass histogram
+TH1D *pion_mass_hist =
+    ((TH2D *)pion_mass->Get("signal_mass_pt"))->ProjectionX();
+
+#define RHO_MASS pion_mass_hist->GetRandom()
+
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
@@ -95,10 +101,12 @@ int main(int argc, char **argv) {
   }
 
   // create histogram to draw rc mass
-  TH1F *parent_rc_mass = new TH1F(
-      "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count",
-      300, 0., 3.);
+  TH1F *parent_rc_mass =
+      new TH1F("Combined Masses",
+               "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count", 300, 0., 3.);
 
+  TH1F *kaon_pt = new TH1F("kaon PT with RC Phi PT < 0.3",
+                           "Kaon P_T;Kaon P_T(GeV);count", 100, 0., 1.);
   // create an instance of particle selector
   Selector pid = Selector();
 
@@ -107,14 +115,18 @@ int main(int argc, char **argv) {
     if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5. &&
-        daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06) {
+        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5.) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
           *(daughter1_vector[i]) + *(daughter2_vector[i]);
       // fill the reconstructed parent mass
       parent_rc_mass->Fill(reconstructed_parent.M());
+
+      if (reconstructed_parent.Pt() < 0.3) {
+        kaon_pt->Fill(daughter1_vector[i]->Pt());
+        kaon_pt->Fill(daughter2_vector[i]->Pt());
+      }
     }
   }
 
@@ -122,6 +134,7 @@ int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
   parent_rc_mass->Draw();
+  kaon_pt->Draw();
   canvas->Modified();
   canvas->Update();
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();

@@ -31,7 +31,10 @@ void daughter_distribution() {
   TH1F *hdca = new TH1F("dca", "Run19 Au+Au data;dca (cm); counts", 500, 0, 5);
   // Create a ROOT 1D histogram for parent Mass
   TH1F *mass_rc = new TH1F(
-      "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 100, 0.98, 1.1);
+      "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 300, 0., 3.);
+
+  TH1F *kaon_rc = new TH1F(
+      "kaon_pt", "Run19 Au+Au data RC Phi PT < 0.3;kaon_Pt (GeV); counts", 100, 0., 1.);
 
   // Create a ROOT 2D histogram for Pion/Kaon distributions
   // Open the file containing the tree (INPUT data).
@@ -76,7 +79,8 @@ void daughter_distribution() {
       // that lv.Pt() should be around 0.1 GeV
       // selecting only masses close to m_\phi
       if (fabs(pair->d1_mNSigmaKaon) < 5 && fabs(pair->d2_mNSigmaKaon) < 5 &&
-          fabs(pair->d1_mNSigmaPion) > 5 && fabs(pair->d2_mNSigmaPion) > 5)
+          fabs(pair->d1_mNSigmaPion) > 5 && fabs(pair->d2_mNSigmaPion) > 5 && 
+          pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06)
       {
         mass_rc->Fill(lv.M());
       }

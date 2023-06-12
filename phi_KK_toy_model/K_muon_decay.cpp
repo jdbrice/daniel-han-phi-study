@@ -36,12 +36,13 @@ int main(int argc, char **argv) {
   std::vector<TLorentzVector *> nutrino_list;
 
   // create histogram to draw rc mass
-  TH1F *TOF_trigger_rate =
-      new TH1F("Muon P_T > 200 MeV",
-               "Muon TOF Trigger Rate; Kaon P_T (GeV);Rate", 100, PT_MIN, PT_MAX);
+  TH1F *TOF_trigger_rate = new TH1F(
+      "Muon P_T > 200 MeV", "Muon TOF Trigger Rate; Kaon P_T (GeV);Rate", 100,
+      PT_MIN, PT_MAX);
 
-  TH1F *kaon_pt_hist = new TH1F(
-      "MC Kaon", "Kaon PT distibution; Kaon P_T (GeV);count", 100, PT_MIN, PT_MAX);
+  TH1F *kaon_pt_hist =
+      new TH1F("MC Kaon", "Kaon PT distibution; Kaon P_T (GeV);count", 100,
+               PT_MIN, PT_MAX);
 
   TH1F *delta_phi =
       new TH1F("MC Kaon", "Kaon Muon DeltaPhi Distibution; DeltaPhi(rad);count",
@@ -51,16 +52,18 @@ int main(int argc, char **argv) {
       "Muon P_T > 200 MeV",
       "Kaon Muon DeltaPhi Distibution; DeltaPhi(rad);count", 100, -M_PI, M_PI);
 
-  TH2F *delta_phi_muon_pt = new TH2F(
-      "K-> mu + v_{mu}",
-      "Kaon Muon DeltaPhi Distibution; Muon_P_T(GeV); DeltaPhi(Rad)", 100, 0., 0.35, 100, -M_PI, M_PI);
+  TH2F *delta_phi_muon_pt =
+      new TH2F("K-> mu + v_{mu}",
+               "Kaon Muon DeltaPhi Distibution; Muon_P_T(GeV); DeltaPhi(Rad)",
+               100, 0., 11., 100, -M_PI, M_PI);
 
-  TH2F *delta_phi_muon_pt_tof = new TH2F(
-      "Muon > 200 MeV",
-      "Kaon Muon DeltaPhi Distibution; Muon P_T (GeV); DeltaPhi(Rad)", 100, 0., 0.35, 100, -M_PI, M_PI);
+  TH2F *delta_phi_muon_pt_tof =
+      new TH2F("Muon > 200 MeV",
+               "Kaon Muon DeltaPhi Distibution; Muon P_T (GeV); DeltaPhi(Rad)",
+               100, 0., 11., 100, -M_PI, M_PI);
 
   // list of momentum value
-  std::vector<double> kaon_pt_tof;
+  std::vector<double> branched_kaon_pt_list;
 
   // create mc kaons
   for (int i = 0; i < K_SAMPLE_SIZE; i++) {
@@ -70,30 +73,48 @@ int main(int argc, char **argv) {
 
   // simulate the decay process of K->mu + v_mu
   for (TLorentzVector *kaon_ptr : kaon_list) {
-    double decay_number = decay_rng.Uniform();
-    kaon_pt_hist->Fill(kaon_ptr->Pt());
+    double decay_number = decay_rng.Uniform(); // branching ratio number
+
+    kaon_pt_hist->Fill(
+        kaon_ptr
+            ->Pt()); // this histogram contains the kaon P_T for all mc Kaons.
+
+    // simulate the branching probability
     if (decay_number < 0.6356) {
+
       std::vector<TLorentzVector *> daughter_list =
           Random_routines::two_body_decay(kaon_ptr, MUON_MASS,
                                           MUON_NUTRINO_MASS);
+
       muon_list.push_back(daughter_list[0]);
+
       nutrino_list.push_back(daughter_list[1]);
+
       delta_phi->Fill(kaon_ptr->DeltaPhi(*daughter_list[0]));
-      delta_phi_muon_pt->Fill(daughter_list[0]->Pt(),kaon_ptr->DeltaPhi(*daughter_list[0]));
-      kaon_pt_tof.push_back(kaon_ptr->Pt());
+
+      delta_phi_muon_pt->Fill(daughter_list[0]->Pt(),
+                              kaon_ptr->DeltaPhi(*daughter_list[0]));
+
+
+      branched_kaon_pt_list.push_back(kaon_ptr->Pt()); // this list is only for kaons that branch into muon
+
       if (daughter_list[0]->Pt() > 0.2) {
+
         delta_phi_tof->Fill(kaon_ptr->DeltaPhi(*daughter_list[0]));
-        delta_phi_muon_pt_tof->Fill(daughter_list[0]->Pt(),kaon_ptr->DeltaPhi(*daughter_list[0]));
+
+        delta_phi_muon_pt_tof->Fill(daughter_list[0]->Pt(),
+                                    kaon_ptr->DeltaPhi(*daughter_list[0]));
       }
     }
   }
 
+  // select from the branched kaon pt such that the decayed muon has pt > 0.2 
+  // Note that there is a index corresponance between muon_list and branched_kaon_pt_list
   for (int i = 0; i < muon_list.size(); i++) {
     if (muon_list[i]->Pt() > 0.2) {
-      TOF_trigger_rate->Fill(kaon_pt_tof[i]);
+      TOF_trigger_rate->Fill(branched_kaon_pt_list[i]);
     }
   }
-
 
   TOF_trigger_rate->Divide(kaon_pt_hist);
 
