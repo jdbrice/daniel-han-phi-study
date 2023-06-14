@@ -40,7 +40,7 @@ Random_routines::symmetrical_two_body_decay(TLorentzVector *parent_particle,
   daughter_list.push_back(daughter_two);
 
   // randomly generate polar angle for particle oen
-  double kaon1_polar = rng.Uniform(0., pi);
+  double kaon1_cos_polar = rng.Uniform(-1., 1.);
   // randomly generate azimuthal angle for particle one
   double kaon1_azimuth = rng.Uniform(0., 2. * pi);
 
@@ -54,12 +54,12 @@ Random_routines::symmetrical_two_body_decay(TLorentzVector *parent_particle,
 
   // calculate the four vector of the first daughter particle
   double kaon1_px =
-      kaon1_momentum * std::sin(kaon1_polar) * std::cos(kaon1_azimuth);
+      kaon1_momentum * sqrt(1 - kaon1_cos_polar * kaon1_cos_polar) * std::cos(kaon1_azimuth);
 
   double kaon1_py =
-      kaon1_momentum * std::sin(kaon1_polar) * std::sin(kaon1_azimuth);
+      kaon1_momentum * sqrt(1 - kaon1_cos_polar * kaon1_cos_polar) * std::sin(kaon1_azimuth);
 
-  double kaon1_pz = kaon1_momentum * std::cos(kaon1_polar);
+  double kaon1_pz = kaon1_momentum * kaon1_cos_polar;
 
   double kaon1_E =
       std::sqrt(daughter_mass * daughter_mass + kaon1_px * kaon1_px +
@@ -93,33 +93,33 @@ Random_routines::two_body_decay(TLorentzVector *parent_particle,
 
   double M = parent_particle->M();
   // randomly generate polar angle for particle oen
-  double kaon1_polar = rng.Uniform(0., pi);
+  double daughter1_cos_polar = rng.Uniform(-1., 1.);
   // randomly generate azimuthal angle for particle one
-  double kaon1_azimuth = rng.Uniform(0., 2. * pi);
+  double daughter1_azimuth = rng.Uniform(0., 2. * pi);
 
   // calculate the rest frame momentum for one particle using
   // special relativity. Note that this calculation is true due to the
   // conservation of momentum in the rest frame of the parent particle plus energy conservation.
-  double kaon1_momentum = sqrt((M*M - (m1 + m2)*(m1 + m2)) * (M*M - (m1 - m2)*(m1 - m2))) / (2.*M);
+  double daughter1_momentum = sqrt((M*M - (m1 + m2)*(m1 + m2)) * (M*M - (m1 - m2)*(m1 - m2))) / (2.*M);
   // calculate the four vector of the first daughter particle
-  double kaon1_px =
-      kaon1_momentum * std::sin(kaon1_polar) * std::cos(kaon1_azimuth);
+  double daughter1_px =
+      daughter1_momentum * sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) * std::cos(daughter1_azimuth);
 
-  double kaon1_py =
-      kaon1_momentum * std::sin(kaon1_polar) * std::sin(kaon1_azimuth);
+  double daughter1_py =
+      daughter1_momentum * sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) * std::sin(daughter1_azimuth);
 
-  double kaon1_pz = kaon1_momentum * std::cos(kaon1_polar);
+  double daughter1_pz = daughter1_momentum * daughter1_cos_polar;
 
-  double kaon1_E =
-      std::sqrt(m1 * m1 + kaon1_momentum * kaon1_momentum);
+  double daughter1_E =
+      std::sqrt(m1 * m1 + daughter1_momentum * daughter1_momentum);
 
-  double kaon2_E =
-      std::sqrt(m2 * m2 + kaon1_momentum * kaon1_momentum);
+  double daughter2_E =
+      std::sqrt(m2 * m2 + daughter1_momentum * daughter1_momentum);
 
-  daughter_one->SetPxPyPzE(kaon1_px, kaon1_py, kaon1_pz, kaon1_E);
+  daughter_one->SetPxPyPzE(daughter1_px, daughter1_py, daughter1_pz, daughter1_E);
   // due to momentum conservation, the second daughter particle will have the
   // exact opposite signed momentum compared with the first daughter particle.
-  daughter_two->SetPxPyPzE(-kaon1_px, -kaon1_py, -kaon1_pz, kaon2_E);
+  daughter_two->SetPxPyPzE(-daughter1_px, -daughter1_py, -daughter1_pz, daughter2_E);
 
   // we boost the daughter particles to the lab frame, where the parent particle
   // is moving

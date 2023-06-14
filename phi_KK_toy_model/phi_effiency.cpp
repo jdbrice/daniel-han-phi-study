@@ -16,27 +16,17 @@
 #include <iostream>
 
 thread_local TRandom3 rng_toy(0);
-// load the pion mass distribution root file
-TFile *pion_mass = new TFile("rho_mass.root");
 
-// load the pion mass histogram
-TH1D *pion_mass_hist =
-    ((TH2D *)pion_mass->Get("signal_mass_pt"))->ProjectionX();
-
-// #define RHO_MASS pion_mass_hist->GetRandom()
-#define RHO_MASS rng_toy.Uniform(0.3, 0.77 * 2.)
 
 double PHI_MASS = 1.019;
 double KAON_MASS = 0.493;
-double PION_MASS = 0.139;
-double PT_MIN = 0.1;
-double PT_MAX = 10.;
+double PT_MIN = 0.;
+double PT_MAX = 3.;
 double ETA_MIN = -1.;
 double ETA_MAX = 1.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-int PHI_SAMPLE_SIZE = 4500;
-int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int PHI_SAMPLE_SIZE = 4500000;
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -45,42 +35,10 @@ int main(int argc, char **argv) {
   std::vector<TLorentzVector *> daughter2_vector;
 
 
-  TH1F* phi_pt_rc_hist = new TH1F("mc_phi_pt", "MC Phi Transverse Momentum;P_T(GeV);Counts", 100, 0., 1.1 );
+  TH1F* phi_pt_rc_hist = new TH1F("Reco Effiency", "Reco Effiency;Phi P_T(GeV);Rate", 200, 0.0, 0.4 );
 
-  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 100, 0., 1.1);
+  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 200, 0.0, 0.4);
   // simulate the decay process for rho -> pi+ pi-
-  for (int i = 0; i < RHO_SAMPLE_SIZE; i++) {
-    // generate parent vector that is a 4 vector uniformly distributed between
-    // pt, eta, phi bounds with rho mass
-    TLorentzVector *rho_parent_particle_ptr =
-        Random_routines::get_random_lorentz_vector(
-            PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, RHO_MASS);
-    parent_vector.push_back(rho_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being pion
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::symmetrical_two_body_decay(rho_parent_particle_ptr,
-                                                    PION_MASS);
-
-    // blur the daughter particles by 2 percent to simulate actual particle
-    // detector accuracy
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    daughter1_vector.push_back(daughter_ptr_pair[0]);
-    daughter2_vector.push_back(daughter_ptr_pair[1]);
-
-    // now change the daughter mass to be Kaon- the assumed particle when doing
-    // Kaon selections
-    daughter1_vector[i]->SetPtEtaPhiM(daughter1_vector[i]->Pt(),
-                                      daughter1_vector[i]->Eta(),
-                                      daughter1_vector[i]->Phi(), KAON_MASS);
-    daughter2_vector[i]->SetPtEtaPhiM(daughter2_vector[i]->Pt(),
-                                      daughter2_vector[i]->Eta(),
-                                      daughter2_vector[i]->Phi(), KAON_MASS);
-  }
 
   // simualte decay process for phi -> K+ K-
   for (int i = 0; i < PHI_SAMPLE_SIZE; i++) {
@@ -108,13 +66,7 @@ int main(int argc, char **argv) {
     phi_pt_mc_hist->Fill(phi_parent_particle_ptr->Pt());
   }
 
-  // create histogram to draw rc mass
-  TH1F *parent_rc_mass =
-      new TH1F("Combined Masses",
-               "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count", 300, 0., 3.);
 
-  TH1F *kaon_pt = new TH1F("kaon PT with RC Phi PT < 0.3",
-                           "Kaon P_T;Kaon P_T(GeV);count", 100, 0., 1.);
   // create an instance of particle selector
   Selector pid = Selector();
 
@@ -130,22 +82,13 @@ int main(int argc, char **argv) {
       TLorentzVector reconstructed_parent =
           *(daughter1_vector[i]) + *(daughter2_vector[i]);
       // fill the reconstructed parent mass
-      parent_rc_mass->Fill(reconstructed_parent.M());
       phi_pt_rc_hist->Fill(reconstructed_parent.Pt());
-
-      if (reconstructed_parent.Pt() < 0.3) {
-        kaon_pt->Fill(daughter1_vector[i]->Pt());
-        kaon_pt->Fill(daughter2_vector[i]->Pt());
-      }
     }
   }
-
+  phi_pt_rc_hist->Divide(phi_pt_mc_hist);
   // drawing the result
   TApplication app("app", &argc, argv);
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
-  parent_rc_mass->Draw();
-  phi_pt_rc_hist->Draw();
-  phi_pt_rc_hist->Divide(phi_pt_mc_hist);
   phi_pt_rc_hist->Draw();
   canvas->Modified();
   canvas->Update();
