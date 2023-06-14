@@ -12,7 +12,8 @@
 // sigma away of that four momentum to either Pion or Kaon
 // using dE/dx vs Pt with a known blur(sigma). The "true" dE/dx file
 // must be provided as a root file for this code to function.
-class Selector {
+class Selector
+{
 
 public:
   // constructor for the particle selector. This requires the absolute file path
@@ -26,37 +27,37 @@ public:
 
   // calculate NSigmaKaon with a parent vector and its topological
   // reconstruction. The target is the exact dEdx of Kaon
-  // , while the "measurement" is the blurred dEdx of the assumed particle 
+  // , while the "measurement" is the blurred dEdx of the assumed particle
   double get_NSigmaKaon(TLorentzVector *mc_ptr);
 
   // calculate NSigmaPion with a parent vector and its topological
   // reconstruction. The target is the exact dEdx of Pion
-  // , while the "measurement" is the blurred dEdx of the assumed particle 
+  // , while the "measurement" is the blurred dEdx of the assumed particle
   double get_NSigmaPion(TLorentzVector *mc_ptr);
 
-  // draw the blurred version of dEdx for both particles 
+  // draw the blurred version of dEdx for both particles
   void draw_dEdx();
 
-  // draw dEdx for both particles 
+  // draw dEdx for both particles
   void draw_dEdx_blurred();
 
 private:
-  // fixed blur. This is obtained by adding a gaussian blur of dEdx using 
+  // fixed blur. This is obtained by adding a gaussian blur of dEdx using
   // the precise method of "eyeballing" to match the dEdx measurement graph
-  double sigma = 0.2;
+  double sigma = 0.0002;
 
   // path to true dE/dx root file
   // It is assumed that the true dEdx file is named "dEdx.root"
   // in the directory where the analysis code is compiled.
   std::string file_path = "dEdx.root";
 
-  // Root object for the dEdx file 
+  // Root object for the dEdx file
   TFile *dEdx_file = new TFile(file_path.c_str());
+
   // Root histogram for dEdxKaon using most probable value
   TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");
   // Root histogram for dEdxPion using most probable value
   TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
-
 };
 
 #endif

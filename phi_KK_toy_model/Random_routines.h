@@ -1,5 +1,7 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
+#include <TUUID.h>
+#include <string>
 #include <vector>
 
 #ifndef RANDOM_ROUTINES
@@ -13,13 +15,17 @@ TLorentzVector *get_random_lorentz_vector(double Pt_min, double Pt_max,
                                           double eta_min, double eta_max,
                                           double phi_min, double phi_max,
                                           double mass);
-// simulation random decay process from a parent particle with known mass to two
-// identical daughte particles with known mass.
-//
-// Funtion return a list of lorentz vectors with the pointer of the two dauthers when the two dauthers have the same masses
-std::vector<TLorentzVector *>
-symmetrical_two_body_decay(TLorentzVector *parent_particle,
-                           double daughter_mass);
+
+// return a Lorentz vectors with four-momentum that follows the distribution result of a starlight simulation histogram loaded as TFile
+// Note that currently only Kaon as "kaon" in particle_type and Pion as "pion" in particle_type are supported. This is to be changed.
+// Note that the root file must contain histogram with hardcoded four-momentum histogram names. Namely, they are:
+// AzimuthX
+// InvMassX
+// PtX 
+// RapX
+// Where X = El for electrons, Mu for Muons, Pi for pions, and Ka for kaons
+TLorentzVector *get_slight_lorentz_vector(TFile* root_file, std::string particle_type);
+
 
 // Funtion return a list of lorentz vectors with the pointer of the two dauthers when the two daughters have different masses
 std::vector<TLorentzVector *>

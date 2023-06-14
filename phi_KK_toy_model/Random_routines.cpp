@@ -1,8 +1,11 @@
 #include "Random_routines.h"
+#include <TFile.h>
+#include <TH1F.h>
 #include <TLorentzVector.h>
 #include <TROOT.h>
 #include <cmath>
 #include <iostream>
+#include <string>
 
 double pi = M_PI;
 thread_local TRandom3 rng(0);
@@ -26,65 +29,43 @@ TLorentzVector *Random_routines::get_random_lorentz_vector(
   return random_vector_ptr;
 }
 
-// return a vector that contain the equal mass two-particle decay process from a
-// given parent particle lorentz vector. The address of both dauthers are
-// contained in the vector.
+// return a Lorentz vectors with four-momentum that follows the distribution
+// result of a starlight simulation histogram loaded as TFile Note that
+// currently only Kaon as "kaon" in particle_type and Pion as "pion" in
+// particle_type are supported. This is to be changed. Note that the root file
+// must contain histogram with hardcoded four-momentum histogram names. Namely,
+// they are: AzimuthX InvMassX PtX RapX Where X = El for electrons, Mu for
+// Muons, Pi for pions, and Ka for kaons
+TLorentzVector *Random_routines::get_slight_lorentz_vector(TFile *root_file,
+                                          std::string particle_type) {
+  TLorentzVector *rc_vecor = new TLorentzVector();
+  if (particle_type == "kaon") {
+    TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthKa");
+    TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassKa");
+    TH1F *pt_distr = (TH1F *)root_file->Get("PtKa");
+    TH1F *eta_distr = (TH1F *)root_file->Get("RapKa");
+    rc_vecor->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
+                           phi_distr->GetRandom(), inv_mass_distr->GetRandom());
 
-std::vector<TLorentzVector *>
-Random_routines::symmetrical_two_body_decay(TLorentzVector *parent_particle,
-                                            double daughter_mass) {
-  TLorentzVector *daughter_one = new TLorentzVector;
-  TLorentzVector *daughter_two = new TLorentzVector;
-  std::vector<TLorentzVector *> daughter_list;
-  daughter_list.push_back(daughter_one);
-  daughter_list.push_back(daughter_two);
-
-  // randomly generate polar angle for particle oen
-  double kaon1_cos_polar = rng.Uniform(-1., 1.);
-  // randomly generate azimuthal angle for particle one
-  double kaon1_azimuth = rng.Uniform(0., 2. * pi);
-
-  // calculate the rest frame momentum for one particle using
-  // special relativity. Note that this calculation is true due to the
-  // conservation of momentum in the rest frame of the parent particle.
-  double kaon1_momentum =
-      std::sqrt((parent_particle->M() * parent_particle->M() -
-                 4 * daughter_mass * daughter_mass) /
-                4.);
-
-  // calculate the four vector of the first daughter particle
-  double kaon1_px =
-      kaon1_momentum * sqrt(1 - kaon1_cos_polar * kaon1_cos_polar) * std::cos(kaon1_azimuth);
-
-  double kaon1_py =
-      kaon1_momentum * sqrt(1 - kaon1_cos_polar * kaon1_cos_polar) * std::sin(kaon1_azimuth);
-
-  double kaon1_pz = kaon1_momentum * kaon1_cos_polar;
-
-  double kaon1_E =
-      std::sqrt(daughter_mass * daughter_mass + kaon1_px * kaon1_px +
-                kaon1_py * kaon1_py + kaon1_pz * kaon1_pz);
-
-  daughter_one->SetPxPyPzE(kaon1_px, kaon1_py, kaon1_pz, kaon1_E);
-  // due to momentum conservation, the second daughter particle will have the
-  // exact opposite signed momentum compared with the first daughter particle
-  // with the same amount of energy.
-  daughter_two->SetPxPyPzE(-kaon1_px, -kaon1_py, -kaon1_pz, kaon1_E);
-
-  // we boost the daughter particles to the lab frame, where the parent particle
-  // is moving
-  TVector3 boost_vector = parent_particle->BoostVector();
-  daughter_one->Boost(boost_vector);
-  daughter_two->Boost(boost_vector);
-  return daughter_list;
+  } else if (particle_type == "pion") {
+    TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthPi");
+    TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassPi");
+    TH1F *pt_distr = (TH1F *)root_file->Get("PtPi");
+    TH1F *eta_distr = (TH1F *)root_file->Get("RapPi");
+    rc_vecor->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
+                           phi_distr->GetRandom(), inv_mass_distr->GetRandom());
+  } else {
+    std::cout << "this particle type is not supported!" << std::endl;
+  }
+  return rc_vecor;
 }
 
-// return a vector that contain two-particle with unequal masses decay process from a
-// given parent particle lorentz vector. The address of both dauthers are
+// return a vector that contain two-particle with unequal masses decay process
+// from a given parent particle lorentz vector. The address of both dauthers are
 // contained in the vector.
 std::vector<TLorentzVector *>
-Random_routines::two_body_decay(TLorentzVector *parent_particle,
-                                            double m1, double m2) {
+Random_routines::two_body_decay(TLorentzVector *parent_particle, double m1,
+                                double m2) {
   TLorentzVector *daughter_one = new TLorentzVector;
   TLorentzVector *daughter_two = new TLorentzVector;
   std::vector<TLorentzVector *> daughter_list;
@@ -99,14 +80,19 @@ Random_routines::two_body_decay(TLorentzVector *parent_particle,
 
   // calculate the rest frame momentum for one particle using
   // special relativity. Note that this calculation is true due to the
-  // conservation of momentum in the rest frame of the parent particle plus energy conservation.
-  double daughter1_momentum = sqrt((M*M - (m1 + m2)*(m1 + m2)) * (M*M - (m1 - m2)*(m1 - m2))) / (2.*M);
+  // conservation of momentum in the rest frame of the parent particle plus
+  // energy conservation.
+  double daughter1_momentum =
+      sqrt((M * M - (m1 + m2) * (m1 + m2)) * (M * M - (m1 - m2) * (m1 - m2))) /
+      (2. * M);
   // calculate the four vector of the first daughter particle
-  double daughter1_px =
-      daughter1_momentum * sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) * std::cos(daughter1_azimuth);
+  double daughter1_px = daughter1_momentum *
+                        sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) *
+                        std::cos(daughter1_azimuth);
 
-  double daughter1_py =
-      daughter1_momentum * sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) * std::sin(daughter1_azimuth);
+  double daughter1_py = daughter1_momentum *
+                        sqrt(1. - daughter1_cos_polar * daughter1_cos_polar) *
+                        std::sin(daughter1_azimuth);
 
   double daughter1_pz = daughter1_momentum * daughter1_cos_polar;
 
@@ -116,10 +102,12 @@ Random_routines::two_body_decay(TLorentzVector *parent_particle,
   double daughter2_E =
       std::sqrt(m2 * m2 + daughter1_momentum * daughter1_momentum);
 
-  daughter_one->SetPxPyPzE(daughter1_px, daughter1_py, daughter1_pz, daughter1_E);
+  daughter_one->SetPxPyPzE(daughter1_px, daughter1_py, daughter1_pz,
+                           daughter1_E);
   // due to momentum conservation, the second daughter particle will have the
   // exact opposite signed momentum compared with the first daughter particle.
-  daughter_two->SetPxPyPzE(-daughter1_px, -daughter1_py, -daughter1_pz, daughter2_E);
+  daughter_two->SetPxPyPzE(-daughter1_px, -daughter1_py, -daughter1_pz,
+                           daughter2_E);
 
   // we boost the daughter particles to the lab frame, where the parent particle
   // is moving
