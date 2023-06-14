@@ -33,6 +33,9 @@ void daughter_distribution() {
   TH1F *mass_rc = new TH1F(
       "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 300, 0., 3.);
 
+  TH1F *eta_rc = new TH1F(
+      "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 100, -4., 4.);
+
   TH1F *kaon_rc = new TH1F(
       "kaon_pt", "Run19 Au+Au data RC Phi PT < 0.3;kaon_Pt (GeV); counts", 100, 0., 1.);
 
@@ -83,6 +86,7 @@ void daughter_distribution() {
           pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06)
       {
         mass_rc->Fill(lv.M());
+        eta_rc->Fill(lv.Eta());
       }
     } // selection
   }   // loop on events
@@ -91,5 +95,6 @@ void daughter_distribution() {
 
   makeCan();
   mass_rc->Draw();
+  eta_rc->Draw(); 
   fo->Write();
 }
