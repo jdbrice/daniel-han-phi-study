@@ -1,5 +1,4 @@
 #include "Random_routines.h"
-#include "Selection_routines.h"
 #include <RtypesCore.h>
 #include <TApplication.h>
 #include <TCanvas.h>
@@ -10,7 +9,6 @@
 #include <TRandom3.h>
 #include <TRootCanvas.h>
 #include <cmath>
-#include <TChain
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -21,7 +19,7 @@ double KAON_MASS = 0.493;
 double MUON_MASS = 0.105;
 double MUON_NUTRINO_MASS = KAON_MASS / 1000.;
 double PT_MIN = 0.0;
-double PT_MAX = 0.5;
+double PT_MAX = 10.;
 double ETA_MIN = -1.;
 double ETA_MAX = 1.;
 double PHI_MIN = 0.;
