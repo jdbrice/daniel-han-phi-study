@@ -95,15 +95,15 @@ int main(int argc, char **argv)
                "Toy Model Combined Masses;m_{K^+ K^-}(GeV);count", 300, 0., 3.);
 
   // create an instance of particle selector
-  Selector pid = Selector(2);
+  Selector pid = Selector();
 
   // select daughter particle to be Kaon
   for (int i = 0; i < parent_vector.size(); i++)
   {
     if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
         std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5. &&
+        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 50. &&
+        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 50. &&
         daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06)
     {
       // reconstruct the dauther particles only if they are kaons.

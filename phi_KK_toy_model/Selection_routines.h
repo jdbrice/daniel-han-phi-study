@@ -44,7 +44,7 @@ public:
 private:
   // fixed blur. This is obtained by adding a gaussian blur of dEdx using
   // the precise method of "eyeballing" to match the dEdx measurement graph
-  double sigma = 0.0002;
+  double sigma = 0.00025;
 
   // path to true dE/dx root file
   // It is assumed that the true dEdx file is named "dEdx.root"

@@ -128,81 +128,81 @@ double Selector::get_NSigmaPion(TLorentzVector *lv_ptr)
   }
 }
 
-int main(int argc, char **argv)
-{
-  double KAON_MASS = 0.493;
-  double PION_MASS = 0.139;
-  int PHI_SAMPLE_SIZE = 4500;
-  int RHO_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 10;
-  // create vectors for parent vector and daughter vectors
-  std::vector<TLorentzVector *> parent_vector;
-  std::vector<TLorentzVector *> daughter1_vector;
-  std::vector<TLorentzVector *> daughter2_vector;
-
-  double NSigmaPion = 0;
-  double NSigmaKaon = 0;
-
-  Selector PID = Selector();
-
-  // hardcoded starlight histogram files
-  TFile *kaon_file = new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
-  TFile *pion_file = new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion.root");
-
-  // simulate the decay process for rho -> pi+ pi-
-  for (int i = 0; i < RHO_SAMPLE_SIZE; i++)
-  {
-
-    TLorentzVector *rho_parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(pion_file, "pion");
-    parent_vector.push_back(rho_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being pion
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(rho_parent_particle_ptr,
-                                        PION_MASS, PION_MASS);
-
-    daughter_ptr_pair[0]->SetPtEtaPhiM(daughter_ptr_pair[0]->Pt(), daughter_ptr_pair[0]->Eta(), daughter_ptr_pair[0]->Phi(), KAON_MASS);
-    daughter_ptr_pair[1]->SetPtEtaPhiM(daughter_ptr_pair[1]->Pt(), daughter_ptr_pair[1]->Eta(), daughter_ptr_pair[1]->Phi(), KAON_MASS);
-
-    daughter1_vector.push_back(daughter_ptr_pair[0]);
-    daughter2_vector.push_back(daughter_ptr_pair[1]);
-
-    NSigmaKaon += abs(PID.get_NSigmaKaon(daughter_ptr_pair[0]));
-    NSigmaPion += abs(PID.get_NSigmaPion(daughter_ptr_pair[0]));
-  }
-  std::cout << NSigmaKaon / RHO_SAMPLE_SIZE << "    " << NSigmaPion / RHO_SAMPLE_SIZE << std::endl;
-
-  NSigmaKaon = 0;
-  NSigmaPion = 0;
-
-  // simualte decay process for phi -> K+ K-
-  for (int i = 0; i < PHI_SAMPLE_SIZE; i++)
-  {
-    // generate parent vector that is a 4 vector uniformly distributed between
-    // pt, eta, phi bounds with phi mass
-    TLorentzVector *phi_parent_particle_ptr = Random_routines::get_slight_lorentz_vector(kaon_file, "kaon");
-    parent_vector.push_back(phi_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being kaon
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(phi_parent_particle_ptr,
-                                        KAON_MASS, KAON_MASS);
-
-    daughter1_vector.push_back(daughter_ptr_pair[0]);
-    daughter2_vector.push_back(daughter_ptr_pair[1]);
-    NSigmaKaon += abs(PID.get_NSigmaKaon(daughter_ptr_pair[0]));
-    NSigmaPion += abs(PID.get_NSigmaPion(daughter_ptr_pair[0]));
-  }
-  std::cout << NSigmaKaon / PHI_SAMPLE_SIZE << "    " << NSigmaPion / PHI_SAMPLE_SIZE << std::endl;
-
-  TApplication app("app", &argc, argv);
-  TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
-  PID.draw_dEdx_blurred();
-  canvas->Modified();
-  canvas->Update();
-  TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
-  root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
-                       "Terminate()");
-  app.Run();
-  return 0;
-}
+// int main(int argc, char **argv)
+// {
+//   double KAON_MASS = 0.493;
+//   double PION_MASS = 0.139;
+//   int PHI_SAMPLE_SIZE = 4500;
+//   int RHO_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 10;
+//   // create vectors for parent vector and daughter vectors
+//   std::vector<TLorentzVector *> parent_vector;
+//   std::vector<TLorentzVector *> daughter1_vector;
+//   std::vector<TLorentzVector *> daughter2_vector;
+//
+//   double NSigmaPion = 0;
+//   double NSigmaKaon = 0;
+//
+//   Selector PID = Selector();
+//
+//   // hardcoded starlight histogram files
+//   TFile *kaon_file = new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
+//   TFile *pion_file = new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion.root");
+//
+//   // simulate the decay process for rho -> pi+ pi-
+//   for (int i = 0; i < RHO_SAMPLE_SIZE; i++)
+//   {
+//
+//     TLorentzVector *rho_parent_particle_ptr =
+//         Random_routines::get_slight_lorentz_vector(pion_file, "pion");
+//     parent_vector.push_back(rho_parent_particle_ptr);
+//
+//     // simulate the decay process with the daughter mass being pion
+//     std::vector<TLorentzVector *> daughter_ptr_pair =
+//         Random_routines::two_body_decay(rho_parent_particle_ptr,
+//                                         PION_MASS, PION_MASS);
+//
+//     daughter_ptr_pair[0]->SetPtEtaPhiM(daughter_ptr_pair[0]->Pt(), daughter_ptr_pair[0]->Eta(), daughter_ptr_pair[0]->Phi(), KAON_MASS);
+//     daughter_ptr_pair[1]->SetPtEtaPhiM(daughter_ptr_pair[1]->Pt(), daughter_ptr_pair[1]->Eta(), daughter_ptr_pair[1]->Phi(), KAON_MASS);
+//
+//     daughter1_vector.push_back(daughter_ptr_pair[0]);
+//     daughter2_vector.push_back(daughter_ptr_pair[1]);
+//
+//     NSigmaKaon += abs(PID.get_NSigmaKaon(daughter_ptr_pair[0]));
+//     NSigmaPion += abs(PID.get_NSigmaPion(daughter_ptr_pair[0]));
+//   }
+//   std::cout << NSigmaKaon / RHO_SAMPLE_SIZE << "    " << NSigmaPion / RHO_SAMPLE_SIZE << std::endl;
+//
+//   NSigmaKaon = 0;
+//   NSigmaPion = 0;
+//
+//   // simualte decay process for phi -> K+ K-
+//   for (int i = 0; i < PHI_SAMPLE_SIZE; i++)
+//   {
+//     // generate parent vector that is a 4 vector uniformly distributed between
+//     // pt, eta, phi bounds with phi mass
+//     TLorentzVector *phi_parent_particle_ptr = Random_routines::get_slight_lorentz_vector(kaon_file, "kaon");
+//     parent_vector.push_back(phi_parent_particle_ptr);
+//
+//     // simulate the decay process with the daughter mass being kaon
+//     std::vector<TLorentzVector *> daughter_ptr_pair =
+//         Random_routines::two_body_decay(phi_parent_particle_ptr,
+//                                         KAON_MASS, KAON_MASS);
+//
+//     daughter1_vector.push_back(daughter_ptr_pair[0]);
+//     daughter2_vector.push_back(daughter_ptr_pair[1]);
+//     NSigmaKaon += abs(PID.get_NSigmaKaon(daughter_ptr_pair[0]));
+//     NSigmaPion += abs(PID.get_NSigmaPion(daughter_ptr_pair[0]));
+//   }
+//   std::cout << NSigmaKaon / PHI_SAMPLE_SIZE << "    " << NSigmaPion / PHI_SAMPLE_SIZE << std::endl;
+//
+//   TApplication app("app", &argc, argv);
+//   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
+//   PID.draw_dEdx_blurred();
+//   canvas->Modified();
+//   canvas->Update();
+//   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
+//   root_canvas->Connect("CloseWindow()", "TApplication", gApplication,
+//                        "Terminate()");
+//   app.Run();
+//   return 0;
+// }
