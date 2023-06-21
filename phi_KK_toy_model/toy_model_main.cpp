@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
         Random_routines::two_body_decay(phi_parent_particle_ptr, KAON_MASS,
                                         KAON_MASS);
 
-    // blur the daughter particles by 4 percent to simulate actual particle
+    // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
                                            0.04 * daughter_ptr_pair[0]->Pt());
@@ -116,17 +116,6 @@ int main(int argc, char **argv) {
   // create an instance of particle selector
   Selector pid = Selector();
 
-<<<<<<< HEAD
-  // select daughter particle to be Kaon
-  for (int i = 0; i < parent_vector.size(); i++)
-  {
-    if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 50. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 50. &&
-        daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06)
-    {
-=======
   // select daughter particle to be Kaon. This is for case where daughter
   // particle has momentum > 60 MeV
   for (int i = 0; i < phi_ptr_vector.size(); i++) {
@@ -137,7 +126,6 @@ int main(int argc, char **argv) {
         std::abs(pid.get_NSigmaPion(kp_ptr_vector[i])) > 50. &&
         std::abs(pid.get_NSigmaPion(km_ptr_vector[i])) > 50. &&
         kp_ptr_vector[i]->Pt() > 0.06 && km_ptr_vector[i]->Pt() > 0.06) {
->>>>>>> muon-decay
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
