@@ -84,12 +84,12 @@ void Selector::draw_dEdx_blurred()
 double Selector::get_NSigmaKaon(TLorentzVector *lv_ptr)
 {
   double NSigmaKaon;
-  double mc_pt = lv_ptr->Pt();
+  double pt = lv_ptr->Pt();
   // retrive exact dEdxKaon from root file
-  double dEdxKaon_mc = dEdxKaon->Interpolate(mc_pt);
+  double dEdxKaon_mc = dEdxKaon->Interpolate(pt);
   // blur the dEdxKaon by an amount that eyeball to fit the
   // experimental data
-  double dEdxKaon_rc = rng_selection.Gaus(dEdxKaon->Interpolate(mc_pt), sigma);
+  double dEdxKaon_rc = rng_selection.Gaus(dEdxKaon_mc, sigma);
   // An assumption is made that the measured particle is kaon
   if (std::abs(lv_ptr->M() - 0.493) <= 0.001)
   {
@@ -107,12 +107,13 @@ double Selector::get_NSigmaKaon(TLorentzVector *lv_ptr)
 double Selector::get_NSigmaPion(TLorentzVector *lv_ptr)
 {
   double NSigmaPion;
-  double mc_pt = lv_ptr->Pt();
+  double pt = lv_ptr->Pt();
   // retrive exact dEdxPion from root file
-  double dEdxPion_mc = dEdxPion->Interpolate(mc_pt);
+  double dEdxPion_mc = dEdxPion->Interpolate(pt);
+  double dEdxKaon_mc = dEdxKaon->Interpolate(pt);
   // blur the dEdxKaon by an amount that eyeball to fit the
   // experimental data
-  double dEdxKaon_rc = rng_selection.Gaus(dEdxKaon->Interpolate(mc_pt), sigma);
+  double dEdxKaon_rc = rng_selection.Gaus(dEdxKaon_mc, sigma);
   // An assumption is made that the measured particle is kaon
   if (std::abs(lv_ptr->M() - 0.493) <= 0.001)
   {
