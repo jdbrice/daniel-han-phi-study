@@ -24,24 +24,99 @@ void makeCan() {
 }
 
 void daughter_distribution() {
-  //    Create a file for output (saving) of histograms we compute
-  TFile *fo = new TFile("inpuit.root", "RECREATE");
 
-  // Create a ROOT 1D histogram
-  TH1F *hdca = new TH1F("dca", "Run19 Au+Au data;dca (cm); counts", 500, 0, 5);
-  // Create a ROOT 1D histogram for parent Mass
-  TH1F *mass_rc = new TH1F(
-      "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 300, 0., 3.);
+  // histograms for all tracks
+  TH1F *all_DCA =
+      new TH1F("All Tracks", "Run 19 A+A DCA All Tracks;DCA;counts",
+               100, 0., 3.);
 
-  TH1F *eta_rc = new TH1F(
-      "parent_mass", "Run19 Au+Au data;parent_mass (GeV); counts", 100, -4., 4.);
+  TH1F *all_pt = new TH1F("All Tracks",
+                          "Run 19 A+A P_{T} All Tracks;P_T(GeV/c);counts",
+                          100, 0., 1.8);
+  TH1F *all_eta = new TH1F(
+      "All Tracks", "Run 19 A+A #eta All Tracks;#eta;counts", 100, -4., 4.);
+  TH1F *all_phi =
+      new TH1F("All Tracks", "Run 19 A+A #phi All Tracks;#phi(rad);counts",
+               100, -3.15, 3.15);
+  TH1F *all_Npion =
+      new TH1F("All Tracks",
+               "Run 19 A+A N#sigma#pi All Tracks;(N#sigmaPion);counts",
+               100, -10, 10);
+  TH1F *all_Nkaon = new TH1F(
+      "All Tracks", "Run 19 A+A N#sigmaK All Tracks;(N#sigmaKaon);counts",
+      100, -10, 10);
 
-  TH1F *kaon_rc = new TH1F(
-      "kaon_pt", "Run19 Au+Au data RC Phi PT < 0.3;kaon_Pt (GeV); counts", 100, 0., 1.);
+  // histogram for kaon canidataes
+  TH1F *kaon_DCA =
+      new TH1F("Kaon Candidates", "Run 19 A+A DCA Kaon Candidates;DCA;counts",
+               100, 0., 3.);
 
-  // Create a ROOT 2D histogram for Pion/Kaon distributions
+  TH1F *kaon_pt = new TH1F(
+      "Kaon Candidates", "Run 19 A+A P_{T} Kaon Candidates;P_{T}(GeV/c);counts",
+      100, 0., 1.);
+  TH1F *kaon_eta =
+      new TH1F("Kaon Candidates",
+               "Run 19 A+A #eta Kaon Candidates;#eta;counts", 100, -2., 2.);
+  TH1F *kaon_phi = new TH1F(
+      "Kaon Candidates", "Run 19 A+A #phi Kaon Candidates;#phi(rad);counts",
+      100, -3.15, 3.15);
+  TH1F *kaon_Npion =
+      new TH1F("Kaon Candidates",
+               "Run 19 A+A N#sigmaPion Kaon Candidates;N#sigmaPion;counts",
+               100, 5, 30);
+  TH1F *kaon_Nkaon =
+      new TH1F("Kaon Cnadidates",
+               "Run 19 A+A N#sigmaKaon Kaon Candidates;N#sigmaKaon;counts",
+               100, -5, 5);
+
+  TH1F *kaon_pm_ratio = new TH1F(
+      "Kaon Candidates",
+      "Run 19 A+A Charge Sum Kaon Candidates;Charge Sum;counts", 27, -2.2, 2.2);
+
+  // histogram for reco phi
+  TH1F *reco_phi_mass =
+      new TH1F("reco_phi ", "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts",
+               100, 0.9, 2.5);
+
+  TH1F *reco_phi_pt =
+      new TH1F("reco_phi ", "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts",
+               100, 0., 0.5);
+
+  TH1F *reco_phi_eta = new TH1F(
+      "reco_phi ", "Run 19 A+A #eta Reco Phi ;#eta;counts", 100, -4., 4.);
+
+  TH1F *reco_phi_phi =
+      new TH1F("reco_phi ", "Run 19 A+A #phi Reco Phi ;#phi(rad);counts",
+               100, -3.15, 3.15);
+
+  // histogram for same charge
+  TH1F *KpKp_mass = new TH1F(
+      "KpKp ", "Run 19 A+A Invariant Mass K+K+ ;Invariant Mass(GeV/c^2);counts", 100, 0.9, 1.5);
+
+  TH1F *KpKp_pt = new TH1F(
+      "KpKp ", "Run 19 A+A P_{T} K+K+ ;P_{T}(GeV/c);counts", 100, 0., 1.6);
+
+  TH1F *KpKp_eta =
+      new TH1F("KpKp ", "Run 19 A+A #eta K+K+ ;#eta;counts", 100, -4., 4.);
+
+  TH1F *KpKp_phi = new TH1F(
+      "KpKp ", "Run 19 A+A #phi K+K+ ;#phi(rad);counts", 100, -3.15, 3.15);
+
+  TH1F *KmKm_mass = new TH1F(
+      "KmKm ", "Run 19 A+A Invariant Mass K-K- ;Invariant Mass(GeV/c^2);counts", 100, 0.9, 1.8);
+
+  TH1F *KmKm_pt = new TH1F(
+      "KmKm ", "Run 19 A+A P_{T} K-K- ;P_{T}(GeV/c);counts", 100, 0., 1.6);
+
+  TH1F *KmKm_eta =
+      new TH1F("KmKm ", "Run 19 A+A #eta K-K- ;#eta;counts", 100, -4., 4.);
+
+  TH1F *KmKm_phi = new TH1F(
+      "KmKm ", "Run 19 A+A #phi K-K- ;#phi(rad);counts", 100, -3.15, 3.15);
+
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
+
   // This setup the reader, access the data
   TTreeReader myReader("PairDst", myFile);
 
@@ -54,47 +129,156 @@ void daughter_distribution() {
 
   // Loop over all entries of the TTree or TChain.
   while (myReader.Next()) {
-    // get their distance to closest approach ( info about track pair)
-    double dca1 = pair->d1_mDCA;
-    double dca2 = pair->d2_mDCA;
 
-    hdca->Fill(dca1);
-    hdca->Fill(dca2);
+    // all track histogram filling
+    all_pt->Fill(pair->d1_mPt);
+    all_pt->Fill(pair->d2_mPt);
 
-    //        if ( fabs(pair->d1_mNSigmaKaon) < 3. && fabs(pair->d2_mNSigmaKaon)
-    //        < 3. && pair->d1_mPt > 0.01 && pair->d2_mPt > 0.01 ){ // event and
-    //        track selection will go here
+    all_DCA->Fill(pair->d1_mDCA);
+    all_DCA->Fill(pair->d2_mDCA);
 
-    //      only select += pair
-    if (pair->mChargeSum == 0.) {
-      // Setup the Lorentz Vectors of the daugher tracks
-      lv1.SetPtEtaPhiM(pair->d1_mPt, pair->d1_mEta, pair->d1_mPhi,
-                       0.493); // we use Kaon mass here.
+    all_eta->Fill(pair->d1_mEta);
+    all_eta->Fill(pair->d2_mEta);
+
+    all_phi->Fill(pair->d1_mPhi);
+    all_phi->Fill(pair->d2_mPhi);
+
+    all_Nkaon->Fill(pair->d1_mNSigmaKaon);
+    all_Nkaon->Fill(pair->d2_mNSigmaKaon);
+
+    all_Npion->Fill(pair->d1_mNSigmaPion);
+    all_Npion->Fill(pair->d2_mNSigmaPion);
+
+    // kaon candidate filling with PId selection
+    if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
+        abs(pair->d1_mNSigmaKaon) < 5 && abs(pair->d1_mNSigmaPion) >= 5 &&
+        abs(pair->d2_mNSigmaKaon) < 5 && abs(pair->d2_mNSigmaPion) >= 5) {
+
+      kaon_pt->Fill(pair->d1_mPt);
+      kaon_pt->Fill(pair->d2_mPt);
+
+      kaon_DCA->Fill(pair->d1_mDCA);
+      kaon_DCA->Fill(pair->d2_mDCA);
+
+      kaon_eta->Fill(pair->d1_mEta);
+      kaon_eta->Fill(pair->d2_mEta);
+
+      kaon_phi->Fill(pair->d1_mPhi);
+      kaon_phi->Fill(pair->d2_mPhi);
+
+      kaon_Nkaon->Fill(pair->d1_mNSigmaKaon);
+      kaon_Nkaon->Fill(pair->d2_mNSigmaKaon);
+
+      kaon_Npion->Fill(pair->d1_mNSigmaPion);
+      kaon_Npion->Fill(pair->d2_mNSigmaPion);
+
+      // reconstrauction of parent lorentz vector
+      // assuming kaon mass
+      TLorentzVector lv1, lv2, lv;
+      lv1.SetPtEtaPhiM(pair->d1_mPt, pair->d1_mEta, pair->d1_mPhi, 0.493);
       lv2.SetPtEtaPhiM(pair->d2_mPt, pair->d2_mEta, pair->d2_mPhi, 0.493);
-
-      // compute parent particle lorentz vector from daughters
-      // use conservation of momentum and energy to set the four-momentum
-      // vector for parent particle.
       lv = lv1 + lv2;
 
-      // selecting Kaons as daughter particles while rejecting Pions
-      // selecting only low lv.Pt() as we investigated using the code blow
-      // that lv.Pt() should be around 0.1 GeV
-      // selecting only masses close to m_\phi
-      if (fabs(pair->d1_mNSigmaKaon) < 5 && fabs(pair->d2_mNSigmaKaon) < 5 &&
-          fabs(pair->d1_mNSigmaPion) > 5 && fabs(pair->d2_mNSigmaPion) > 5 && 
-          pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06)
-      {
-        mass_rc->Fill(lv.M());
-        eta_rc->Fill(lv.Eta());
+      // reco level filling
+      if (pair->mChargeSum == 0) {
+        kaon_pm_ratio->Fill(pair->mChargeSum);
+        reco_phi_pt->Fill(lv.Pt());
+        reco_phi_mass->Fill(lv.M());
+        reco_phi_eta->Fill(lv.Eta());
+        reco_phi_phi->Fill(lv.Phi());
+      } else if (pair->mChargeSum == -2) {
+        kaon_pm_ratio->Fill(pair->mChargeSum);
+        KpKp_pt->Fill(lv.Pt());
+        KpKp_mass->Fill(lv.M());
+        KpKp_eta->Fill(lv.Eta());
+        KpKp_phi->Fill(lv.Phi());
+      } else if (pair->mChargeSum == 2) {
+        kaon_pm_ratio->Fill(pair->mChargeSum);
+        KmKm_pt->Fill(lv.Pt());
+        KmKm_mass->Fill(lv.M());
+        KmKm_eta->Fill(lv.Eta());
+        KmKm_phi->Fill(lv.Phi());
       }
-    } // selection
-  }   // loop on events
+    }
 
-  fo->cd();
+  } // loop on events
 
   makeCan();
-  mass_rc->Draw();
-  eta_rc->Draw(); 
-  fo->Write();
-}
+  kaon_pm_ratio->Draw();
+
+  makeCan();
+  all_DCA->Draw();
+  gPad->Print("./Plots/all_DCA.png");
+  makeCan();
+  all_pt->Draw();
+  gPad->Print("./Plots/all_pt.png");
+  makeCan();
+  all_eta->Draw();
+  gPad->Print("./Plots/all_eta.png");
+  makeCan();
+  all_phi->Draw();
+  gPad->Print("./Plots/all_phi.png");
+  makeCan();
+  all_Nkaon->Draw();
+  gPad->Print("./Plots/all_NSigmaKaon.png");
+  makeCan();
+  all_Npion->Draw();
+  gPad->Print("./Plots/all_NSigmaPion.png");
+
+  makeCan();
+  kaon_DCA->Draw();
+  gPad->Print("./Plots/kaon_DCA.png");
+  makeCan();
+  kaon_pt->Draw();
+  gPad->Print("./Plots/kaon_pt.png");
+  makeCan();
+  kaon_eta->Draw();
+  gPad->Print("./Plots/kaon_eta.png");
+  makeCan();
+  kaon_phi->Draw();
+  gPad->Print("./Plots/kaon_phi.png");
+  makeCan();
+  kaon_Nkaon->Draw();
+  gPad->Print("./Plots/kaon_NSigmaKaon.png");
+  makeCan();
+  kaon_Npion->Draw();
+  gPad->Print("./Plots/kaon_NSigmaPion.png");
+
+  makeCan();
+  reco_phi_pt->Draw();
+  gPad->Print("./Plots/reco_phi_pt.png");
+  makeCan();
+  reco_phi_eta->Draw();
+  gPad->Print("./Plots/reco_phi_eta.png");
+  makeCan();
+  reco_phi_phi->Draw();
+  gPad->Print("./Plots/reco_phi_phi.png");
+  makeCan();
+  reco_phi_mass->Draw();
+  gPad->Print("./Plots/reco_phi_mass.png");
+
+  makeCan();
+  KpKp_pt->Draw();
+  gPad->Print("./Plots/kpkp_pt.png");
+  makeCan();
+  KpKp_eta->Draw();
+  gPad->Print("./Plots/kpkp_eta.png");
+  makeCan();
+  KpKp_phi->Draw();
+  gPad->Print("./Plots/kpkp_phi.png");
+  makeCan();
+  KpKp_mass->Draw();
+  gPad->Print("./Plots/kpkp_mass.png");
+  makeCan();
+  KmKm_pt->Draw();
+  gPad->Print("./Plots/kmkm_pt.png");
+  makeCan();
+  KmKm_eta->Draw();
+  gPad->Print("./Plots/kmkm_eta.png");
+  makeCan();
+  KmKm_phi->Draw();
+  gPad->Print("./Plots/kmkm_phi.png");
+  makeCan();
+  KmKm_mass->Draw();
+  gPad->Print("./Plots/kmkm_mass.png");
+ }
