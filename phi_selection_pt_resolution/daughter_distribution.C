@@ -26,25 +26,23 @@ void makeCan() {
 void daughter_distribution() {
 
   // histograms for all tracks
-  TH1F *all_DCA =
-      new TH1F("All Tracks", "Run 19 A+A DCA All Tracks;DCA;counts",
-               100, 0., 3.);
+  TH1F *all_DCA = new TH1F("All Tracks", "Run 19 A+A DCA All Tracks;DCA;counts",
+                           100, 0., 3.);
 
-  TH1F *all_pt = new TH1F("All Tracks",
-                          "Run 19 A+A P_{T} All Tracks;P_T(GeV/c);counts",
-                          100, 0., 1.8);
+  TH1F *all_pt =
+      new TH1F("All Tracks", "Run 19 A+A P_{T} All Tracks;P_T(GeV/c);counts",
+               100, 0., 1.8);
   TH1F *all_eta = new TH1F(
       "All Tracks", "Run 19 A+A #eta All Tracks;#eta;counts", 100, -4., 4.);
   TH1F *all_phi =
-      new TH1F("All Tracks", "Run 19 A+A #phi All Tracks;#phi(rad);counts",
-               100, -3.15, 3.15);
-  TH1F *all_Npion =
-      new TH1F("All Tracks",
-               "Run 19 A+A N#sigma#pi All Tracks;(N#sigmaPion);counts",
-               100, -10, 10);
-  TH1F *all_Nkaon = new TH1F(
-      "All Tracks", "Run 19 A+A N#sigmaK All Tracks;(N#sigmaKaon);counts",
+      new TH1F("All Tracks", "Run 19 A+A #phi All Tracks;#phi(rad);counts", 100,
+               -3.15, 3.15);
+  TH1F *all_Npion = new TH1F(
+      "All Tracks", "Run 19 A+A N#sigma#pi All Tracks;(N#sigmaPion);counts",
       100, -10, 10);
+  TH1F *all_Nkaon = new TH1F(
+      "All Tracks", "Run 19 A+A N#sigmaK All Tracks;(N#sigmaKaon);counts", 100,
+      -10, 10);
 
   // histogram for kaon canidataes
   TH1F *kaon_DCA =
@@ -55,28 +53,27 @@ void daughter_distribution() {
       "Kaon Candidates", "Run 19 A+A P_{T} Kaon Candidates;P_{T}(GeV/c);counts",
       100, 0., 1.);
   TH1F *kaon_eta =
-      new TH1F("Kaon Candidates",
-               "Run 19 A+A #eta Kaon Candidates;#eta;counts", 100, -2., 2.);
-  TH1F *kaon_phi = new TH1F(
-      "Kaon Candidates", "Run 19 A+A #phi Kaon Candidates;#phi(rad);counts",
-      100, -3.15, 3.15);
-  TH1F *kaon_Npion =
-      new TH1F("Kaon Candidates",
-               "Run 19 A+A N#sigmaPion Kaon Candidates;N#sigmaPion;counts",
-               100, 5, 30);
-  TH1F *kaon_Nkaon =
-      new TH1F("Kaon Cnadidates",
-               "Run 19 A+A N#sigmaKaon Kaon Candidates;N#sigmaKaon;counts",
-               100, -5, 5);
+      new TH1F("Kaon Candidates", "Run 19 A+A #eta Kaon Candidates;#eta;counts",
+               100, -2., 2.);
+  TH1F *kaon_phi = new TH1F("Kaon Candidates",
+                            "Run 19 A+A #phi Kaon Candidates;#phi(rad);counts",
+                            100, -3.15, 3.15);
+  TH1F *kaon_Npion = new TH1F(
+      "Kaon Candidates",
+      "Run 19 A+A N#sigmaPion Kaon Candidates;N#sigmaPion;counts", 100, 5, 30);
+  TH1F *kaon_Nkaon = new TH1F(
+      "Kaon Cnadidates",
+      "Run 19 A+A N#sigmaKaon Kaon Candidates;N#sigmaKaon;counts", 100, -5, 5);
 
   TH1F *kaon_pm_ratio = new TH1F(
       "Kaon Candidates",
       "Run 19 A+A Charge Sum Kaon Candidates;Charge Sum;counts", 27, -2.2, 2.2);
 
   // histogram for reco phi
-  TH1F *reco_phi_mass =
-      new TH1F("reco_phi ", "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts",
-               100, 0.9, 2.5);
+  TH1F *reco_phi_mass = new TH1F(
+      "reco_phi ",
+      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
+      0.9, 1.8);
 
   TH1F *reco_phi_pt =
       new TH1F("reco_phi ", "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts",
@@ -86,12 +83,13 @@ void daughter_distribution() {
       "reco_phi ", "Run 19 A+A #eta Reco Phi ;#eta;counts", 100, -4., 4.);
 
   TH1F *reco_phi_phi =
-      new TH1F("reco_phi ", "Run 19 A+A #phi Reco Phi ;#phi(rad);counts",
-               100, -3.15, 3.15);
+      new TH1F("reco_phi ", "Run 19 A+A #phi Reco Phi ;#phi(rad);counts", 100,
+               -3.15, 3.15);
 
   // histogram for same charge
   TH1F *KpKp_mass = new TH1F(
-      "KpKp ", "Run 19 A+A Invariant Mass K+K+ ;Invariant Mass(GeV/c^2);counts", 100, 0.9, 1.5);
+      "KpKp ", "Run 19 A+A Invariant Mass K+K+ ;Invariant Mass(GeV/c^2);counts",
+      100, 0.9, 1.5);
 
   TH1F *KpKp_pt = new TH1F(
       "KpKp ", "Run 19 A+A P_{T} K+K+ ;P_{T}(GeV/c);counts", 100, 0., 1.6);
@@ -99,11 +97,12 @@ void daughter_distribution() {
   TH1F *KpKp_eta =
       new TH1F("KpKp ", "Run 19 A+A #eta K+K+ ;#eta;counts", 100, -4., 4.);
 
-  TH1F *KpKp_phi = new TH1F(
-      "KpKp ", "Run 19 A+A #phi K+K+ ;#phi(rad);counts", 100, -3.15, 3.15);
+  TH1F *KpKp_phi = new TH1F("KpKp ", "Run 19 A+A #phi K+K+ ;#phi(rad);counts",
+                            100, -3.15, 3.15);
 
   TH1F *KmKm_mass = new TH1F(
-      "KmKm ", "Run 19 A+A Invariant Mass K-K- ;Invariant Mass(GeV/c^2);counts", 100, 0.9, 1.8);
+      "KmKm ", "Run 19 A+A Invariant Mass K-K- ;Invariant Mass(GeV/c^2);counts",
+      100, 0.9, 1.8);
 
   TH1F *KmKm_pt = new TH1F(
       "KmKm ", "Run 19 A+A P_{T} K-K- ;P_{T}(GeV/c);counts", 100, 0., 1.6);
@@ -111,9 +110,24 @@ void daughter_distribution() {
   TH1F *KmKm_eta =
       new TH1F("KmKm ", "Run 19 A+A #eta K-K- ;#eta;counts", 100, -4., 4.);
 
-  TH1F *KmKm_phi = new TH1F(
-      "KmKm ", "Run 19 A+A #phi K-K- ;#phi(rad);counts", 100, -3.15, 3.15);
+  TH1F *KmKm_phi = new TH1F("KmKm ", "Run 19 A+A #phi K-K- ;#phi(rad);counts",
+                            100, -3.15, 3.15);
 
+  TH1F *like_sign_mass = new TH1F("like_sign ",
+                                  "Run 19 A+A Invariant Mass Like Sign Kaons "
+                                  ";Invariant Mass(GeV/c^2);counts",
+                                  100, 0.9, 1.8);
+
+  TH1F *like_sign_pt = new TH1F(
+      "like_sign ", "Run 19 A+A P_{T} Like Sign Kaons ;P_{T}(GeV/c);counts",
+      100, 0., 1.6);
+
+  TH1F *like_sign_eta =
+      new TH1F("like_sign ", "Run 19 A+A #eta Like Sign Kaons ;#eta;counts",
+               100, -4., 4.);
+
+  TH1F *like_sign_phi = new TH1F(
+      "like_sign ", "Run 19 A+A #phi K-K- ;#phi(rad);counts", 100, -3.15, 3.15);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -192,12 +206,23 @@ void daughter_distribution() {
         KpKp_mass->Fill(lv.M());
         KpKp_eta->Fill(lv.Eta());
         KpKp_phi->Fill(lv.Phi());
+
+        like_sign_pt->Fill(lv.Pt());
+        like_sign_mass->Fill(lv.M());
+        like_sign_eta->Fill(lv.Eta());
+        like_sign_phi->Fill(lv.Phi());
+
       } else if (pair->mChargeSum == 2) {
         kaon_pm_ratio->Fill(pair->mChargeSum);
         KmKm_pt->Fill(lv.Pt());
         KmKm_mass->Fill(lv.M());
         KmKm_eta->Fill(lv.Eta());
         KmKm_phi->Fill(lv.Phi());
+
+        like_sign_pt->Fill(lv.Pt());
+        like_sign_mass->Fill(lv.M());
+        like_sign_eta->Fill(lv.Eta());
+        like_sign_phi->Fill(lv.Phi());
       }
     }
 
@@ -205,6 +230,7 @@ void daughter_distribution() {
 
   makeCan();
   kaon_pm_ratio->Draw();
+  gPad->Print("./Plots/kaon_charge.png");
 
   makeCan();
   all_DCA->Draw();
@@ -281,4 +307,17 @@ void daughter_distribution() {
   makeCan();
   KmKm_mass->Draw();
   gPad->Print("./Plots/kmkm_mass.png");
- }
+
+  makeCan();
+  like_sign_pt->Draw();
+  gPad->Print("./Plots/ls_pt.png");
+  makeCan();
+  like_sign_mass->Draw();
+  gPad->Print("./Plots/ls_mass.png");
+  makeCan();
+  like_sign_eta->Draw();
+  gPad->Print("./Plots/ls_eta.png");
+  makeCan();
+  like_sign_phi->Draw();
+  gPad->Print("./Plots/ls_phi.png");
+}

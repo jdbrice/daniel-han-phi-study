@@ -5,6 +5,7 @@
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TH1.h>
+#include <TF1.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TLegend.h>
@@ -25,6 +26,8 @@ double BRANCHING_RATIO = 0.6356;
 double NEUTRINO_MASS = MUON_MASS / 1000.;
 int PHI_SAMPLE_SIZE = 150000;
 int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+
+void add_electron_to_histogram(TH1F* hist);
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -212,3 +215,9 @@ int main(int argc, char **argv) {
   app.Run();
   return 0;
 }
+
+void add_electron_to_histogram(TH1F* hist, int peak_count, double mass_min, double mass_max){
+
+}
+
+

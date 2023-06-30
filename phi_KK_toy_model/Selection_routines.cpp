@@ -119,7 +119,6 @@ double Selector::get_NSigmaPion(TLorentzVector *lv_ptr)
   {
     NSigmaPion = (dEdxKaon_rc - dEdxPion_mc) / sigma;
     return NSigmaPion;
-    // case for pion mass
   }
   else
   {
