@@ -36,28 +36,38 @@ TLorentzVector *Random_routines::get_random_lorentz_vector(
 // must contain histogram with hardcoded four-momentum histogram names. Namely,
 // they are: AzimuthX InvMassX PtX RapX Where X = El for electrons, Mu for
 // Muons, Pi for pions, and Ka for kaons
-TLorentzVector *Random_routines::get_slight_lorentz_vector(TFile *root_file,
-                                          std::string particle_type) {
-  TLorentzVector *rc_vecor = new TLorentzVector();
+TLorentzVector *
+Random_routines::get_slight_lorentz_vector(TFile *root_file,
+                                           std::string particle_type) {
+  TLorentzVector *rc_vector = new TLorentzVector();
   if (particle_type == "kaon") {
     TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthKa");
     TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassKa");
     TH1F *pt_distr = (TH1F *)root_file->Get("PtKa");
     TH1F *eta_distr = (TH1F *)root_file->Get("RapKa");
-    rc_vecor->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
-                           phi_distr->GetRandom(), inv_mass_distr->GetRandom());
-
+    rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
+                            phi_distr->GetRandom(),
+                            inv_mass_distr->GetRandom());
   } else if (particle_type == "pion") {
     TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthPi");
     TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassPi");
     TH1F *pt_distr = (TH1F *)root_file->Get("PtPi");
     TH1F *eta_distr = (TH1F *)root_file->Get("RapPi");
-    rc_vecor->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
-                           phi_distr->GetRandom(), inv_mass_distr->GetRandom());
+    rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
+                            phi_distr->GetRandom(),
+                            inv_mass_distr->GetRandom());
+  } else if (particle_type == "electron") {
+    TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthEl");
+    TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassEl");
+    TH1F *pt_distr = (TH1F *)root_file->Get("PtEl");
+    TH1F *eta_distr = (TH1F *)root_file->Get("RapEl");
+    rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
+                            phi_distr->GetRandom(),
+                            inv_mass_distr->GetRandom());
   } else {
     std::cout << "this particle type is not supported!" << std::endl;
   }
-  return rc_vecor;
+  return rc_vector;
 }
 
 // return a vector that contain two-particle with unequal masses decay process
@@ -158,4 +168,10 @@ void Random_routines::add_gaussian_phi_error(TLorentzVector *target_vector,
       target_vector->Pt(), target_vector->Eta(),
       std::fmod((target_vector->Phi() + rng.Gaus(0., stdev)), (2. * pi)),
       target_vector->M());
+}
+
+void Random_routines::add_pt_percent_loss(TLorentzVector *target_vector,
+                                      double energy_lost_percent) {
+  double factor = 1. - energy_lost_percent / 100.;
+  target_vector->SetPtEtaPhiM(target_vector->Pt() * factor, target_vector->Eta(), target_vector->Phi(), target_vector->M());
 }

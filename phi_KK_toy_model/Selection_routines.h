@@ -35,6 +35,8 @@ public:
   // , while the "measurement" is the blurred dEdx of the assumed particle
   double get_NSigmaPion(TLorentzVector *mc_ptr);
 
+  double get_NSigmaElectron(TLorentzVector *mc_ptr);
+
   // draw the blurred version of dEdx for both particles
   void draw_dEdx();
 
@@ -58,6 +60,7 @@ private:
   TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");
   // Root histogram for dEdxPion using most probable value
   TH1D *dEdxPion = (TH1D *)dEdx_file->Get("mpmPi");
+  TH1D *dEdxElectron = (TH1D *)dEdx_file->Get("mpmE");
 };
 
 #endif

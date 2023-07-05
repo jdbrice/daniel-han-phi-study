@@ -48,8 +48,8 @@ int main(int argc, char **argv) {
     mc_pt->Fill(phi_parent_particle_ptr->Pt());
     // simulate the decay process with the daughter mass being kaon
     std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::symmetrical_two_body_decay(phi_parent_particle_ptr,
-                                                    KAON_MASS);
+        Random_routines::two_body_decay(phi_parent_particle_ptr,
+                                                    KAON_MASS,KAON_MASS);
 
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy

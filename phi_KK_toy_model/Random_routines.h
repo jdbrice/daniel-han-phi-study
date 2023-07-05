@@ -56,6 +56,9 @@ void set_uniform_pt(TLorentzVector* target_vector, double pt_min, double pt_max)
 // set a given target 4-vector's transverse momentum with gaussian distribution 
 // with mean = pt_mu, stdev = pt_sigma
 void set_gauss_pt(TLorentzVector* target_vector, double pt_mu, double pt_sigma);
+
+void add_pt_percent_loss(TLorentzVector* target_vector, double energy_lost_percent);
 };
+
 
 #endif // !RANDOM_ROUTINES

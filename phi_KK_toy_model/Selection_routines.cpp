@@ -103,6 +103,28 @@ double Selector::get_NSigmaKaon(TLorentzVector *lv_ptr)
     return 0;
   }
 }
+double Selector::get_NSigmaElectron(TLorentzVector *lv_ptr)
+{
+  double NSigmaElectron;
+  double pt = lv_ptr->Pt();
+  // retrive exact dEdxKaon from root file
+  double dEdxElectron_mc = dEdxElectron->Interpolate(pt);
+  // blur the dEdxKaon by an amount that eyeball to fit the
+  // experimental data
+  double dEdxKaon_rc = rng_selection.Gaus(dEdxElectron_mc, sigma);
+  // An assumption is made that the measured particle is kaon
+  if (std::abs(lv_ptr->M() - 0.493) <= 0.001)
+  {
+    NSigmaElectron = (dEdxKaon_rc - dEdxElectron_mc) / sigma;
+    return NSigmaElectron;
+  }
+  else
+  {
+    std::cout << "Error, particle given dose not have kaon mass"
+              << std::endl;
+    return 0;
+  }
+}
 
 double Selector::get_NSigmaPion(TLorentzVector *lv_ptr)
 {
