@@ -40,10 +40,14 @@ void daughter_distribution() {
   TH1F *all_Npion = new TH1F(
       "All Tracks", "Run 19 A+A N#sigma#pi All Tracks;(N#sigmaPion);counts",
       100, -10, 10);
+
   TH1F *all_Nkaon = new TH1F(
       "All Tracks", "Run 19 A+A N#sigmaK All Tracks;(N#sigmaKaon);counts", 100,
       -10, 10);
 
+  TH2F *all_pt_NPion = new TH2F(
+      "All Tracks", "Run 19 A+A N#sigmaPion All Tracks;P_{T};N#sigmaPion", 100,
+      0., 1.2, 100, -8 ,8);
   // histogram for kaon canidataes
   TH1F *kaon_DCA =
       new TH1F("Kaon Candidates", "Run 19 A+A DCA Kaon Candidates;DCA;counts",
@@ -163,6 +167,9 @@ void daughter_distribution() {
     all_Npion->Fill(pair->d1_mNSigmaPion);
     all_Npion->Fill(pair->d2_mNSigmaPion);
 
+    all_pt_NPion->Fill(pair->d1_mPt, pair->d1_mNSigmaPion);
+    all_pt_NPion->Fill(pair->d2_mPt, pair->d2_mNSigmaPion);
+
     // kaon candidate filling with PId selection
     if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
         abs(pair->d1_mNSigmaKaon) < 5 && abs(pair->d1_mNSigmaPion) >= 5 &&
@@ -250,6 +257,9 @@ void daughter_distribution() {
   makeCan();
   all_Npion->Draw();
   gPad->Print("./Plots/all_NSigmaPion.png");
+  makeCan();
+  all_pt_NPion->Draw("colz");
+  gPad->Print("./Plots/all_pt_NSigmaPion.png");
 
   makeCan();
   kaon_DCA->Draw();
