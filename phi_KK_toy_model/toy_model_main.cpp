@@ -22,9 +22,9 @@ thread_local TRandom3 rng_toy(0);
 double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
 double ELECTRON_MASS = 0.000511;
-int PHI_SAMPLE_SIZE = 1500;
+int PHI_SAMPLE_SIZE = 150000;
 int RHO_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 15;
-int ElECTRON_SAMPLE_SIZE = PHI_SAMPLE_SIZE;
+int ElECTRON_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 10;
 
 int main(int argc, char **argv)
 {
