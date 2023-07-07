@@ -79,6 +79,11 @@ void daughter_distribution() {
       "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
       0.9, 1.8);
 
+  TH1F *reco_phi_near_mass = new TH1F(
+      "reco_phi ",
+      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
+      1., 1.04);
+
   TH1F *reco_phi_pt =
       new TH1F("reco_phi ", "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts",
                100, 0., 0.5);
@@ -205,6 +210,7 @@ void daughter_distribution() {
         kaon_pm_ratio->Fill(pair->mChargeSum);
         reco_phi_pt->Fill(lv.Pt());
         reco_phi_mass->Fill(lv.M());
+        reco_phi_near_mass->Fill(lv.M());
         reco_phi_eta->Fill(lv.Eta());
         reco_phi_phi->Fill(lv.Phi());
       } else if (pair->mChargeSum == -2) {
@@ -292,6 +298,9 @@ void daughter_distribution() {
   makeCan();
   reco_phi_mass->Draw();
   gPad->Print("./Plots/reco_phi_mass.png");
+  makeCan();
+  reco_phi_near_mass->Draw();
+  gPad->Print("./Plots/reco_phi_near_mass.png");
 
   makeCan();
   KpKp_pt->Draw();
