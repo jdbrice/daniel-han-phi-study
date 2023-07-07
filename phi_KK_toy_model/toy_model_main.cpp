@@ -22,9 +22,9 @@ thread_local TRandom3 rng_toy(0);
 double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
 double ELECTRON_MASS = 0.000511;
-int PHI_SAMPLE_SIZE = 15000;
+int PHI_SAMPLE_SIZE = 1500;
 int RHO_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 15;
-int ElECTRON_SAMPLE_SIZE = PHI_SAMPLE_SIZE;
+int ElECTRON_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 10;
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -141,21 +141,21 @@ int main(int argc, char **argv) {
   // create histogram to draw rc mass
   TH1F *parent_rc_mass_total = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 0.96, 1.8);
+      100, 1, 1.04);
   TH1F *parent_rc_mass_mc_phi = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 0.96, 1.8);
+      100, 1, 1.04);
   TH1F *parent_rc_mass_mc_rho = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 0.96, 1.8);
+      100, 1., 1.04);
   TH1F *parent_rc_mass_mc_electron = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 0.96, 1.8);
+      100, 1., 1.04);
 
   // create histogram to draw rc mass
   TH2F *parent_rc_mass_pt_total = new TH2F(
       "Combined Masses", "Toy Model Combined Masses;m_{K^+ K^-}(GeV);RC P_T",
-      100, 0.98, 1.1, 100, 0, 0.5);
+      100, 0.98, 1.04, 100, 0, 1.);
 
   // create an instance of particle selector
   Selector pid = Selector();
@@ -163,12 +163,10 @@ int main(int argc, char **argv) {
   // select daughter particle to be Kaon. This is for case where daughter
   // particle has momentum > 60 MeV
   for (int i = 0; i < RHO_SAMPLE_SIZE; i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) < 100.&&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) < 100. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) > 1. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) > 1. &&
-        pdaughter_ptr_vector[i]->Pt() > 0.06 &&
-        mdaughter_ptr_vector[i]->Pt() > 0.06) {
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5.&&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5.) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -182,12 +180,10 @@ int main(int argc, char **argv) {
   }
 
   for (int i = RHO_SAMPLE_SIZE; i < RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE; i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon)) > 5. &&
-        pdaughter_ptr_vector[i]->Pt() > 0.06 &&
-        mdaughter_ptr_vector[i]->Pt() > 0.06) {
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) < 5. &&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) > 5. ) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -201,12 +197,10 @@ int main(int argc, char **argv) {
   }
   for (int i = RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE; i < parent_ptr_vector.size();
        i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion)) > 5. &&
-        pdaughter_ptr_vector[i]->Pt() > 0.06 &&
-        mdaughter_ptr_vector[i]->Pt() > 0.06) {
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5.) {
       // reconstruct the daughter particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =

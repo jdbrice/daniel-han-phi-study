@@ -27,7 +27,10 @@ double ETA_MIN = 0.;
 double ETA_MAX = 4.;
 double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
-double SAMPLE_SIZE = 3e5;
+double SAMPLE_SIZE = 1500;
+
+  TFile *kaon_file =
+      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
 
 // create a instance of simulation with fixed percentage of pt blur and sample
 // size
@@ -89,9 +92,9 @@ int main(int argc, char **argv) {
   // run simulation with pt percent error from 0 percent 1o 10 percent with step
   // size 0.1
   // this upper limit is testd experimentally
-  for (double pt_percent_error = 1.; pt_percent_error <= 6.;
+  for (double pt_percent_error = 4.; pt_percent_error <= 6.;
        pt_percent_error += 0.1) {
-    for (double pt_lost_percent = 0.8; pt_lost_percent <= 2.;
+    for (double pt_lost_percent = 1.; pt_lost_percent <= 3.5;
          pt_lost_percent += 0.1) {
 
       double chi_sq_min = calculate_fitted_pt_blur_chisq(
@@ -119,7 +122,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-TH1F *get_simulation_pdf(double pt_blur_percent, double energy_lost_percent,
+TH1F *get_simulation_pdf(double pt_blur_percent, double momentum_lost_percent,
                          int sample_size = SAMPLE_SIZE) {
 
   std::vector<TLorentzVector *> parent_vector;
@@ -130,8 +133,7 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double energy_lost_percent,
   // with given bounds
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector *parent_particle_ptr =
-        Random_routines::get_random_lorentz_vector(
-            PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, PHI_MASS);
+        Random_routines::get_slight_lorentz_vector(kaon_file,"kaon");
     parent_vector.push_back(parent_particle_ptr);
 
     // decay assuming kaon mass
@@ -147,10 +149,10 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double energy_lost_percent,
                                                daughter_ptr_pair[1]->Pt());
 
     Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],
-                                         energy_lost_percent);
+                                         momentum_lost_percent);
 
     Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],
-                                         energy_lost_percent);
+                                         momentum_lost_percent);
 
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
@@ -172,10 +174,11 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double energy_lost_percent,
     // selection of kaon particle with conditions exactly the same as the
     // experimental selection
     if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06 &&
-        std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 50. &&
-        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 50. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 50. &&
-        std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 50.) {
+        std::abs(pid.compute_NSigmaKaon(daughter1_vector[i]->P() , pid.dEdxKaon)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter1_vector[i]->P(), pid.dEdxKaon)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter2_vector[i]->P(), pid.dEdxKaon)) > 5. &&
+        std::abs(pid.compute_NSigmaKaon(daughter2_vector[i]->P(), pid.dEdxKaon)) < 5.) {
+
       combined_masses->Fill(reconstructed_parent_vector.M());
     }
     delete parent_vector[i];
@@ -193,20 +196,20 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double energy_lost_percent,
 }
 
 double calculate_pt_blur_p_value(double pt_blur_percent,
-                                 double energy_lost_percent,
+                                 double momentum_lost_percent,
                                  TH1F *experimental_pdf) {
   double p_value = 0;
-  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent, energy_lost_percent);
+  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent, momentum_lost_percent);
   p_value = rc_pdf->Chi2Test(experimental_pdf, "UU;NORM");
   delete rc_pdf;
   return p_value;
 }
 
 double calculate_fitted_pt_blur_chisq(double pt_blur_percent,
-                                      double energy_lost_percent,
+                                      double momentum_lost_percent,
                                       TF1 *target_function) {
   double chisq = 0;
-  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent, energy_lost_percent);
+  TH1F *rc_pdf = get_simulation_pdf(pt_blur_percent, momentum_lost_percent);
   // rc_pdf->Sumw2();
   chisq = rc_pdf->Chisquare(target_function, "R, 1., 1.04");
   delete rc_pdf;
