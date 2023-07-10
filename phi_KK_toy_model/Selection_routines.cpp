@@ -13,36 +13,33 @@
 thread_local TRandom3 rng_selection(0);
 
 // constructor and variable init
-Selector::Selector(double sigma) { this->sigma = sigma; }
+Selector::Selector(double sigma_meson, double sigma_electron) {
+  this->sigma_meson = sigma_meson;
+  this->sigma_electron = sigma_electron;
+}
 // constructor and variable init
 Selector::Selector() {}
 
-double Selector::sample_dedx(double p, TH1 *particle_dedx_distr) {
+double Selector::sample_dedx(double p, TH1 *particle_dedx_distr, double sigma) {
   double sampled_dedx =
       rng_selection.Gaus(particle_dedx_distr->Interpolate(p), sigma);
   return sampled_dedx;
 }
 
-double Selector::compute_NSigmaKaon(double p, TH1 *particle_dedx_distr) {
-  if (p < 0.11){
-    p = 0.11;
-  }
-  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr);
+double Selector::compute_NSigmaKaon(double p, TH1 *particle_dedx_distr, double sigma) {
+  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr, sigma);
   double kaon_mc = dEdxKaon->Interpolate(p);
   return (sampled_dedx - kaon_mc) / sigma;
 }
 
-double Selector::compute_NSigmaPion(double p, TH1 *particle_dedx_distr) {
-  if (p < 0.11){
-    p = 0.11;
-  }
-  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr);
+double Selector::compute_NSigmaPion(double p, TH1 *particle_dedx_distr, double sigma) {
+  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr, sigma);
   double pion_mc = dEdxPion->Interpolate(p);
   return (sampled_dedx - pion_mc) / sigma;
 }
 
-double Selector::compute_NSigmaElectron(double p, TH1 *particle_dedx_distr) {
-  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr);
+double Selector::compute_NSigmaElectron(double p, TH1 *particle_dedx_distr, double sigma) {
+  double sampled_dedx = Selector::sample_dedx(p, particle_dedx_distr, sigma);
   double electron_mc = dEdxElectron->Interpolate(p);
   return (sampled_dedx - electron_mc) / sigma;
 }
@@ -68,9 +65,9 @@ void Selector::draw_dEdx_blurred() {
                500, 0., 0.014);
   // set up momentum mesh
   for (double p = 0.01; p <= 2.; p += 1e-7) {
-    double kaon_rc = sample_dedx(p, dEdxKaon);
-    double pion_rc = sample_dedx(p, dEdxPion);
-    double electron_rc = sample_dedx(p, dEdxElectron);
+    double kaon_rc = sample_dedx(p, dEdxKaon, sigma_meson);
+    double pion_rc = sample_dedx(p, dEdxPion, sigma_meson);
+    double electron_rc = sample_dedx(p, dEdxElectron, sigma_electron);
     dEdx_blurred->Fill(p, kaon_rc);
     dEdx_blurred->Fill(p, pion_rc);
     dEdx_blurred->Fill(p, electron_rc);
@@ -94,16 +91,15 @@ void Selector::draw_dEdx_blurred() {
 //   TH1F *mc_pion_nsigmapion =
 //       new TH1F("mc pion", "NSigmaPion mc Pion", 100, -10, 10);
 //   TH1F *mc_pion_nsigmakaon =
-//       new TH1F("mc pion", "NSigmaKaon mcPion", 100, -200, 10);
+//       new TH1F("mc pion", "NSigmaKaon mcPion", 100, -200, 0);
 //   TH1F *mc_kaon_nsigmapion =
-//       new TH1F(" mc kaon ", "NSigmaPion mc Kaon", 100, -10, 200);
+//       new TH1F(" mc kaon ", "NSigmaPion mc Kaon", 100, 0, 200);
 //   TH1F *mc_kaon_nsigmakaon =
 //       new TH1F("mc kaon", "NSigmaKaon mc Kaon", 100, -10, 10);
-//   TH1F *all_p =
-//       new TH1F("all tracks", "Momentum", 100, 0, 2.);
+//   TH1F *all_p = new TH1F("all tracks", "Momentum", 100, 0, 2.);
 //
-//   TH1F *debug =
-//       new TH1F("MC KAON NSIGMAPION > 160", "DEBUG KAON MOMENTUM;MOMENTUM(GEV);", 100, 0, 0.5);
+//   TH1F *debug = new TH1F("MC KAON NSIGMAPION > 160",
+//                          "DEBUG KAON MOMENTUM;MOMENTUM(GEV);", 100, 0, 0.5);
 //
 //   Selector PID = Selector();
 //
@@ -135,11 +131,15 @@ void Selector::draw_dEdx_blurred() {
 //     daughter1_vector.push_back(daughter_ptr_pair[0]);
 //     daughter2_vector.push_back(daughter_ptr_pair[1]);
 //
-//     mc_pion_nsigmakaon->Fill(PID.compute_NSigmaKaon(daughter_ptr_pair[0]->P(), PID.dEdxPion));
-//     mc_pion_nsigmakaon->Fill(PID.compute_NSigmaKaon(daughter_ptr_pair[1]->P(), PID.dEdxPion));
+//     mc_pion_nsigmakaon->Fill(
+//         PID.compute_NSigmaKaon(daughter_ptr_pair[0]->Pt(), PID.dEdxPion, PID.sigma_meson));
+//     mc_pion_nsigmakaon->Fill(
+//         PID.compute_NSigmaKaon(daughter_ptr_pair[1]->Pt(), PID.dEdxPion, PID.sigma_meson));
 //
-//     mc_pion_nsigmapion->Fill(PID.compute_NSigmaPion(daughter_ptr_pair[0]->P(), PID.dEdxPion));
-//     mc_pion_nsigmapion->Fill(PID.compute_NSigmaPion(daughter_ptr_pair[1]->P(), PID.dEdxPion));
+//     mc_pion_nsigmapion->Fill(
+//         PID.compute_NSigmaPion(daughter_ptr_pair[0]->Pt(), PID.dEdxPion, PID.sigma_meson));
+//     mc_pion_nsigmapion->Fill(
+//         PID.compute_NSigmaPion(daughter_ptr_pair[1]->Pt(), PID.dEdxPion, PID.sigma_meson));
 //
 //     all_p->Fill(daughter_ptr_pair[0]->P());
 //     all_p->Fill(daughter_ptr_pair[1]->P());
@@ -162,16 +162,20 @@ void Selector::draw_dEdx_blurred() {
 //     daughter1_vector.push_back(daughter_ptr_pair[0]);
 //     daughter2_vector.push_back(daughter_ptr_pair[1]);
 //
-//     mc_kaon_nsigmakaon->Fill(PID.compute_NSigmaKaon(daughter_ptr_pair[0]->P(), PID.dEdxKaon));
-//     mc_kaon_nsigmakaon->Fill(PID.compute_NSigmaKaon(daughter_ptr_pair[1]->P(), PID.dEdxKaon));
+//     mc_kaon_nsigmakaon->Fill(
+//         PID.compute_NSigmaKaon(daughter_ptr_pair[0]->Pt(), PID.dEdxKaon, PID.sigma_meson));
+//     mc_kaon_nsigmakaon->Fill(
+//         PID.compute_NSigmaKaon(daughter_ptr_pair[1]->Pt(), PID.dEdxKaon, PID.sigma_meson));
 //
-//     mc_kaon_nsigmapion->Fill(PID.compute_NSigmaPion(daughter_ptr_pair[0]->P(), PID.dEdxKaon));
-//     mc_kaon_nsigmapion->Fill(PID.compute_NSigmaPion(daughter_ptr_pair[1]->P(), PID.dEdxKaon));
+//     mc_kaon_nsigmapion->Fill(
+//         PID.compute_NSigmaPion(daughter_ptr_pair[0]->Pt(), PID.dEdxKaon, PID.sigma_meson));
+//     mc_kaon_nsigmapion->Fill(
+//         PID.compute_NSigmaPion(daughter_ptr_pair[1]->Pt(), PID.dEdxKaon, PID.sigma_meson));
 //
-//     if (PID.compute_NSigmaPion(daughter_ptr_pair[0]->P(), PID.dEdxKaon) > 160){
+//     if (PID.compute_NSigmaPion(daughter_ptr_pair[0]->Pt(), PID.dEdxKaon, PID.sigma_meson) > 160) {
 //       debug->Fill(daughter_ptr_pair[0]->P());
 //     }
-//     if (PID.compute_NSigmaPion(daughter_ptr_pair[1]->P(), PID.dEdxKaon) > 160){
+//     if (PID.compute_NSigmaPion(daughter_ptr_pair[1]->Pt(), PID.dEdxKaon, PID.sigma_meson) > 160) {
 //       debug->Fill(daughter_ptr_pair[1]->P());
 //     }
 //     all_p->Fill(daughter_ptr_pair[0]->P());
@@ -186,8 +190,6 @@ void Selector::draw_dEdx_blurred() {
 //   mc_kaon_nsigmakaon->Draw();
 //   TCanvas *canvas4 = new TCanvas("canvas4", "canvas4", 0, 0, 800, 600);
 //   mc_kaon_nsigmapion->Draw();
-//   TCanvas *canvas5 = new TCanvas("canvas5", "canvas5", 0, 0, 800, 600);
-//   debug->Draw();
 //   canvas->Modified();
 //   canvas->Update();
 //   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();

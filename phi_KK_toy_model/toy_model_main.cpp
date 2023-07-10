@@ -23,8 +23,8 @@ double KAON_MASS = 0.493;
 double PION_MASS = 0.139;
 double ELECTRON_MASS = 0.000511;
 int PHI_SAMPLE_SIZE = 1500;
-int RHO_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 15;
-int ElECTRON_SAMPLE_SIZE = PHI_SAMPLE_SIZE * 10;
+int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE ;
+int ElECTRON_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -59,6 +59,9 @@ int main(int argc, char **argv) {
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
                                            0.04 * daughter_ptr_pair[1]->Pt());
 
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3);
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3);
+
     pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
     mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
 
@@ -91,15 +94,15 @@ int main(int argc, char **argv) {
     // only the real phi daughter with pt > 0.06 is blurred because they will
     // not be selected in dedx code, but shouldn't be blurred twice in TOF
     // process.
-    if (daughter_ptr_pair[0]->Pt() > 0.06) {
+    //
       Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
                                              0.04 * daughter_ptr_pair[0]->Pt());
-    }
-
-    if (daughter_ptr_pair[1]->Pt() > 0.06) {
       Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
                                              0.04 * daughter_ptr_pair[1]->Pt());
-    }
+
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3);
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3);
+
     pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
     mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
   }
@@ -123,6 +126,9 @@ int main(int argc, char **argv) {
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
                                            0.04 * daughter_ptr_pair[1]->Pt());
 
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3);
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3);
+
     pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
     mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
 
@@ -141,16 +147,23 @@ int main(int argc, char **argv) {
   // create histogram to draw rc mass
   TH1F *parent_rc_mass_total = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 1, 1.04);
+      100, 1, 1.8);
   TH1F *parent_rc_mass_mc_phi = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 1, 1.04);
+      100, 1, 1.8);
   TH1F *parent_rc_mass_mc_rho = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 1., 1.04);
+      100, 1., 1.8);
   TH1F *parent_rc_mass_mc_electron = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-      100, 1., 1.04);
+      100, 1., 1.8);
+
+  TH1F *nsigmapion = new TH1F(
+      "All Tracks", "NsigmaPion;NsigmaPion;count",
+      100, 0, 200);
+  TH1F *nsigmakaon = new TH1F(
+      "All Tracks", "NsigmaKaon;NsigmaKaon;count",
+      100, -10, 10);
 
   // create histogram to draw rc mass
   TH2F *parent_rc_mass_pt_total = new TH2F(
@@ -163,10 +176,12 @@ int main(int argc, char **argv) {
   // select daughter particle to be Kaon. This is for case where daughter
   // particle has momentum > 60 MeV
   for (int i = 0; i < RHO_SAMPLE_SIZE; i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5.&&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5.) {
+    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(), pid.dEdxPion, pid.sigma_meson));
+    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(), pid.dEdxPion, pid.sigma_meson));
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion, pid.sigma_meson)) < 5.&&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion, pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxPion, pid.sigma_meson)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxPion, pid.sigma_meson)) > 5.) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -176,14 +191,17 @@ int main(int argc, char **argv) {
       parent_rc_mass_mc_rho->Fill(reconstructed_parent.M());
       parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
                                     reconstructed_parent.Pt());
+
     }
   }
 
   for (int i = RHO_SAMPLE_SIZE; i < RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE; i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxKaon)) > 5. ) {
+    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson));
+    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson));
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon, pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon, pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon, pid.sigma_meson)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxKaon, pid.sigma_meson)) > 5. ) {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -197,10 +215,12 @@ int main(int argc, char **argv) {
   }
   for (int i = RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE; i < parent_ptr_vector.size();
        i++) {
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->P(),pid.dEdxPion)) > 5.) {
+    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(), pid.dEdxElectron, pid.sigma_electron));
+    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(), pid.dEdxElectron, pid.sigma_electron));
+    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),pid.dEdxElectron, pid.sigma_electron)) < 5. &&
+        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),pid.dEdxElectron, pid.sigma_electron)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),pid.dEdxElectron, pid.sigma_electron)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),pid.dEdxElectron, pid.sigma_electron)) > 5.) {
       // reconstruct the daughter particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -216,10 +236,14 @@ int main(int argc, char **argv) {
   // drawing the result
   TApplication app("app", &argc, argv);
   TCanvas *canvas = new TCanvas("canvas", "masses", 0, 0, 1366, 768);
-  parent_rc_mass_total->Draw("pfc");
-  parent_rc_mass_mc_phi->Draw("same;pfc");
-  parent_rc_mass_mc_rho->Draw("same;pfc");
-  parent_rc_mass_mc_electron->Draw("same;pfc");
+  // parent_rc_mass_total->Draw("pfc");
+  // parent_rc_mass_mc_phi->Draw("same;pfc");
+  // parent_rc_mass_mc_rho->Draw("same;pfc");
+  // parent_rc_mass_mc_electron->Draw("same;pfc");
+  
+  nsigmakaon->Draw();
+
+
 
   auto legend = new TLegend(0.7, 0.55, 0.98, 0.75);
   legend->SetHeader("Reco Parent Mass");

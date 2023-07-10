@@ -17,7 +17,7 @@ class Selector {
 public:
   // constructor for the particle selector. This requires the absolute file path
   // for the "true" dE/dx root file and a fixed blur amount
-  Selector(double sigma);
+  Selector(double sigma_meson, double sigma_electron);
 
   // overloaded constructor for using default values.
   Selector();
@@ -33,6 +33,9 @@ public:
   // Root object for the dEdx file
   TFile *dEdx_file = new TFile("dEdx.root");
 
+  double sigma_meson = 0.00025;
+  double sigma_electron  = 0.00008;
+
   // Root histogram for dEdxKaon using most probable value
   TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");
   // Root histogram for dEdxPion using most probable value
@@ -40,21 +43,20 @@ public:
   TH1D *dEdxElectron = (TH1D *)dEdx_file->Get("mpmE");
 
   // calculate the nsigma values
-  double compute_NSigmaPion(double pt, TH1 *particle_dedx_distr);
-  double compute_NSigmaKaon(double pt, TH1 *particle_dedx_distr);
-  double compute_NSigmaElectron(double pt, TH1 *particle_dedx_distr);
+  double compute_NSigmaPion(double pt, TH1 *particle_dedx_distr, double sigma);
+  double compute_NSigmaKaon(double pt, TH1 *particle_dedx_distr, double sigma);
+  double compute_NSigmaElectron(double pt, TH1 *particle_dedx_distr, double sigma);
 
   // draw dEdx for both particles
   void draw_dEdx_blurred();
 
 private:
   // return the smeared dedx value for a given particle type;
-  double sample_dedx(double pt, TH1 *particle_dedx_distr);
+  double sample_dedx(double pt, TH1 *particle_dedx_distr, double sigma);
 
 private:
   // fixed blur. This is obtained by adding a gaussian blur of dEdx using
   // the precise method of "eyeballing" to match the dEdx measurement graph
-  double sigma = 0.00025;
 
 };
 

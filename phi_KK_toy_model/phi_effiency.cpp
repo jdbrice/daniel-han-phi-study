@@ -28,6 +28,9 @@ double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
 int PHI_SAMPLE_SIZE = 4500000;
 
+  TFile *kaon_file =
+      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
+
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
   std::vector<TLorentzVector *> parent_vector;
@@ -35,9 +38,9 @@ int main(int argc, char **argv) {
   std::vector<TLorentzVector *> daughter2_vector;
 
 
-  TH1F* phi_pt_rc_hist = new TH1F("Reco Effiency", "Reco Effiency;Phi P_T(GeV);Rate", 200, 0.0, 0.4 );
+  TH1F* phi_pt_rc_hist = new TH1F("Reco Effiency", "Reco Effiency;Phi P_T(GeV);Rate", 200, 0.0, 1. );
 
-  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 200, 0.0, 0.4);
+  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 200, 0.0, 1.);
   // simulate the decay process for rho -> pi+ pi-
 
   // simualte decay process for phi -> K+ K-
@@ -60,6 +63,10 @@ int main(int argc, char **argv) {
                                            0.04 * daughter_ptr_pair[0]->Pt());
     Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
                                            0.04 * daughter_ptr_pair[1]->Pt());
+
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3.);
+    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3.);
+
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
 
@@ -72,10 +79,10 @@ int main(int argc, char **argv) {
 
   // select daughter particle to be Kaon
   for (int i = 0; i < parent_vector.size(); i++) {
-    if (std::abs(pid.get_NSigmaKaon(daughter1_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaKaon(daughter2_vector[i])) < 5. &&
-        std::abs(pid.get_NSigmaPion(daughter1_vector[i])) > 5. &&
-        std::abs(pid.get_NSigmaPion(daughter2_vector[i])) > 5. && 
+    if (std::abs(pid.compute_NSigmaKaon(daughter1_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaKaon(daughter2_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter1_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter2_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) > 5. && 
         daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06)  {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi

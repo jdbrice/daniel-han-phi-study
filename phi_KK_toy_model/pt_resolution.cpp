@@ -29,8 +29,8 @@ double PHI_MIN = 0.;
 double PHI_MAX = 2 * M_PI;
 double SAMPLE_SIZE = 1500;
 
-  TFile *kaon_file =
-      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
+TFile *kaon_file =
+    new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
 
 // create a instance of simulation with fixed percentage of pt blur and sample
 // size
@@ -85,33 +85,34 @@ int main(int argc, char **argv) {
   fit_tf1->SetParameter(2, fitted_mean);
   fit_tf1->SetParameter(3, fitted_stdev);
 
-  double final_chisq = 1e9;
 
-  double final_pt_percent_error = 0.;
-  double final_pt_lost_percent = 0.;
-  // run simulation with pt percent error from 0 percent 1o 10 percent with step
-  // size 0.1
-  // this upper limit is testd experimentally
-  for (double pt_percent_error = 4.; pt_percent_error <= 6.;
-       pt_percent_error += 0.1) {
-    for (double pt_lost_percent = 1.; pt_lost_percent <= 3.5;
-         pt_lost_percent += 0.1) {
+    double final_chisq = 1e9;
 
-      double chi_sq_min = calculate_fitted_pt_blur_chisq(
-          pt_percent_error, pt_lost_percent, fit_tf1);
-      // record highest p value and the correponding pt percent error
-      //
-      if (chi_sq_min < final_chisq) {
-        final_chisq = chi_sq_min;
-        final_pt_percent_error = pt_percent_error;
-        final_pt_lost_percent = pt_lost_percent;
+    double final_pt_percent_error = 0.;
+    double final_pt_lost_percent = 0.;
+    // run simulation with pt percent error from 0 percent 1o 10 percent with
+    // step size 0.1 this upper limit is testd experimentally
+    for (double pt_percent_error = 4.; pt_percent_error <= 6.;
+         pt_percent_error += 0.1) {
+      for (double pt_lost_percent = 1.; pt_lost_percent <= 3.5;
+           pt_lost_percent += 0.1) {
+
+        double chi_sq_min = calculate_fitted_pt_blur_chisq(
+            pt_percent_error, pt_lost_percent, fit_tf1);
+        // record highest p value and the correponding pt percent error
+        //
+        if (chi_sq_min < final_chisq) {
+          final_chisq = chi_sq_min;
+          final_pt_percent_error = pt_percent_error;
+          final_pt_lost_percent = pt_lost_percent;
+        }
       }
     }
-  }
-  std::cout << final_chisq << "    " << final_pt_percent_error << "    " << final_pt_lost_percent << std::endl;
-
+    std::cout << final_chisq << "    " << final_pt_percent_error << "    "
+              << final_pt_lost_percent << std::endl;
   TH1F *sample_hist = get_simulation_pdf(final_pt_percent_error,
                                          final_pt_lost_percent, SAMPLE_SIZE);
+
   sample_hist->Draw("hist");
   fit_tf1->Draw("same");
 
@@ -133,7 +134,7 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double momentum_lost_percent,
   // with given bounds
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     TLorentzVector *parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(kaon_file,"kaon");
+        Random_routines::get_slight_lorentz_vector(kaon_file, "kaon");
     parent_vector.push_back(parent_particle_ptr);
 
     // decay assuming kaon mass
@@ -174,10 +175,14 @@ TH1F *get_simulation_pdf(double pt_blur_percent, double momentum_lost_percent,
     // selection of kaon particle with conditions exactly the same as the
     // experimental selection
     if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06 &&
-        std::abs(pid.compute_NSigmaKaon(daughter1_vector[i]->P() , pid.dEdxKaon)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(daughter1_vector[i]->P(), pid.dEdxKaon)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(daughter2_vector[i]->P(), pid.dEdxKaon)) > 5. &&
-        std::abs(pid.compute_NSigmaKaon(daughter2_vector[i]->P(), pid.dEdxKaon)) < 5.) {
+        std::abs(pid.compute_NSigmaKaon(daughter1_vector[i]->Pt(), pid.dEdxKaon,
+                                        pid.sigma_meson)) < 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter1_vector[i]->Pt(), pid.dEdxKaon,
+                                        pid.sigma_meson)) > 5. &&
+        std::abs(pid.compute_NSigmaPion(daughter2_vector[i]->Pt(), pid.dEdxKaon,
+                                        pid.sigma_meson)) > 5. &&
+        std::abs(pid.compute_NSigmaKaon(daughter2_vector[i]->Pt(), pid.dEdxKaon,
+                                        pid.sigma_meson)) < 5.) {
 
       combined_masses->Fill(reconstructed_parent_vector.M());
     }
