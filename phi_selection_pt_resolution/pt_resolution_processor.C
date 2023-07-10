@@ -50,7 +50,7 @@ void pt_resolution_processor() {
 
   TH1F *rc_mass = new TH1F(
       "RC Phi Selected", "Run 19 Au-Au RC Phi Mass;rc_mass (GeV); Count",
-      100, 1., 1.1);
+      100, 1., 1.04);
 
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
