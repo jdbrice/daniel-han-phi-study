@@ -39,11 +39,11 @@ void daughter_distribution() {
                -3.15, 3.15);
   TH1F *all_Npion = new TH1F(
       "All Tracks", "Run 19 A+A N#sigma#pi All Tracks;(N#sigmaPion);counts",
-      100, -10, 10);
+      100, -10, 80);
 
   TH1F *all_Nkaon = new TH1F(
       "All Tracks", "Run 19 A+A N#sigmaK All Tracks;(N#sigmaKaon);counts", 100,
-      -10, 10);
+      -50, 80);
 
   TH2F *all_pt_NPion = new TH2F(
       "All Tracks", "Run 19 A+A N#sigmaPion All Tracks;P_{T};N#sigmaPion", 100,
