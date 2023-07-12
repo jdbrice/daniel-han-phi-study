@@ -87,7 +87,6 @@ void pt_resolution_processor() {
   }   // loop on events
 
   TF1 *fit_tf1 = new TF1("Gaussian + Constant Background Fit", fit_function, 1., 1.1, 4);
-  fo->cd();
   fit_tf1->SetParameter(0, 4.);
   int max_bin = rc_mass->GetMaximumBin();
   double amplitude = rc_mass->GetBinContent(max_bin) - fit_tf1->GetParameter(0);
@@ -101,14 +100,15 @@ void pt_resolution_processor() {
   double stdev = fit_tf1->GetParameter(3);
 
 
-  // // Subtract the background from the histogram, accounting for bin widths
-  // for (int i = 1; i <= rc_mass->GetNbinsX(); ++i) {
-  //   double binContent = rc_mass->GetBinContent(i);
-  //   double binWidth = rc_mass->GetBinWidth(i);
-  //   rc_mass->SetBinContent(i, binContent - background);
-  // }
-  // rc_mass->GetXaxis()->SetRangeUser(1., 1.04)  ;
+  // Subtract the background from the histogram, accounting for bin widths
+  for (int i = 1; i <= rc_mass->GetNbinsX(); ++i) {
+    double binContent = rc_mass->GetBinContent(i);
+    double binWidth = rc_mass->GetBinWidth(i);
+    rc_mass->SetBinContent(i, binContent - background);
+  }
+  rc_mass->GetXaxis()->SetRangeUser(1., 1.04)  ;
 
+  fo->cd();
   makeCan();
   rc_mass->Draw("hist");
   fit_tf1->Draw("same");
