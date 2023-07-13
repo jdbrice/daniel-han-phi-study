@@ -9,6 +9,7 @@
 #include "TLorentzVector.h"
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
+#include <TDirectory.h>
 #include <TH2.h>
 #include <TSystem.h>
 #include <cmath>
@@ -35,7 +36,7 @@ void nsigma() {
 
   TH2F *all_pt_NPion = new TH2F(
       "All Tracks", "Run 19 A+A N#sigmaPion All Tracks;P_{T};N#sigmaPion", 100,
-      0., 1.2, 100, -8, 8);
+      0.1, 1.2, 100, -4, 10);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -57,31 +58,18 @@ void nsigma() {
 
     all_pt_NPion->Fill(pair->d1_mPt, pair->d1_mNSigmaPion);
     all_pt_NPion->Fill(pair->d2_mPt, pair->d2_mNSigmaPion);
-
-    // kaon candidate filling with PId selection
-    if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
-        abs(pair->d1_mNSigmaKaon) < 5 && abs(pair->d1_mNSigmaPion) >= 5 &&
-        abs(pair->d2_mNSigmaKaon) < 5 && abs(pair->d2_mNSigmaPion) >= 5) {
-
-      // reconstrauction of parent lorentz vector
-      // assuming kaon mass
-      TLorentzVector lv1, lv2, lv;
-      lv1.SetPtEtaPhiM(pair->d1_mPt, pair->d1_mEta, pair->d1_mPhi, 0.493);
-      lv2.SetPtEtaPhiM(pair->d2_mPt, pair->d2_mEta, pair->d2_mPhi, 0.493);
-      lv = lv1 + lv2;
-
-      // reco level filling
-      if (pair->mChargeSum == 0) {
-      } else if (pair->mChargeSum == -2) {
-
-      } else if (pair->mChargeSum == 2) {
-      }
-    }
-
   } // loop on events
 
   makeCan();
   all_Npion->Draw();
   all_pt_NPion->Draw("colz");
   all_pt_NPion->FitSlicesY();
+  TH1F *all_pt_NPion_1 = (TH1F *)gDirectory->Get("all_pt_NPion_1");
+  if (all_pt_NPion_1) {
+    std::cout << "all_pt_NPion_1 created successfully." << std::endl;
+    makeCan();
+    all_pt_NPion_1->Draw();
+  } else {
+    std::cout << "all_pt_NPion_1 is not created." << std::endl;
+  }
 }
