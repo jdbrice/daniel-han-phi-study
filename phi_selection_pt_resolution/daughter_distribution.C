@@ -177,8 +177,8 @@ void daughter_distribution() {
 
     // kaon candidate filling with PId selection
     if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
-        abs(pair->d1_mNSigmaKaon) < 5 && abs(pair->d1_mNSigmaPion) >= 5 &&
-        abs(pair->d2_mNSigmaKaon) < 5 && abs(pair->d2_mNSigmaPion) >= 5) {
+        (pair->d1_mNSigmaKaon < 7.42 && pair->d1_mNSigmaKaon > -2.58) && abs(pair->d1_mNSigmaPion) >= 5 &&
+        (pair->d2_mNSigmaKaon < 7.42 && pair->d2_mNSigmaKaon > -2.58) && abs(pair->d2_mNSigmaPion) >= 5) {
 
       kaon_pt->Fill(pair->d1_mPt);
       kaon_pt->Fill(pair->d2_mPt);
@@ -243,100 +243,100 @@ void daughter_distribution() {
 
   makeCan();
   kaon_pm_ratio->Draw();
-  gPad->Print("./Plots/kaon_charge.png");
+  gPad->Print("./Plots_sigma/kaon_charge.png");
 
   makeCan();
   all_DCA->Draw();
-  gPad->Print("./Plots/all_DCA.png");
+  gPad->Print("./Plots_sigma/all_DCA.png");
   makeCan();
   all_pt->Draw();
-  gPad->Print("./Plots/all_pt.png");
+  gPad->Print("./Plots_sigma/all_pt.png");
   makeCan();
   all_eta->Draw();
-  gPad->Print("./Plots/all_eta.png");
+  gPad->Print("./Plots_sigma/all_eta.png");
   makeCan();
   all_phi->Draw();
-  gPad->Print("./Plots/all_phi.png");
+  gPad->Print("./Plots_sigma/all_phi.png");
   makeCan();
   all_Nkaon->Draw();
-  gPad->Print("./Plots/all_NSigmaKaon.png");
+  gPad->Print("./Plots_sigma/all_NSigmaKaon.png");
   makeCan();
   all_Npion->Draw();
-  gPad->Print("./Plots/all_NSigmaPion.png");
+  gPad->Print("./Plots_sigma/all_NSigmaPion.png");
   makeCan();
   all_pt_NPion->Draw("colz");
-  gPad->Print("./Plots/all_pt_NSigmaPion.png");
+  gPad->Print("./Plots_sigma/all_pt_NSigmaPion.png");
 
   makeCan();
   kaon_DCA->Draw();
-  gPad->Print("./Plots/kaon_DCA.png");
+  gPad->Print("./Plots_sigma/kaon_DCA.png");
   makeCan();
   kaon_pt->Draw();
-  gPad->Print("./Plots/kaon_pt.png");
+  gPad->Print("./Plots_sigma/kaon_pt.png");
   makeCan();
   kaon_eta->Draw();
-  gPad->Print("./Plots/kaon_eta.png");
+  gPad->Print("./Plots_sigma/kaon_eta.png");
   makeCan();
   kaon_phi->Draw();
-  gPad->Print("./Plots/kaon_phi.png");
+  gPad->Print("./Plots_sigma/kaon_phi.png");
   makeCan();
   kaon_Nkaon->Draw();
-  gPad->Print("./Plots/kaon_NSigmaKaon.png");
+  gPad->Print("./Plots_sigma/kaon_NSigmaKaon.png");
   makeCan();
   kaon_Npion->Draw();
-  gPad->Print("./Plots/kaon_NSigmaPion.png");
+  gPad->Print("./Plots_sigma/kaon_NSigmaPion.png");
 
   makeCan();
   reco_phi_pt->Draw();
-  gPad->Print("./Plots/reco_phi_pt.png");
+  gPad->Print("./Plots_sigma/reco_phi_pt.png");
   makeCan();
   reco_phi_eta->Draw();
-  gPad->Print("./Plots/reco_phi_eta.png");
+  gPad->Print("./Plots_sigma/reco_phi_eta.png");
   makeCan();
   reco_phi_phi->Draw();
-  gPad->Print("./Plots/reco_phi_phi.png");
+  gPad->Print("./Plots_sigma/reco_phi_phi.png");
   makeCan();
   reco_phi_mass->Draw();
-  gPad->Print("./Plots/reco_phi_mass.png");
+  gPad->Print("./Plots_sigma/reco_phi_mass.png");
   makeCan();
   reco_phi_near_mass->Draw();
-  gPad->Print("./Plots/reco_phi_near_mass.png");
+  gPad->Print("./Plots_sigma/reco_phi_near_mass.png");
 
   makeCan();
   KpKp_pt->Draw();
-  gPad->Print("./Plots/kpkp_pt.png");
+  gPad->Print("./Plots_sigma/kpkp_pt.png");
   makeCan();
   KpKp_eta->Draw();
-  gPad->Print("./Plots/kpkp_eta.png");
+  gPad->Print("./Plots_sigma/kpkp_eta.png");
   makeCan();
   KpKp_phi->Draw();
-  gPad->Print("./Plots/kpkp_phi.png");
+  gPad->Print("./Plots_sigma/kpkp_phi.png");
   makeCan();
   KpKp_mass->Draw();
-  gPad->Print("./Plots/kpkp_mass.png");
+  gPad->Print("./Plots_sigma/kpkp_mass.png");
   makeCan();
   KmKm_pt->Draw();
-  gPad->Print("./Plots/kmkm_pt.png");
+  gPad->Print("./Plots_sigma/kmkm_pt.png");
   makeCan();
   KmKm_eta->Draw();
-  gPad->Print("./Plots/kmkm_eta.png");
+  gPad->Print("./Plots_sigma/kmkm_eta.png");
   makeCan();
   KmKm_phi->Draw();
-  gPad->Print("./Plots/kmkm_phi.png");
+  gPad->Print("./Plots_sigma/kmkm_phi.png");
   makeCan();
   KmKm_mass->Draw();
-  gPad->Print("./Plots/kmkm_mass.png");
+  gPad->Print("./Plots_sigma/kmkm_mass.png");
 
   makeCan();
   like_sign_pt->Draw();
-  gPad->Print("./Plots/ls_pt.png");
+  gPad->Print("./Plots_sigma/ls_pt.png");
   makeCan();
   like_sign_mass->Draw();
-  gPad->Print("./Plots/ls_mass.png");
+  gPad->Print("./Plots_sigma/ls_mass.png");
   makeCan();
   like_sign_eta->Draw();
-  gPad->Print("./Plots/ls_eta.png");
+  gPad->Print("./Plots_sigma/ls_eta.png");
   makeCan();
   like_sign_phi->Draw();
-  gPad->Print("./Plots/ls_phi.png");
+  gPad->Print("./Plots_sigma/ls_phi.png");
 }
