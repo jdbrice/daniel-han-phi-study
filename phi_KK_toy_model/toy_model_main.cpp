@@ -19,211 +19,61 @@
 
 thread_local TRandom3 rng_toy(0);
 
-double KAON_MASS = 0.493;
-double PION_MASS = 0.139;
-double ELECTRON_MASS = 0.000511;
 int PHI_SAMPLE_SIZE = 1500;
-int PHI_INC_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
-int RHO_SAMPLE_SIZE = 2 * PHI_SAMPLE_SIZE;
-int RHO_INC_SAMPLE_SIZE = 100 * PHI_SAMPLE_SIZE;
-int ElECTRON_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int PHI_INC_SAMPLE_SIZE =  PHI_SAMPLE_SIZE;
+int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int RHO_INC_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int ELECTRON_SAMPLE_SIZE = 0;
 
 int main(int argc, char **argv) {
-  // create vectors for parent vector and daughter vectors
-  std::vector<TLorentzVector *> parent_ptr_vector;
-  std::vector<TLorentzVector *> pdaughter_ptr_vector;
-  std::vector<TLorentzVector *> mdaughter_ptr_vector;
+  std::vector<TLorentzVector *> mc_phi, mc_k1, mc_k2, rc_phi, rc_k1, rc_k2;
+  std::vector<TLorentzVector *> mc_rho, mc_pi1, mc_pi2, rc_rho, rc_pi1, rc_pi2;
+  std::vector<TLorentzVector *> mc_gamma, mc_e1, mc_e2, rc_gamma, rc_e1, rc_e2;
+  std::vector<TLorentzVector *> mc_inc_phi, mc_inc_k1, mc_inc_k2, rc_inc_phi,
+      rc_inc_k1, rc_inc_k2;
+  std::vector<TLorentzVector *> mc_inc_rho, mc_inc_pi1, mc_inc_pi2, rc_inc_rho,
+      rc_inc_pi1, rc_inc_pi2;
 
-  // hardcoded starlight histogram files
-  TFile *kaon_file =
-      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
-  TFile *kaon_inc_file = new TFile(
-      "/home/xihe/daniel-han-phi-study/starlight_hist/kaon_inco.root");
-  TFile *pion_file =
-      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion.root");
-  TFile *pion_inc_file = new TFile(
-      "/home/xihe/daniel-han-phi-study/starlight_hist/pion_inco.root");
-  TFile *electron_file =
-      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/electron.root");
+  std::vector<TLorentzVector *> rc_daughter1, rc_daughter2, rc_parent;
 
-  // simulate the decay process for rho -> pi+ pi-
-  for (int i = 0; i < RHO_SAMPLE_SIZE; i++) {
+  Random_routines::trigger_two_body_decay("kaon", PHI_SAMPLE_SIZE, mc_phi,
+                                          mc_k1, mc_k2, rc_phi, rc_k1, rc_k2);
+  Random_routines::trigger_two_body_decay(
+      "pion", RHO_SAMPLE_SIZE, mc_rho, mc_pi1, mc_pi2, rc_rho, rc_pi1, rc_pi2);
+  Random_routines::trigger_two_body_decay("electron", ELECTRON_SAMPLE_SIZE,
+                                          mc_gamma, mc_e1, mc_e2, rc_gamma,
+                                          rc_e1, rc_e2);
+  Random_routines::trigger_two_body_decay("kaon_inc", PHI_INC_SAMPLE_SIZE,
+                                          mc_inc_phi, mc_inc_k1, mc_inc_k2,
+                                          rc_inc_phi, rc_inc_k1, rc_inc_k2);
+  Random_routines::trigger_two_body_decay("pion_inc", RHO_INC_SAMPLE_SIZE,
+                                          mc_inc_rho, mc_inc_pi1, mc_inc_pi2,
+                                          rc_inc_rho, rc_inc_pi1, rc_inc_pi2);
 
-    TLorentzVector *rho_parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(pion_file, "pion");
-    parent_ptr_vector.push_back(rho_parent_particle_ptr);
+  rc_daughter1.insert(rc_daughter1.end(), rc_k1.begin(), rc_k1.end());
+  rc_daughter2.insert(rc_daughter2.end(), rc_k2.begin(), rc_k2.end());
+  rc_daughter1.insert(rc_daughter1.end(), rc_inc_k1.begin(), rc_inc_k1.end());
+  rc_daughter2.insert(rc_daughter2.end(), rc_inc_k2.begin(), rc_inc_k2.end());
+  rc_daughter1.insert(rc_daughter1.end(), rc_pi1.begin(), rc_pi1.end());
+  rc_daughter2.insert(rc_daughter2.end(), rc_pi2.begin(), rc_pi2.end());
+  rc_daughter1.insert(rc_daughter1.end(), rc_inc_pi1.begin(), rc_inc_pi1.end());
+  rc_daughter2.insert(rc_daughter2.end(), rc_inc_pi2.begin(), rc_inc_pi2.end());
+  rc_daughter1.insert(rc_daughter1.end(), rc_e1.begin(), rc_e1.end());
+  rc_daughter2.insert(rc_daughter2.end(), rc_e2.begin(), rc_e2.end());
 
-    // simulate the decay process with the daughter mass being pion
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(rho_parent_particle_ptr, PION_MASS,
-                                        PION_MASS);
-
-    // blur the daughter particles by 2 percent to simulate actual particle
-    // detector accuracy
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0], 3);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1], 3);
-
-    pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
-    mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
-
-    // now change the daughter mass to be Kaon- the assumed particle when doing
-    // Kaon selections
-    pdaughter_ptr_vector[i]->SetPtEtaPhiM(
-        pdaughter_ptr_vector[i]->Pt(), pdaughter_ptr_vector[i]->Eta(),
-        pdaughter_ptr_vector[i]->Phi(), KAON_MASS);
-    mdaughter_ptr_vector[i]->SetPtEtaPhiM(
-        mdaughter_ptr_vector[i]->Pt(), mdaughter_ptr_vector[i]->Eta(),
-        mdaughter_ptr_vector[i]->Phi(), KAON_MASS);
-  }
-
-  // simualte decay process for phi -> K+ K-
-  for (int i = 0; i < PHI_SAMPLE_SIZE; i++) {
-    // generate parent vector that is a 4 vector uniformly distributed between
-    // pt, eta, phi bounds with phi mass
-    TLorentzVector *phi_parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(kaon_file, "kaon");
-    parent_ptr_vector.push_back(phi_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being kaon
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(phi_parent_particle_ptr, KAON_MASS,
-                                        KAON_MASS);
-
-    // blur the daughter particles by 4 percent to simulate actual particle
-    // detector accuracy
-
-    // only the real phi daughter with pt > 0.06 is blurred because they will
-    // not be selected in dedx code, but shouldn't be blurred twice in TOF
-    // process.
-    //
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0], 3);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1], 3);
-
-    pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
-    mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
-  }
-
-  for (int i = 0; i < ElECTRON_SAMPLE_SIZE; i++) {
-    // generate parent vector that is a 4 vector uniformly distributed between
-    // pt, eta, phi bounds with phi mass
-    TLorentzVector *combined_electron_ptr =
-        Random_routines::get_slight_lorentz_vector(electron_file, "electron");
-    parent_ptr_vector.push_back(combined_electron_ptr);
-
-    // simulate the decay process with the daughter mass being pion
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(combined_electron_ptr, ELECTRON_MASS,
-                                        ELECTRON_MASS);
-
-    // blur the daughter particles by 2 percent to simulate actual particle
-    // detector accuracy
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0], 3);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1], 3);
-
-    pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
-    mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
-
-    int electron_starting_index = PHI_SAMPLE_SIZE + RHO_SAMPLE_SIZE;
-    // now change the daughter mass to be Kaon- the assumed particle when doing
-    // Kaon selections
-    pdaughter_ptr_vector[i + electron_starting_index]->SetPtEtaPhiM(
-        pdaughter_ptr_vector[i + electron_starting_index]->Pt(),
-        pdaughter_ptr_vector[i + electron_starting_index]->Eta(),
-        pdaughter_ptr_vector[i + electron_starting_index]->Phi(), KAON_MASS);
-    mdaughter_ptr_vector[i + electron_starting_index]->SetPtEtaPhiM(
-        mdaughter_ptr_vector[i + electron_starting_index]->Pt(),
-        mdaughter_ptr_vector[i + electron_starting_index]->Eta(),
-        mdaughter_ptr_vector[i + electron_starting_index]->Phi(), KAON_MASS);
-  }
-  for (int i = 0; i < RHO_INC_SAMPLE_SIZE; i++) {
-
-    TLorentzVector *rho_parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(pion_inc_file, "pion");
-    parent_ptr_vector.push_back(rho_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being pion
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(rho_parent_particle_ptr, PION_MASS,
-                                        PION_MASS);
-
-    // blur the daughter particles by 2 percent to simulate actual particle
-    // detector accuracy
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0], 3);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1], 3);
-
-    daughter_ptr_pair[0]->SetPtEtaPhiM(daughter_ptr_pair[0]->Pt(),
-                                       daughter_ptr_pair[0]->Eta(),
-                                       daughter_ptr_pair[0]->Phi(), KAON_MASS);
-
-    daughter_ptr_pair[1]->SetPtEtaPhiM(daughter_ptr_pair[1]->Pt(),
-                                       daughter_ptr_pair[1]->Eta(),
-                                       daughter_ptr_pair[1]->Phi(), KAON_MASS);
-
-    pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
-    mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
-
-    // now change the daughter mass to be Kaon- the assumed particle when doing
-    // Kaon selections
-  }
-
-  for (int i = 0; i < PHI_INC_SAMPLE_SIZE; i++) {
-    // generate parent vector that is a 4 vector uniformly distributed between
-    // pt, eta, phi bounds with phi mass
-    TLorentzVector *phi_parent_particle_ptr =
-        Random_routines::get_slight_lorentz_vector(kaon_inc_file, "kaon");
-    parent_ptr_vector.push_back(phi_parent_particle_ptr);
-
-    // simulate the decay process with the daughter mass being kaon
-    std::vector<TLorentzVector *> daughter_ptr_pair =
-        Random_routines::two_body_decay(phi_parent_particle_ptr, KAON_MASS,
-                                        KAON_MASS);
-
-    // blur the daughter particles by 4 percent to simulate actual particle
-    // detector accuracy
-
-    // only the real phi daughter with pt > 0.06 is blurred because they will
-    // not be selected in dedx code, but shouldn't be blurred twice in TOF
-    // process.
-    //
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0], 3);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1], 3);
-
-    pdaughter_ptr_vector.push_back(daughter_ptr_pair[0]);
-    mdaughter_ptr_vector.push_back(daughter_ptr_pair[1]);
-  }
+  rc_parent.insert(rc_parent.end(), rc_phi.begin(), rc_phi.end());
+  rc_parent.insert(rc_parent.end(), rc_inc_phi.begin(), rc_inc_phi.end());
+  rc_parent.insert(rc_parent.end(), rc_rho.begin(), rc_rho.end());
+  rc_parent.insert(rc_parent.end(), rc_inc_rho.begin(), rc_inc_rho.end());
+  rc_parent.insert(rc_parent.end(), rc_gamma.begin(), rc_gamma.end());
 
   // create histogram to draw rc mass
-  TH1F *parent_rc_mass_total =
-      new TH1F("Combined Masses",
-               "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count", 100, 0.9, 1.1);
-  TH1F *parent_rc_mass_mc_phi =
-      new TH1F("Combined Masses",
-               "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count", 100, 0.9, 1.1);
+  TH1F *parent_rc_mass_total = new TH1F(
+      "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
+      100, 0.9, 1.1);
+  TH1F *parent_rc_mass_mc_phi = new TH1F(
+      "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
+      100, 0.9, 1.1);
   TH1F *parent_rc_mass_mc_rho = new TH1F(
       "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
       100, 0.9, 1.1);
@@ -265,199 +115,108 @@ int main(int argc, char **argv) {
 
   // create an instance of particle selector
   Selector pid = Selector();
+  for (int i = 0; i < rc_k1.size(); i++) {
+    double pt1 = rc_k1[i]->Pt();
+    double pt2 = rc_k2[i]->Pt();
+    double p1 = rc_k1[i]->P();
+    double p2 = rc_k2[i]->P();
+    double nsigmakaon1 =
+        pid.compute_NSigmaKaon(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmapion1 =
+        pid.compute_NSigmaPion(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmaelectron1 =
+        pid.compute_NSigmaElectron(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmakaon2 =
+        pid.compute_NSigmaKaon(p2, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmapion2 =
+        pid.compute_NSigmaPion(p2, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmaelectron2 =
+        pid.compute_NSigmaElectron(p2, pid.dEdxKaon, pid.sigma_meson);
 
-  // select daughter particle to be Kaon. This is for case where daughter
-  // particle has momentum > 60 MeV
-  for (int i = 0; i < RHO_SAMPLE_SIZE; i++) {
-    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxPion, pid.sigma_meson));
-    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxPion, pid.sigma_meson));
-    all_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-    all_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-    all_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-    all_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-    all_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-    all_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) > 5.) {
-      // reconstruct the dauther particles only if they are kaons.
-      // This effectively selects phi
-      TLorentzVector reconstructed_parent =
-          *(pdaughter_ptr_vector[i]) + *(mdaughter_ptr_vector[i]);
-      // fill the reconstructed parent mass
-      parent_rc_mass_total->Fill(reconstructed_parent.M());
-      parent_rc_mass_mc_rho->Fill(reconstructed_parent.M());
-      parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
-                                    reconstructed_parent.Pt());
-      kaon_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-      kaon_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-      kaon_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-      kaon_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-      kaon_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-      kaon_phi->Fill(mdaughter_ptr_vector[i]->Phi());
+    if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
+        abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06) {
+      kaon_pt->Fill(pt1);
+      kaon_pt->Fill(pt2);
+      parent_rc_mass_total->Fill(rc_phi[i]->M());
+      parent_rc_mass_mc_phi->Fill(rc_phi[i]->M());
     }
   }
+  for (int i = 0; i < rc_inc_k1.size(); i++) {
+    double pt1 = rc_inc_k1[i]->Pt();
+    double pt2 = rc_inc_k2[i]->Pt();
+    double p1 = rc_inc_k1[i]->P();
+    double p2 = rc_inc_k2[i]->P();
+    double nsigmakaon1 =
+        pid.compute_NSigmaKaon(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmapion1 =
+        pid.compute_NSigmaPion(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmaelectron1 =
+        pid.compute_NSigmaElectron(p1, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmakaon2 =
+        pid.compute_NSigmaKaon(p2, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmapion2 =
+        pid.compute_NSigmaPion(p2, pid.dEdxKaon, pid.sigma_meson);
+    double nsigmaelectron2 =
+        pid.compute_NSigmaElectron(p2, pid.dEdxKaon, pid.sigma_meson);
 
-  for (int i = RHO_SAMPLE_SIZE; i < RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE; i++) {
-    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxKaon, pid.sigma_meson));
-    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxKaon, pid.sigma_meson));
-    all_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-    all_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-    all_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-    all_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-    all_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-    all_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) > 5.) {
-      // reconstruct the dauther particles only if they are kaons.
-      // This effectively selects phi
-      TLorentzVector reconstructed_parent =
-          *(pdaughter_ptr_vector[i]) + *(mdaughter_ptr_vector[i]);
-      // fill the reconstructed parent mass
-      parent_rc_mass_total->Fill(reconstructed_parent.M());
-      parent_rc_mass_mc_phi->Fill(reconstructed_parent.M());
-      parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
-                                    reconstructed_parent.Pt());
-      kaon_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-      kaon_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-      kaon_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-      kaon_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-      kaon_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-      kaon_phi->Fill(mdaughter_ptr_vector[i]->Phi());
+    if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
+        abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06) {
+      kaon_pt->Fill(pt1);
+      kaon_pt->Fill(pt2);
+      parent_rc_mass_total->Fill(rc_inc_phi[i]->M());
+      parent_rc_mass_mc_phi->Fill(rc_inc_phi[i]->M());
     }
   }
-  for (int i = RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE;
-       i < RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE + ElECTRON_SAMPLE_SIZE; i++) {
-    nsigmapion->Fill(pid.compute_NSigmaPion(
-        pdaughter_ptr_vector[i]->Pt(), pid.dEdxElectron, pid.sigma_electron));
-    nsigmakaon->Fill(pid.compute_NSigmaKaon(
-        pdaughter_ptr_vector[i]->Pt(), pid.dEdxElectron, pid.sigma_electron));
-    all_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-    all_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-    all_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-    all_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-    all_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-    all_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxElectron, pid.sigma_electron)) <
-            5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxElectron, pid.sigma_electron)) <
-            5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxElectron, pid.sigma_electron)) >
-            5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxElectron, pid.sigma_electron)) >
-            5.) {
-      // reconstruct the daughter particles only if they are kaons.
-      // This effectively selects phi
-      TLorentzVector reconstructed_parent =
-          *(pdaughter_ptr_vector[i]) + *(mdaughter_ptr_vector[i]);
-      // fill the reconstructed parent mass
-      parent_rc_mass_total->Fill(reconstructed_parent.M());
-      parent_rc_mass_mc_electron->Fill(reconstructed_parent.M());
-      parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
-                                    reconstructed_parent.Pt());
-      kaon_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-      kaon_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-      kaon_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-      kaon_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-      kaon_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-      kaon_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    }
-  }
+  for (int i = 0; i < rc_pi1.size(); i++) {
+    double pt1 = rc_pi1[i]->Pt();
+    double pt2 = rc_pi1[i]->Pt();
+    double p1 = rc_pi1[i]->P();
+    double p2 = rc_pi2[i]->P();
+    double nsigmakaon1 =
+        pid.compute_NSigmaKaon(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmapion1 =
+        pid.compute_NSigmaPion(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmaelectron1 =
+        pid.compute_NSigmaElectron(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmakaon2 =
+        pid.compute_NSigmaKaon(p2, pid.dEdxPion, pid.sigma_meson);
+    double nsigmapion2 =
+        pid.compute_NSigmaPion(p2, pid.dEdxPion, pid.sigma_meson);
+    double nsigmaelectron2 =
+        pid.compute_NSigmaElectron(p2, pid.dEdxPion, pid.sigma_meson);
 
-  for (int i = RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE + ElECTRON_SAMPLE_SIZE;
-       i < RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE + ElECTRON_SAMPLE_SIZE +
-               RHO_INC_SAMPLE_SIZE;
-       i++) {
-    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxPion, pid.sigma_meson));
-    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxPion, pid.sigma_meson));
-    all_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-    all_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-    all_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-    all_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-    all_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-    all_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxPion, pid.sigma_meson)) > 5.) {
-      // reconstruct the dauther particles only if they are kaons.
-      // This effectively selects phi
-      TLorentzVector reconstructed_parent =
-          *(pdaughter_ptr_vector[i]) + *(mdaughter_ptr_vector[i]);
-      // fill the reconstructed parent mass
-      parent_rc_mass_total->Fill(reconstructed_parent.M());
-      parent_rc_mass_mc_rho->Fill(reconstructed_parent.M());
-      parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
-                                    reconstructed_parent.Pt());
-      kaon_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-      kaon_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-      kaon_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-      kaon_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-      kaon_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-      kaon_phi->Fill(mdaughter_ptr_vector[i]->Phi());
+    if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
+        abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06) {
+      kaon_pt->Fill(pt1);
+      kaon_pt->Fill(pt2);
+      parent_rc_mass_total->Fill(rc_rho[i]->M());
+      parent_rc_mass_mc_rho->Fill(rc_rho[i]->M());
     }
   }
-  for (int i = RHO_SAMPLE_SIZE + PHI_SAMPLE_SIZE + ElECTRON_SAMPLE_SIZE +
-               RHO_INC_SAMPLE_SIZE;
-       i < pdaughter_ptr_vector.size(); i++) {
-    nsigmapion->Fill(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxKaon, pid.sigma_meson));
-    nsigmakaon->Fill(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                            pid.dEdxKaon, pid.sigma_meson));
-    all_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-    all_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-    all_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-    all_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-    all_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-    all_phi->Fill(mdaughter_ptr_vector[i]->Phi());
-    if (std::abs(pid.compute_NSigmaKaon(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(pdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(mdaughter_ptr_vector[i]->Pt(),
-                                        pid.dEdxKaon, pid.sigma_meson)) > 5.) {
-      // reconstruct the dauther particles only if they are kaons.
-      // This effectively selects phi
-      TLorentzVector reconstructed_parent =
-          *(pdaughter_ptr_vector[i]) + *(mdaughter_ptr_vector[i]);
-      // fill the reconstructed parent mass
-      parent_rc_mass_total->Fill(reconstructed_parent.M());
-      parent_rc_mass_mc_phi->Fill(reconstructed_parent.M());
-      parent_rc_mass_pt_total->Fill(reconstructed_parent.M(),
-                                    reconstructed_parent.Pt());
-      kaon_pt->Fill(pdaughter_ptr_vector[i]->Pt());
-      kaon_pt->Fill(mdaughter_ptr_vector[i]->Pt());
-      kaon_eta->Fill(pdaughter_ptr_vector[i]->Eta());
-      kaon_eta->Fill(mdaughter_ptr_vector[i]->Eta());
-      kaon_phi->Fill(pdaughter_ptr_vector[i]->Phi());
-      kaon_phi->Fill(mdaughter_ptr_vector[i]->Phi());
+  for (int i = 0; i < rc_inc_pi1.size(); i++) {
+    double pt1 = rc_inc_pi1[i]->Pt();
+    double pt2 = rc_inc_pi1[i]->Pt();
+    double p1 = rc_inc_pi1[i]->P();
+    double p2 = rc_inc_pi2[i]->P();
+    double nsigmakaon1 =
+        pid.compute_NSigmaKaon(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmapion1 =
+        pid.compute_NSigmaPion(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmaelectron1 =
+        pid.compute_NSigmaElectron(p1, pid.dEdxPion, pid.sigma_meson);
+    double nsigmakaon2 =
+        pid.compute_NSigmaKaon(p2, pid.dEdxPion, pid.sigma_meson);
+    double nsigmapion2 =
+        pid.compute_NSigmaPion(p2, pid.dEdxPion, pid.sigma_meson);
+    double nsigmaelectron2 =
+        pid.compute_NSigmaElectron(p2, pid.dEdxPion, pid.sigma_meson);
+
+    if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
+        abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06) {
+      kaon_pt->Fill(pt1);
+      kaon_pt->Fill(pt2);
+      parent_rc_mass_total->Fill(rc_inc_rho[i]->M());
+      parent_rc_mass_mc_rho->Fill(rc_rho[i]->M());
     }
   }
 

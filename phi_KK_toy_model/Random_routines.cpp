@@ -232,8 +232,9 @@ void Random_routines::trigger_two_body_decay(
 
       TLorentzVector parent_rc = *d1_rc_ptr + *d2_rc_ptr;
       TLorentzVector *parent_rc_ptr = new TLorentzVector;
-      parent_rc_ptr->SetPtEtaPhiE(parent_rc.Pt(), parent_rc.Eta(),
+      parent_rc_ptr->SetPtEtaPhiM(parent_rc.Pt(), parent_rc.Eta(),
                                   parent_rc.Eta(), parent_rc.M());
+      rc_parent.push_back(parent_rc_ptr);
       count++;
     }
   } else if (type == "pion") {
@@ -267,8 +268,9 @@ void Random_routines::trigger_two_body_decay(
 
       TLorentzVector parent_rc = *d1_rc_ptr + *d2_rc_ptr;
       TLorentzVector *parent_rc_ptr = new TLorentzVector;
-      parent_rc_ptr->SetPtEtaPhiE(parent_rc.Pt(), parent_rc.Eta(),
+      parent_rc_ptr->SetPtEtaPhiM(parent_rc.Pt(), parent_rc.Eta(),
                                   parent_rc.Eta(), parent_rc.M());
+      rc_parent.push_back(parent_rc_ptr);
       count++;
     }
   } else if (type == "electron") {
@@ -302,8 +304,9 @@ void Random_routines::trigger_two_body_decay(
 
       TLorentzVector parent_rc = *d1_rc_ptr + *d2_rc_ptr;
       TLorentzVector *parent_rc_ptr = new TLorentzVector;
-      parent_rc_ptr->SetPtEtaPhiE(parent_rc.Pt(), parent_rc.Eta(),
+      parent_rc_ptr->SetPtEtaPhiM(parent_rc.Pt(), parent_rc.Eta(),
                                   parent_rc.Eta(), parent_rc.M());
+      rc_parent.push_back(parent_rc_ptr);
       count++;
     }
   } else if (type == "kaon_inc") {
@@ -337,8 +340,9 @@ void Random_routines::trigger_two_body_decay(
 
       TLorentzVector parent_rc = *d1_rc_ptr + *d2_rc_ptr;
       TLorentzVector *parent_rc_ptr = new TLorentzVector;
-      parent_rc_ptr->SetPtEtaPhiE(parent_rc.Pt(), parent_rc.Eta(),
+      parent_rc_ptr->SetPtEtaPhiM(parent_rc.Pt(), parent_rc.Eta(),
                                   parent_rc.Eta(), parent_rc.M());
+      rc_parent.push_back(parent_rc_ptr);
       count++;
     }
 
@@ -373,8 +377,9 @@ void Random_routines::trigger_two_body_decay(
 
       TLorentzVector parent_rc = *d1_rc_ptr + *d2_rc_ptr;
       TLorentzVector *parent_rc_ptr = new TLorentzVector;
-      parent_rc_ptr->SetPtEtaPhiE(parent_rc.Pt(), parent_rc.Eta(),
+      parent_rc_ptr->SetPtEtaPhiM(parent_rc.Pt(), parent_rc.Eta(),
                                   parent_rc.Eta(), parent_rc.M());
+      rc_parent.push_back(parent_rc_ptr);
       count++;
     }
   } else {
