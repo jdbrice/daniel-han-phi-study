@@ -32,20 +32,20 @@ void makeCan() {
   can->SetRightMargin(0.01);
 }
 
-void nsigma_manual() {
+void nsigma_manual_e() {
 
   // histograms for all tracks
-  TH1F *all_DCA = new TH1F("Pion Candidates",
+  TH1F *all_DCA = new TH1F("Proton Candidates",
                            "Run 19 A+A DCA All Tracks;DCA;counts", 100, 0., 3.);
 
-  TH1F *pion_Npion =
-      new TH1F("Pion Candidates",
-               "Run 19 A+A N#sigma#pi Pion Candidates;(N#sigmaPion);counts",
-               100, -10, 10);
+  TH1F *electron_Nelectron = new TH1F(
+      "Electron Candidates",
+      "Run 19 A+A N#sigmaE Electron Candidates;(N#sigmaE);counts", 100, -10, 10);
 
-  TH2F *pion_pt_NPion = new TH2F(
-      "Pion Candidates", "Run 19 A+A N#sigmaPion Pion Candidates;P_{T};N#sigmaPion",
-      100, 0.25, 0.5, 100, -5, 5);
+  TH2F *electron_pt_NElectron =
+      new TH2F("Electron Candidates",
+               "Run 19 A+A N#sigmaElectron Proton Candidates;P_{T};N#sigmaElectron",
+               100, 0.25, 0.5, 100, -6, 8);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -62,15 +62,21 @@ void nsigma_manual() {
   // Loop over all entries of the TTree or TChain.
   while (myReader.Next()) {
 
-    if (pair->mChargeSum == 0 && abs(pair->d1_mNSigmaPion) < 5 &&
-        abs(pair->d2_mNSigmaPion) < 5 && abs(pair->d1_mNSigmaElectron) > 5 &&
-        abs(pair->d2_mNSigmaElectron) > 5 && abs(pair->d2_mNSigmaKaon) > 5 &&
-        abs(pair->d1_mNSigmaKaon) > 5) {
-      pion_Npion->Fill(pair->d1_mNSigmaPion);
-      pion_Npion->Fill(pair->d2_mNSigmaPion);
+    if (pair->mChargeSum == 0 &&
+        (pair->d1_mNSigmaKaon > 7.4 || pair->d1_mNSigmaKaon < -2.6) &&
+        (pair->d2_mNSigmaKaon > 7.4 || pair->d2_mNSigmaKaon < -2.6) &&
+        (pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
+        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
+        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaProton < -2.64) &&
+        (pair->d2_mNSigmaProton > 7.36 || pair->d2_mNSigmaProton < -2.64) &&
+        abs(pair->d1_mNSigmaElectron) < 30 &&
+        abs(pair->d2_mNSigmaElectron) > 30){
 
-      pion_pt_NPion->Fill(pair->d1_mPt, pair->d1_mNSigmaPion);
-      pion_pt_NPion->Fill(pair->d2_mPt, pair->d2_mNSigmaPion);
+      electron_Nelectron->Fill(pair->d1_mNSigmaElectron);
+      electron_Nelectron->Fill(pair->d2_mNSigmaElectron);
+
+      electron_pt_NElectron->Fill(pair->d1_mPt, pair->d1_mNSigmaElectron);
+      electron_pt_NElectron->Fill(pair->d2_mPt, pair->d2_mNSigmaElectron);
     }
   } // loop on events
 
@@ -78,53 +84,54 @@ void nsigma_manual() {
   std::vector<double> pt_values;
   std::vector<double> mean_errors;
   // go through all the bins
-  for (int i = 1; i <= pion_pt_NPion->GetNbinsX(); ++i) {
+  for (int i = 1; i <= electron_pt_NElectron->GetNbinsX(); ++i) {
     // Projection Y for each bin in X
-    TH1D *y_proj = pion_pt_NPion->ProjectionY("_py", i, i);
+    TH1D *y_proj = electron_pt_NElectron->ProjectionY("_py", i, i);
     // fit gaussian quitely for each bin
     TFitResultPtr fit_result = y_proj->Fit("gaus", "QS");
     // store the mean_value
     if ((int)fit_result == 0) { // case for successful fit
       mean_values.push_back(fit_result->Parameter(1));
-      pt_values.push_back(pion_pt_NPion->GetXaxis()->GetBinCenter(i));
+      pt_values.push_back(electron_pt_NElectron->GetXaxis()->GetBinCenter(i));
       mean_errors.push_back(fit_result->Error(1));
     } else {
       mean_values.push_back(999);
-      pt_values.push_back(pion_pt_NPion->GetXaxis()->GetBinCenter(i));
+      pt_values.push_back(electron_pt_NElectron->GetXaxis()->GetBinCenter(i));
       mean_errors.push_back(999);
     }
     delete y_proj;
   }
   // get the all momentum nsigmapion result
-  TH1D *all_momentum = pion_pt_NPion->ProjectionY();
+  TH1D *all_momentum = electron_pt_NElectron->ProjectionY();
   TFitResultPtr fitResult =
       all_momentum->Fit("gaus", "QS"); // Fit the projection
-  double nsigmapion_mean = fitResult->Parameter(1);
-  double nsigmapion_error = fitResult->Error(1);
+  double nsigmaelectron_mean = fitResult->Parameter(1);
+  double nsigmaelectron_error = fitResult->Error(1);
   TF1 *all_momentum_fit = all_momentum->GetFunction("gaus");
 
   // graphing the momentum-dependent result
-  std::cout << nsigmapion_mean << std::endl;
+  std::cout << nsigmaelectron_mean << "    " << nsigmaelectron_error << std::endl;
   // Create TGraph
   makeCan();
   TGraphErrors *graph = new TGraphErrors(mean_values.size(), &pt_values[0],
                                          &mean_values[0], 0, &mean_errors[0]);
   graph->SetTitle(
-      "NSigmaPion Mean vs. Transverse Momentum; Pt(GeV); NSigmaPion Mean");
+      "NSigmaElectron Mean vs. Transverse Momentum; Pt(GeV); NSigmaElectron Mean");
   graph->SetMarkerSize(0.8);
   graph->SetMarkerStyle(20);
   graph->Draw("AP"); // Draw as points with axes
 
   // graphing the all momentum result
   TBox *meanBox =
-      new TBox(pt_values.front(), nsigmapion_mean - nsigmapion_error,
-               pt_values.back(), nsigmapion_mean + nsigmapion_error);
+      new TBox(pt_values.front(), nsigmaelectron_mean - nsigmaelectron_error,
+               pt_values.back(), nsigmaelectron_mean + nsigmaelectron_error);
 
   meanBox->SetFillColor(kBlue);
   meanBox->SetFillStyle(3004);
   meanBox->Draw("same");
 
-  TLine *meanLine = new TLine(pt_values.front(), nsigmapion_mean, pt_values.back(), nsigmapion_mean);
+  TLine *meanLine = new TLine(pt_values.front(), nsigmaelectron_mean,
+                              pt_values.back(), nsigmaelectron_mean);
   meanLine->SetLineColor(kBlue);
   meanLine->Draw("same");
   // Create a legend
@@ -135,17 +142,18 @@ void nsigma_manual() {
   legend->AddEntry(meanBox, "All Momentum", "f");
   legend->Draw("same");
   makeCan();
-  pion_pt_NPion->Draw("colz");
+  electron_pt_NElectron->Draw("colz");
   makeCan();
   all_momentum->Draw("ep");
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmapion_mean, 0, nsigmapion_mean, 14000);
+  TLine *mean_line = new TLine(nsigmaelectron_mean, 0, nsigmaelectron_mean, 14000);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
-  TBox *box = new TBox(nsigmapion_mean - nsigmapion_error, 0, nsigmapion_mean + nsigmapion_error,  14000);
+  TBox *box = new TBox(nsigmaelectron_mean - nsigmaelectron_error, 0,
+                       nsigmaelectron_mean + nsigmaelectron_error, 14000);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //
