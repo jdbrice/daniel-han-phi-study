@@ -23,7 +23,7 @@ void makeCan() {
   can->SetRightMargin(0.01);
 }
 
-void daughter_distribution_test() {
+void daughter_distribution_no_sigma_corr() {
 
   // histograms for all tracks
   TH1F *all_DCA = new TH1F("All Tracks", "Run 19 A+A DCA All Tracks;DCA;counts",
@@ -83,17 +83,13 @@ void daughter_distribution_test() {
   TH1F *reco_phi_mass = new TH1F(
       "reco_phi ",
       "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
-      0.9, 1.8);
+      0.9, 1.4);
 
   TH1F *reco_phi_near_mass = new TH1F(
       "reco_phi ",
       "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
       1., 1.04);
 
-  TH1F *reco_phi_far_mass = new TH1F(
-      "reco_phi ",
-      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
-      0.9, 2.5);
 
   TH1F *reco_phi_pt =
       new TH1F("reco_phi ", "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts",
@@ -189,12 +185,10 @@ void daughter_distribution_test() {
     all_nsigmapion_nsigmakaon->Fill(pair->d1_mNSigmaPion, pair->d1_mNSigmaKaon);
     all_nsigmapion_nsigmakaon->Fill(pair->d2_mNSigmaPion, pair->d2_mNSigmaKaon);
     // kaon candidate filling with PId selection
-    if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
-        abs(pair->d1_mNSigmaElectron) > 5 &&
-        abs(pair->d2_mNSigmaElectron) > 5 && abs(pair->d1_mNSigmaProton) > 5 &&
-        abs(pair->d2_mNSigmaProton) > 5 && abs(pair->d1_mNSigmaPion) > 5 &&
-        abs(pair->d2_mNSigmaPion) > 5 && abs(pair->d1_mNSigmaKaon) < 5 &&
-        abs(pair->d2_mNSigmaKaon) < 5) {
+    if (abs(pair->d1_mNSigmaPion) > 5 && abs(pair->d2_mNSigmaPion) > 5 && 
+        abs(pair->d1_mNSigmaProton) > 5 && abs(pair->d2_mNSigmaProton) > 5 &&
+        abs(pair->d1_mNSigmaElectron) > 5 && abs(pair->d2_mNSigmaElectron) > 5 &&
+        abs(pair->d1_mNSigmaKaon) < 5 && abs(pair->d2_mNSigmaKaon) < 5){
 
       kaon_pt->Fill(pair->d1_mPt);
       kaon_pt->Fill(pair->d2_mPt);
@@ -226,7 +220,6 @@ void daughter_distribution_test() {
         kaon_pm_ratio->Fill(pair->mChargeSum);
         reco_phi_pt->Fill(lv.Pt());
         reco_phi_mass->Fill(lv.M());
-        reco_phi_far_mass->Fill(lv.M());
         if (lv.M() >= 1. && lv.M() <= 1.04) {
           reco_phi_near_mass->Fill(lv.M());
         }
@@ -361,7 +354,4 @@ void daughter_distribution_test() {
   makeCan();
   like_sign_phi->Draw();
   gPad->Print("./Plots/ls_phi.png");
-  makeCan();
-  reco_phi_far_mass->Draw();
-  gPad->Print("./Plots/reco_phi_far_mass.png");
 }

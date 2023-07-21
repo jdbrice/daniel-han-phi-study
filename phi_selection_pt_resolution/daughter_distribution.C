@@ -2,6 +2,7 @@
 #include "FemtoPairFormat.h"
 #include "TCanvas.h"
 #include "TColor.h"
+#include "TLegend.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -11,6 +12,7 @@
 #include "TTreeReaderValue.h"
 #include <TH2.h>
 #include <TSystem.h>
+#include <TVirtualPad.h>
 #include <cmath>
 #include <math.h>
 
@@ -71,6 +73,7 @@ void daughter_distribution() {
   TH1F *kaon_Npion = new TH1F(
       "Kaon Candidates",
       "Run 19 A+A N#sigmaPion Kaon Candidates;N#sigmaPion;counts", 100, 5, 30);
+
   TH1F *kaon_Nkaon = new TH1F(
       "Kaon Cnadidates",
       "Run 19 A+A N#sigmaKaon Kaon Candidates;N#sigmaKaon;counts", 100, -4, 12);
@@ -82,22 +85,58 @@ void daughter_distribution() {
   // histogram for reco phi
   TH1F *reco_phi_mass = new TH1F(
       "reco_phi ",
-      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
-      0.9, 1.8);
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      0.9, 1.4);
+
+  TH1F *reco_phi_mass_pt_big_cut = new TH1F(
+      "reco_phi P_{T} daughter < 400 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      0.9, 1.4);
+
+  TH1F *reco_phi_mass_pt_cut = new TH1F(
+      "reco_phi P_{T} daughter < 300 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      0.9, 1.4);
+
+  TH1F *reco_phi_mass_pt_small_cut = new TH1F(
+      "reco_phi P_{T} daughter < 200 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      0.9, 1.4);
 
   TH1F *reco_phi_near_mass = new TH1F(
-      "reco_phi ",
-      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
+      "reco_phi",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
       1., 1.04);
 
-  TH1F *reco_phi_far_mass = new TH1F(
-      "reco_phi ",
-      "Run 19 A+A Invariant Mass Reco Phi ;Invariant Mass(GeV/c^2);counts", 100,
-      0.9, 2.5);
+  TH1F *reco_phi_near_mass_pt_big_cut = new TH1F(
+      "reco_phi P_{T} daughter < 400 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      1., 1.04);
+
+  TH1F *reco_phi_near_mass_pt_cut = new TH1F(
+      "reco_phi P_{T} daughter < 300 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      1., 1.04);
+
+  TH1F *reco_phi_near_mass_pt_small_cut = new TH1F(
+      "reco_phi P_{T} daughter < 200 MeV",
+      "Run 19 A+A Invariant Mass Reco Phi ;KK Invariant Mass(GeV/c^2);counts", 100,
+      1., 1.04);
+
+  TH2F *reco_phi_mass_pt =
+      new TH2F("reco_phi",
+               "Run 19 A+A Invariant Mass Reco Phi and P_{T} Reco Phi;KK "
+               "Invariant Mass(GeV/c^2);P_{T}",
+               40, 0.95, 1.4, 40, 0, 0.9);
+
 
   TH1F *reco_phi_pt =
       new TH1F("reco_phi ", "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts",
-               100, 0., 0.5);
+               100, 0., 0.9);
+
+  TH1F *reco_phi_pt_mass_cut =
+      new TH1F("reco_phi #phi mass < 1.2 GeV/c^{2}",
+               "Run 19 A+A P_{T} Reco Phi ;P_{T}(GeV/c);counts", 100, 0, 0.9);
 
   TH1F *reco_phi_eta = new TH1F(
       "reco_phi ", "Run 19 A+A #eta Reco Phi ;#eta;counts", 100, -4., 4.);
@@ -125,7 +164,7 @@ void daughter_distribution() {
       100, 0.9, 1.8);
 
   TH1F *KmKm_pt = new TH1F(
-      "KmKm ", "Run 19 A+A P_{T} K-K- ;P_{T}(GeV/c);counts", 100, 0., 1.6);
+      "KmKm ", "Run 19 A+A P_{T} K-K- ;P_e z{T}(GeV/c);counts", 100, 0., 1.6);
 
   TH1F *KmKm_eta =
       new TH1F("KmKm ", "Run 19 A+A #eta K-K- ;#eta;counts", 100, -4., 4.);
@@ -189,15 +228,16 @@ void daughter_distribution() {
     all_nsigmapion_nsigmakaon->Fill(pair->d1_mNSigmaPion, pair->d1_mNSigmaKaon);
     all_nsigmapion_nsigmakaon->Fill(pair->d2_mNSigmaPion, pair->d2_mNSigmaKaon);
     // kaon candidate filling with PId selection
-    if (pair->d1_mPt > 0.06 && pair->d2_mPt > 0.06 &&
-        abs(pair->d1_mNSigmaElectron) > 5 &&
-        abs(pair->d2_mNSigmaElectron) > 5 &&
-        abs(pair->d1_mNSigmaProton) > 5 &&
-        abs(pair->d2_mNSigmaProton) > 5 &&
-        (pair->d1_mNSigmaKaon < 7.42 && pair->d1_mNSigmaKaon > -2.58) &&
-        (pair->d2_mNSigmaKaon < 7.42 && pair->d2_mNSigmaKaon > -2.58) &&
-        (pair->d1_mNSigmaPion < -4.2 || pair->d1_mNSigmaPion > 5.8) &&
-        (pair->d2_mNSigmaPion < -4.2 || pair->d2_mNSigmaPion > 5.8)) {
+    if ((pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
+        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
+        (pair->d1_mNSigmaElectron > 5.424112 ||
+         pair->d1_mNSigmaElectron < -4.575888) &&
+        (pair->d2_mNSigmaElectron > 5.424112 ||
+         pair->d2_mNSigmaElectron < -4.575888) &&
+        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaProton < -2.64) &&
+        (pair->d2_mNSigmaProton > 7.36 || pair->d2_mNSigmaProton < -2.64) &&
+        (pair->d1_mNSigmaKaon < 7.4 && pair->d1_mNSigmaKaon > -2.6) &&
+        (pair->d2_mNSigmaKaon < 7.4 && pair->d2_mNSigmaKaon > -2.6)) {
 
       kaon_pt->Fill(pair->d1_mPt);
       kaon_pt->Fill(pair->d2_mPt);
@@ -229,12 +269,33 @@ void daughter_distribution() {
         kaon_pm_ratio->Fill(pair->mChargeSum);
         reco_phi_pt->Fill(lv.Pt());
         reco_phi_mass->Fill(lv.M());
-        reco_phi_far_mass->Fill(lv.M());
         if (lv.M() >= 1. && lv.M() <= 1.04) {
           reco_phi_near_mass->Fill(lv.M());
+          if (pair->d1_mPt < 0.4 && pair->d2_mPt < 0.4) {
+            reco_phi_near_mass_pt_big_cut->Fill(lv.M());
+          }
+          if (pair->d1_mPt < 0.3 && pair->d2_mPt < 0.3) {
+            reco_phi_near_mass_pt_cut->Fill(lv.M());
+          }
+          if (pair->d1_mPt < 0.2 && pair->d2_mPt < 0.2) {
+            reco_phi_near_mass_pt_small_cut->Fill(lv.M());
+          }
         }
         reco_phi_eta->Fill(lv.Eta());
         reco_phi_phi->Fill(lv.Phi());
+        reco_phi_mass_pt->Fill(lv.M(), lv.Pt());
+        if (pair->d1_mPt < 0.4 && pair->d2_mPt < 0.4) {
+          reco_phi_mass_pt_big_cut->Fill(lv.M());
+        }
+        if (pair->d1_mPt < 0.3 && pair->d2_mPt < 0.3) {
+          reco_phi_mass_pt_cut->Fill(lv.M());
+        }
+        if (pair->d1_mPt < 0.2 && pair->d2_mPt < 0.2) {
+          reco_phi_mass_pt_small_cut->Fill(lv.M());
+        }
+        if (lv.M() < 1.2) {
+          reco_phi_pt_mass_cut->Fill(lv.Pt());
+        }
       } else if (pair->mChargeSum == 2) {
         kaon_pm_ratio->Fill(pair->mChargeSum);
         KpKp_pt->Fill(lv.Pt());
@@ -321,11 +382,35 @@ void daughter_distribution() {
   reco_phi_phi->Draw();
   gPad->Print("./Plots_sigma/reco_phi_phi.png");
   makeCan();
-  reco_phi_mass->Draw();
+  TLegend * legend_1 = new TLegend(0.1, 0.7, 0.3, 0.9);
+  reco_phi_mass->Draw("pfc");
+  reco_phi_mass_pt_big_cut->Draw("pfc;same");
+  reco_phi_mass_pt_cut->Draw("pfc;same");
+  reco_phi_mass_pt_small_cut->Draw("pfc;same");
+  legend_1->AddEntry(reco_phi_mass, "All P_{T}");
+  legend_1->AddEntry(reco_phi_mass_pt_big_cut, "Kaon P_{T} < 400 MeV");
+  legend_1->AddEntry(reco_phi_mass_pt_cut, "Kaon P_{T} < 300 MeV");
+  legend_1->AddEntry(reco_phi_mass_pt_small_cut, "Kaon P_{T} < 200 MeV (TOF)");
+  legend_1->Draw("same");
   gPad->Print("./Plots_sigma/reco_phi_mass.png");
   makeCan();
-  reco_phi_near_mass->Draw();
+  TLegend * legend_2 = new TLegend(0.1, 0.7, 0.3, 0.9);
+  reco_phi_near_mass->Draw("pfc");
+  reco_phi_near_mass_pt_big_cut->Draw("pfc;same");
+  reco_phi_near_mass_pt_cut->Draw("pfc;same");
+  reco_phi_near_mass_pt_small_cut->Draw("pfc;same");
+  legend_2->AddEntry(reco_phi_near_mass, "All P_{T}");
+  legend_2->AddEntry(reco_phi_near_mass_pt_big_cut, "Kaon P_{T} < 400 MeV");
+  legend_2->AddEntry(reco_phi_near_mass_pt_cut, "Kaon P_{T} < 300 MeV");
+  legend_2->AddEntry(reco_phi_near_mass_pt_small_cut, "Kaon P_{T} < 200 MeV (TOF)");
+  legend_2->Draw("same");
   gPad->Print("./Plots_sigma/reco_phi_near_mass.png");
+  makeCan();
+  reco_phi_mass_pt->Draw("colz");
+  gPad->Print("./Plots_sigma/reco_phi_mass_pt.png");
+  makeCan();
+  reco_phi_pt_mass_cut->Draw();
+  gPad->Print("./Plots_sigma/reco_phi_pt_mass_cut.png");
 
   makeCan();
   KpKp_pt->Draw();
@@ -364,7 +449,4 @@ void daughter_distribution() {
   makeCan();
   like_sign_phi->Draw();
   gPad->Print("./Plots_sigma/ls_phi.png");
-  makeCan();
-  reco_phi_far_mass->Draw();
-  gPad->Print("./Plots_sigma/reco_phi_far_mass.png");
 }
