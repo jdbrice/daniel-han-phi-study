@@ -1,0 +1,4 @@
+/home/xihe/starlight/build/CMakeFiles/Starlib.dir
+/home/xihe/starlight/build/CMakeFiles/starlight.dir
+/home/xihe/starlight/build/CMakeFiles/edit_cache.dir
+/home/xihe/starlight/build/CMakeFiles/rebuild_cache.dir
