@@ -30,7 +30,7 @@ Analyze::Analyze() :
   fPtEl = new TH1F("PtEl", "Transverse momentum e+/e-", 100, 0, 0.4);
   fPtMu = new TH1F("PtMu", "Transverse momentum mu+/mu-", 100, 0, 2.);
   fPtPi = new TH1F("PtPi", "Transverse momentum pi+/pi-", 100, 0, 0.3);
-  fPtKa = new TH1F("PtKa", "Transverse momentum k+/k-", 100, 0, 0.3);
+  fPtKa = new TH1F("PtKa", "Transverse momentum k+/k-; P_{T} (GeV/c); counts", 100, 0, 0.3);
   
   fRapEl = new TH1F("RapEl", "Rapidity e+/e-", 200, -5, 5);
   fRapMu = new TH1F("RapMu", "Rapidity mu+/mu-", 200, -10, 10);
@@ -47,8 +47,8 @@ Analyze::Analyze() :
   fAzimuthPi = new TH1F("AzimuthPi", "Azimuthal angle pi+/pi-", 200, -M_PI, M_PI);
   fAzimuthKa = new TH1F("AzimuthKa", "Azimuthal angle k+/k-", 200, -M_PI, M_PI);
   
-  fPt1 = new TH1F("fPt1", "Transverse momentum track 1", 100, 0, 2.);
-  fPt2 = new TH1F("fPt2", "Transverse momentum track 2", 100, 0, 2.);
+  fPt1 = new TH1F("fPt1", "Transverse momentum kaon track 1", 100, 0, 2.);
+  fPt2 = new TH1F("fPt2", "Transverse momentum kaon track 2", 100, 0, 2.);
 
   fRap1 = new TH1F("fRap1", "Rapidity track 1", 200, -10, 10);
   fRap2 = new TH1F("fRap2", "Rapidity track 2", 200, -10, 10);
@@ -61,10 +61,10 @@ Analyze::Analyze(TString infile, Int_t nEvents) :
   //Special constructor
 
   //Creating histograms
-  fPtEl = new TH1F("PtEl", "Transverse momentum e+/e-", 200, 0, 0.12);
-  fPtMu = new TH1F("PtMu", "Transverse momentum mu+/mu-", 100, 0, 2.);
-  fPtPi = new TH1F("PtPi", "Transverse momentum pi+/pi-", 100, 0, 1.5);
-  fPtKa = new TH1F("PtKa", "Transverse momentum k+/k-", 100, 0, 1.);
+  fPtEl = new TH1F("PtEl", "Transverse momentum e+ e- Pair", 200, 0, 0.12);
+  fPtMu = new TH1F("PtMu", "Transverse momentum mu+ mu- Pair", 100, 0, 2.);
+  fPtPi = new TH1F("PtPi", "Transverse momentum pi+ pi- Pair", 100, 0, 1.5);
+  fPtKa = new TH1F("PtKa", "Transverse momentum k+ k- Pair; P_{T} (GeV/c); counts", 100, 0, 0.3);
   
   fRapEl = new TH1F("RapEl", "Rapidity e+/e-", 200, -5, 5);
   fRapMu = new TH1F("RapMu", "Rapidity mu+/mu-", 200, -10, 10);
@@ -82,8 +82,8 @@ Analyze::Analyze(TString infile, Int_t nEvents) :
   fAzimuthKa = new TH1F("AzimuthKa", "Azimuthal angle k+/k-", 200, -M_PI, M_PI);
  
 
-  fPt1 = new TH1F("fPt1", "Transverse momentum track 1", 100, 0, 2.);
-  fPt2 = new TH1F("fPt2", "Transverse momentum track 2", 100, 0, 2.);
+  fPt1 = new TH1F("fPt1", "Transverse Momentum Incoherent Kaon Track 1; P_{T} (GeV/c); counts", 100, 0, 0.7);
+  fPt2 = new TH1F("fPt2", "Transverse Momentum Incoherent Kaon Track 2; P_{T} (GeV/c); counts", 100, 0, 0.7);
 
   fRap1 = new TH1F("fRap1", "Rapidity track 1", 200, -10, 10);
   fRap2 = new TH1F("fRap2", "Rapidity track 2", 200, -10, 10);

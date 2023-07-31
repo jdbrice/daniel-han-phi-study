@@ -35,7 +35,7 @@ void makeCan() {
 void nsigma_manual_e() {
 
   // histograms for all tracks
-  TH1F *all_DCA = new TH1F("Proton Candidates",
+  TH1F *all_DCA = new TH1F("Electron Candidates",
                            "Run 19 A+A DCA All Tracks;DCA;counts", 100, 0., 3.);
 
   TH1F *electron_Nelectron = new TH1F(
@@ -44,7 +44,7 @@ void nsigma_manual_e() {
 
   TH2F *electron_pt_NElectron =
       new TH2F("Electron Candidates",
-               "Run 19 A+A N#sigmaElectron Proton Candidates;P_{T};N#sigmaElectron",
+               "Run 19 A+A N#sigmaElectron Electron Candidates;P_{T};N#sigmaElectron",
                100, 0.25, 0.5, 100, -6, 8);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
@@ -148,12 +148,12 @@ void nsigma_manual_e() {
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmaelectron_mean, 0, nsigmaelectron_mean, 14000);
+  TLine *mean_line = new TLine(nsigmaelectron_mean, 0, nsigmaelectron_mean, 180);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmaelectron_mean - nsigmaelectron_error, 0,
-                       nsigmaelectron_mean + nsigmaelectron_error, 14000);
+                       nsigmaelectron_mean + nsigmaelectron_error, 180);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //

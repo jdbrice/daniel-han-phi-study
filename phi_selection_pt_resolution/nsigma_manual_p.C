@@ -147,12 +147,12 @@ void nsigma_manual_p() {
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmaproton_mean, 0, nsigmaproton_mean, 14000);
+  TLine *mean_line = new TLine(nsigmaproton_mean, 0, nsigmaproton_mean, 1100);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmaproton_mean - nsigmaproton_error, 0,
-                       nsigmaproton_mean + nsigmaproton_error, 14000);
+                       nsigmaproton_mean + nsigmaproton_error, 1100);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //
