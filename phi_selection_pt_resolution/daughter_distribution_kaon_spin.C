@@ -148,6 +148,8 @@ void daughter_distribution_kaon_spin() {
       phi_distribution_coherent->Fill(phi);
       d1_list.push_back(lv1);
       d2_list.push_back(lv2);
+
+
     }
     if ((pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
         (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&

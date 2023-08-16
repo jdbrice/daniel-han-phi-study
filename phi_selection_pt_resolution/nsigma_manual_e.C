@@ -75,8 +75,8 @@ void nsigma_manual_e() {
       electron_Nelectron->Fill(pair->d1_mNSigmaElectron);
       electron_Nelectron->Fill(pair->d2_mNSigmaElectron);
 
-      electron_pt_NElectron->Fill(pair->d1_mPt, pair->d1_mNSigmaElectron);
-      electron_pt_NElectron->Fill(pair->d2_mPt, pair->d2_mNSigmaElectron);
+      electron_pt_NElectron->Fill(pair->d1_mPt * cosh(pair->d1_mEta), pair->d1_mNSigmaElectron);
+      electron_pt_NElectron->Fill(pair->d2_mPt * cosh(pair->d1_mEta), pair->d2_mNSigmaElectron);
     }
   } // loop on events
 
@@ -116,9 +116,18 @@ void nsigma_manual_e() {
   TGraphErrors *graph = new TGraphErrors(mean_values.size(), &pt_values[0],
                                          &mean_values[0], 0, &mean_errors[0]);
   graph->SetTitle(
-      "NSigmaElectron Mean vs. Transverse Momentum; Pt(GeV); NSigmaElectron Mean");
+      "NSigmaElectron Mean vs. Momentum; p(GeV/c); NSigmaElectron Mean");
   graph->SetMarkerSize(0.8);
   graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(0.8);
+  graph->SetMarkerStyle(20);
+  graph->GetXaxis()->SetTitleSize(0.05);
+  graph->GetXaxis()->CenterTitle();
+  graph->GetXaxis()->SetTitleOffset(0.8);
+  graph->GetYaxis()->SetTitleSize(0.05);
+  graph->GetYaxis()->CenterTitle();
+  graph->GetYaxis()->SetTitleOffset(0.8);
+
   graph->Draw("AP"); // Draw as points with axes
 
   // graphing the all momentum result
@@ -148,12 +157,12 @@ void nsigma_manual_e() {
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmaelectron_mean, 0, nsigmaelectron_mean, 180);
+  TLine *mean_line = new TLine(nsigmaelectron_mean, 0, nsigmaelectron_mean, 169);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmaelectron_mean - nsigmaelectron_error, 0,
-                       nsigmaelectron_mean + nsigmaelectron_error, 180);
+                       nsigmaelectron_mean + nsigmaelectron_error, 169);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //

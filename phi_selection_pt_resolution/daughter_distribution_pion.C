@@ -21,8 +21,8 @@
 int ican = 0;
 void makeCan() {
   TCanvas *can = new TCanvas(TString::Format("can%d", ican++), "", 900, 600);
-  can->SetTopMargin(0.06);
-  can->SetRightMargin(0.01);
+  can->SetTopMargin(0.10);
+  can->SetRightMargin(0.03);
 }
 
 void daughter_distribution_pion() {
@@ -53,17 +53,22 @@ void daughter_distribution_pion() {
   TH1F *pion_background = new TH1F("Pion Cnadidates",
                                    "Run 19 A+A Invariant Mass "
                                    "Background;Invaraint Mass(GeV/c^2);counts",
-                                   100, 1., 1.1);
+                                   100, 1., 1.04);
+  TH1F *all_background =
+      new TH1F("All Background Candidates",
+               "Run 19 A+A Invariant Mass Background Candidates;Invaraint Mass(GeV/c^{2});counts",
+               100, 1., 1.04);
+
   TH1F *electron_background =
       new TH1F("Electron Cnadidates",
                "Run 19 A+A Invariant Mass Electron "
-               "Background;Invaraint Mass(GeV/c^2);counts",
-               100, 1., 1.1);
+               "Background;Invaraint Mass(GeV/c^{2});counts",
+               100, 1., 1.04);
   TH1F *proton_background =
       new TH1F("Proton Cnadidates",
                "Run 19 A+A Invariant Mass Proton "
                "Background;Invaraint Mass(GeV/c^2);counts",
-               100, 1., 1.1);
+               100, 1., 1.04);
 
   TH1F *pion_plus_DCA =
       new TH1F("pion_plus Candidates",
@@ -185,6 +190,9 @@ void daughter_distribution_pion() {
   TH1F *reco_rho_eta = new TH1F(
       "reco_rho ", "Run 19 A+A #eta Reco rho ;#eta;counts", 100, -4., 4.);
 
+  TH1F *reco_rho_coherent_eta = new TH1F(
+      "reco_rho ", "Run 19 A+A #eta Reco rho ;#eta;counts", 100, -4., 4.);
+
   TH1F *reco_rho_phi =
       new TH1F("reco_rho ", "Run 19 A+A #phi Reco rho ;#phi(rad);counts", 100,
                -3.15, 3.15);
@@ -248,6 +256,10 @@ void daughter_distribution_pion() {
         pion_phi->Fill(pair->d1_mPhi);
         pion_phi->Fill(pair->d2_mPhi);
 
+        if (lv.M() > 0.6 + 0.708 && lv.M() < 0.95 + 0.708 && lv.Pt() < 0.2) {
+          reco_rho_coherent_eta->Fill(lv.Eta());
+        }
+
       } else if (pair->mChargeSum == 2) {
         pion_pm_ratio->Fill(pair->mChargeSum);
         PipPip_pt->Fill(lv.Pt());
@@ -310,62 +322,47 @@ void daughter_distribution_pion() {
       }
     }
 
-    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.1 &&
+    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.04 &&
         (pair->d1_mNSigmaPion < 5.8 && pair->d1_mNSigmaPion > -4.2) &&
         (pair->d2_mNSigmaPion < 5.8 && pair->d2_mNSigmaPion > -4.2) &&
-        (pair->d1_mNSigmaPion > 3.8 || pair->d1_mNSigmaPion < -2.2) &&
-        (pair->d2_mNSigmaPion > 3.8 || pair->d2_mNSigmaPion < -2.2) &&
-        (pair->d1_mNSigmaElectron > 5.424112 ||
-         pair->d1_mNSigmaElectron < -4.575888) &&
-        (pair->d2_mNSigmaElectron > 5.424112 ||
-         pair->d2_mNSigmaElectron < -4.575888) &&
-        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaProton < -2.64) &&
-        (pair->d2_mNSigmaProton > 7.36 || pair->d2_mNSigmaProton < -2.64) &&
-        // (pair->d1_mNSigmaKaon > -7.6 && pair->d1_mNSigmaKaon < 12.4) &&
-        // (pair->d2_mNSigmaKaon > -7.6 && pair->d2_mNSigmaKaon < 12.4) &&
-        (pair->d1_mNSigmaKaon > 7.4 || pair->d1_mNSigmaKaon < -2.6) &&
-        (pair->d2_mNSigmaKaon > 7.4 || pair->d2_mNSigmaKaon < -2.6)) {
+        (pair->d1_mNSigmaKaon > 5.4 || pair->d1_mNSigmaKaon < -0.6) &&
+        (pair->d2_mNSigmaKaon > 5.4 || pair->d2_mNSigmaKaon < -0.6) &&
+        (pair->d1_mNSigmaElectron > 5.4 || pair->d1_mNSigmaElectron < -4.6) &&
+        (pair->d2_mNSigmaElectron > 5.4 || pair->d2_mNSigmaElectron < -4.6) &&
+        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaPion < -2.64) &&
+        (pair->d2_mNSigmaProton > 7.36 || pair->d2_mNSigmaProton < -2.64)) {
 
       pion_background->Fill(lv.M());
+      all_background->Fill(lv.M());
     }
 
-    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.1 &&
-        (pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
-        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
+    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.04 &&
         (pair->d1_mNSigmaElectron < 5.424112 &&
          pair->d1_mNSigmaElectron > -4.575888) &&
         (pair->d2_mNSigmaElectron < 5.424112 &&
          pair->d2_mNSigmaElectron > -4.575888) &&
-        (pair->d1_mNSigmaElectron > 3.424112 ||
-         pair->d1_mNSigmaElectron < -2.575888) &&
-        (pair->d2_mNSigmaElectron > 3.424112 ||
-         pair->d2_mNSigmaElectron < -2.575888) &&
-        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaProton < -2.64) &&
+        (pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
+        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
+        (pair->d1_mNSigmaProton > 7.36 || pair->d1_mNSigmaPion < -2.64) &&
         (pair->d2_mNSigmaProton > 7.36 || pair->d2_mNSigmaProton < -2.64) &&
-        // (pair->d1_mNSigmaKaon > -7.6 && pair->d1_mNSigmaKaon < 12.4) &&
-        // (pair->d2_mNSigmaKaon > -7.6 && pair->d2_mNSigmaKaon < 12.4) &&
-        (pair->d1_mNSigmaKaon > 7.4 || pair->d1_mNSigmaKaon < -2.6) &&
-        (pair->d2_mNSigmaKaon > 7.4 || pair->d2_mNSigmaKaon < -2.6)) {
+        (pair->d1_mNSigmaKaon > 5.4 || pair->d1_mNSigmaKaon < -0.6) &&
+        (pair->d2_mNSigmaKaon > 5.4 || pair->d2_mNSigmaKaon < -0.6)) {
 
       electron_background->Fill(lv.M());
+      all_background->Fill(lv.M());
     }
-    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.1 &&
-        (pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
-        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
-        (pair->d1_mNSigmaElectron < 5.424112 &&
-         pair->d1_mNSigmaElectron > -4.575888) &&
-        (pair->d2_mNSigmaElectron < 5.424112 &&
-         pair->d2_mNSigmaElectron > -4.575888) &&
+    if (pair->mChargeSum == 0 && lv.M() >= 1.0 && lv.M() < 1.04 &&
         (pair->d1_mNSigmaProton < 7.36 && pair->d1_mNSigmaProton > -2.64) &&
         (pair->d2_mNSigmaProton < 7.36 && pair->d2_mNSigmaProton > -2.64) &&
-        (pair->d1_mNSigmaProton > 5.36 || pair->d1_mNSigmaProton < -0.64) &&
-        (pair->d2_mNSigmaProton > 5.36 || pair->d2_mNSigmaProton < -0.64) &&
-        // (pair->d1_mNSigmaKaon > -7.6 && pair->d1_mNSigmaKaon < 12.4) &&
-        // (pair->d2_mNSigmaKaon > -7.6 && pair->d2_mNSigmaKaon < 12.4) &&
-        (pair->d1_mNSigmaKaon > 7.4 || pair->d1_mNSigmaKaon < -2.6) &&
-        (pair->d2_mNSigmaKaon > 7.4 || pair->d2_mNSigmaKaon < -2.6)) {
+        (pair->d1_mNSigmaElectron > 5.4 || pair->d1_mNSigmaElectron < -4.6) &&
+        (pair->d2_mNSigmaElectron > 5.4 || pair->d2_mNSigmaElectron < -4.6) &&
+        (pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
+        (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
+        (pair->d1_mNSigmaKaon > 5.4 || pair->d1_mNSigmaKaon < -0.6) &&
+        (pair->d2_mNSigmaKaon > 5.4 || pair->d2_mNSigmaKaon < -0.6)) {
 
       proton_background->Fill(lv.M());
+      all_background->Fill(lv.M());
     }
 
   } // loop on events
@@ -402,6 +399,9 @@ void daughter_distribution_pion() {
   makeCan();
   reco_rho_eta->Draw();
   gPad->Print("./Plots_sigma/Pions/Reco/rho_eta.png");
+  makeCan();
+  reco_rho_coherent_eta->Draw();
+  gPad->Print("./Plots_sigma/Pions/Reco/rho_coherent_eta.png");
   makeCan();
   reco_rho_phi->Draw();
   gPad->Print("./Plots_sigma/Pions/Reco/rho_phi.png");
@@ -486,13 +486,19 @@ void daughter_distribution_pion() {
   gPad->Print("./Plots_sigma/Pions/like_signs/Reco/pion_ls_phi.png");
 
   makeCan();
-  TLegend *legend_1 = new TLegend(0.1, 0.7, 0.3, 0.9);
+  TLegend *legend_1 = new TLegend(0.77, 0.57, 0.97, 0.77);
+  legend_1->AddEntry(all_background, "All Background Candidates");
   legend_1->AddEntry(pion_background, "Pion Candidates");
   legend_1->AddEntry(proton_background, "Proton Candidates");
   legend_1->AddEntry(electron_background, "Electron Candidates");
-  pion_background->Draw("pfc");
-  proton_background->Draw("same;pfc");
+  all_background->GetXaxis()->SetTitleSize(0.05);
+  all_background->GetXaxis()->CenterTitle();
+  all_background->GetXaxis()->SetTitleOffset(0.8);
+  all_background->Draw("e1");
+  all_background->Draw("same;pfc");
   electron_background->Draw("same;pfc");
+  pion_background->Draw("same;pfc");
+  proton_background->Draw("same;pfc");
   legend_1->Draw("same");
   gPad->Print("./Plots_sigma/All/all_backgrounds.png");
 }

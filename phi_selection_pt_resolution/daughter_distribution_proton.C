@@ -21,7 +21,7 @@
 int ican = 0;
 void makeCan() {
   TCanvas *can = new TCanvas(TString::Format("can%d", ican++), "", 900, 600);
-  can->SetTopMargin(0.06);
+  can->SetTopMargin(0.08);
   can->SetRightMargin(0.01);
 }
 
@@ -104,7 +104,7 @@ void daughter_distribution_proton() {
 
   TH1F *proton_pm_ratio =
       new TH1F("Proton Candidates",
-               "Run 19 A+A Charge Sum Proton Candidates;Charge Sum;counts", 27,
+               "Run 19 A+A Two-Track Charge Sum Proton Candidates;Charge Sum;counts", 27,
                -2.2, 2.2);
 
   // histogram for same charge
@@ -304,6 +304,10 @@ void daughter_distribution_proton() {
   } // loop on events
 
   makeCan();
+  proton_pm_ratio->GetXaxis()->SetTitleSize(0.05);
+  proton_pm_ratio->GetXaxis()->CenterTitle();
+  proton_pm_ratio->GetXaxis()->SetTitleOffset(0.8);
+  proton_pm_ratio->SetLineWidth(2);
   proton_pm_ratio->Draw();
   gPad->Print("./Plots_sigma/Protons/proton_charge.png");
 

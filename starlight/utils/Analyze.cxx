@@ -52,6 +52,12 @@ Analyze::Analyze() :
 
   fRap1 = new TH1F("fRap1", "Rapidity track 1", 200, -10, 10);
   fRap2 = new TH1F("fRap2", "Rapidity track 2", 200, -10, 10);
+
+  fPhi1 = new TH1F("fPhi1", "Phi track 1", 200, -10, 10);
+  fPhi2 = new TH1F("fPhi2", "Phi track 2", 200, -10, 10);
+
+  fEta1 = new TH1F("fEta1", "Eta track 1", 200, -10, 10);
+  fEta2 = new TH1F("fEta2", "Eta track 2", 200, -10, 10);
 }
 
 Analyze::Analyze(TString infile, Int_t nEvents) :
@@ -64,12 +70,15 @@ Analyze::Analyze(TString infile, Int_t nEvents) :
   fPtEl = new TH1F("PtEl", "Transverse momentum e+ e- Pair", 200, 0, 0.12);
   fPtMu = new TH1F("PtMu", "Transverse momentum mu+ mu- Pair", 100, 0, 2.);
   fPtPi = new TH1F("PtPi", "Transverse momentum pi+ pi- Pair", 100, 0, 1.5);
-  fPtKa = new TH1F("PtKa", "Transverse momentum k+ k- Pair; P_{T} (GeV/c); counts", 100, 0, 0.3);
+  fPtKa = new TH1F("PtKa", "STARlight Coherent K^{+} K^{-} Pair P_{T}; P_{T} (GeV/c); counts", 100, 0, 1.);
+  fPtKa_tpc = new TH1F("PtKa_tpc", "Transverse momentum k+/k-; P_{T} (GeV/c); counts", 100, 0, 1.);
+  fPtKa_tpc_2 = new TH1F("PtKa_tpc_2", "Transverse momentum k+/k-; P_{T} (GeV/c); counts", 100, 0, 1.);
   
   fRapEl = new TH1F("RapEl", "Rapidity e+/e-", 200, -5, 5);
   fRapMu = new TH1F("RapMu", "Rapidity mu+/mu-", 200, -10, 10);
   fRapPi = new TH1F("RapPi", "Rapidity pi+/pi-", 200, -5., 5.);
   fRapKa = new TH1F("RapKa", "Rapidity k+/k-", 200, -5., 5.);
+  fEtaKa = new TH1F("EtaKa", "Eta k+/k-", 200, -8., 8.);
 
   fInvMassEl = new TH1F("InvMassEl", "Invariant mass", 200, 0.02, 0.6);
   fInvMassMu = new TH1F("InvMassMu", "Invariant mass", 100, 0, 5);
@@ -82,11 +91,17 @@ Analyze::Analyze(TString infile, Int_t nEvents) :
   fAzimuthKa = new TH1F("AzimuthKa", "Azimuthal angle k+/k-", 200, -M_PI, M_PI);
  
 
-  fPt1 = new TH1F("fPt1", "Transverse Momentum Incoherent Kaon Track 1; P_{T} (GeV/c); counts", 100, 0, 0.7);
-  fPt2 = new TH1F("fPt2", "Transverse Momentum Incoherent Kaon Track 2; P_{T} (GeV/c); counts", 100, 0, 0.7);
+  fPt1 = new TH1F("fPt1", "STARlight Coherent Kaon Daughter P_{T}; P_{T} (GeV/c); counts", 100, 0, 0.25);
+  fPt2 = new TH1F("fPt2", "Transverse Momentum Incoherent Kaon Track 2; P_{T} (GeV/c); counts", 100, 0, 0.25);
 
-  fRap1 = new TH1F("fRap1", "Rapidity track 1", 200, -10, 10);
-  fRap2 = new TH1F("fRap2", "Rapidity track 2", 200, -10, 10);
+  fRap1 = new TH1F("fRap1", "Rapidity track 1", 200, -4, 4);
+  fRap2 = new TH1F("fRap2", "Rapidity track 2", 200, -4, 4);
+
+  fPhi1 = new TH1F("fPhi1", "Phi track 1", 200, -3.15, 3.15);
+  fPhi2 = new TH1F("fPhi2", "Phi track 2", 200, -3.15, 3.15);
+
+  fEta1 = new TH1F("fEta1", "Eta track 1", 200, -6, 6);
+  fEta2 = new TH1F("fEta2", "Eta track 2", 200, -6, 6);
 }
 
 Analyze::~Analyze()
@@ -226,6 +241,12 @@ void Analyze::doAnalysis()
 
     fRap1->Fill(vecArr[0]->Rapidity());
     fRap2->Fill(vecArr[1]->Rapidity());
+
+    fPhi1->Fill(vecArr[0]->Phi());
+    fPhi2->Fill(vecArr[1]->Phi());
+
+    fEta1->Fill(vecArr[0]->Eta());
+    fEta2->Fill(vecArr[1]->Eta());
     
     //Creating a new TLorentzVector, which is the sum of the elements in vecArr
     TLorentzVector sum;
@@ -260,9 +281,16 @@ void Analyze::doAnalysis()
     }
     else if(idpart == 321 || idpart == -321){
       fPtKa->Fill(sum.Pt());
+      if (vecArr[0]->Pt() > 0.06 && vecArr[1]->Pt() > 0.06){
+        fPtKa_tpc->Fill(sum.Pt());
+      }
+      if (vecArr[0]->Pt() > 0.08 && vecArr[1]->Pt() > 0.08){
+        fPtKa_tpc_2->Fill(sum.Pt());
+      }
       cout << "sum.Rapidity: " << sum.Rapidity() << endl;
       cout << "sum.M(): " << sum.M() << endl;
       fRapKa->Fill(sum.Rapidity());
+      fEtaKa->Fill(sum.Eta());
       fInvMassKa->Fill(sum.M());
       fAzimuthKa->Fill(sum.Phi());
     }
@@ -284,12 +312,18 @@ void Analyze::doAnalysis()
   fInvMassPi->Write();
   fAzimuthPi->Write();
   fPtKa->Write();
+  fPtKa_tpc->Write();
+  fPtKa_tpc_2->Write();
   fRapKa->Write();
+  fEtaKa->Write();
   fInvMassKa->Write();
   fAzimuthKa->Write();
   fPt1->Write();
   fPt2->Write();
+  fEta1->Write();
+  fEta2->Write();
+  fPhi1->Write();
+  fPhi2->Write();
   fRap1->Write();
   fRap2->Write();
-  
 }

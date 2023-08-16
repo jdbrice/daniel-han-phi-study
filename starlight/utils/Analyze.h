@@ -37,7 +37,10 @@ class Analyze
   TH1F *fAzimuthPi;  //Histogram of pt azimuthal angle of pions
 
   TH1F *fPtKa;       //Histogram of pt of kaons
+  TH1F *fPtKa_tpc;       //Histogram of pt of kaons
+  TH1F *fPtKa_tpc_2;
   TH1F *fRapKa;      //Histogram of rapidity of kaons
+  TH1F *fEtaKa;      //Histogram of rapidity of kaons
   TH1F *fInvMassKa;  //Histogram of ivariant mass of kaons
   TH1F *fAzimuthKa;  //Histogram of pt azimuthal angle of kaons
 
@@ -46,6 +49,12 @@ class Analyze
 
   TH1F *fRap1;
   TH1F *fRap2;
+
+  TH1F *fEta1;
+  TH1F *fEta2;
+
+  TH1F *fPhi1;
+  TH1F *fPhi2;
   
   FILE *filelist;
   TString fInfile;

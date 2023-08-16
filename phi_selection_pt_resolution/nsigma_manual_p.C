@@ -45,7 +45,7 @@ void nsigma_manual_p() {
   TH2F *proton_pt_NProton =
       new TH2F("Proton Candidates",
                "Run 19 A+A N#sigmaProton Proton Candidates;P_{T};N#sigmaProton",
-               100, 0.25, 0.5, 100, -6, 8);
+               100, 0.25, 0.5, 100, -4, 10);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -74,8 +74,8 @@ void nsigma_manual_p() {
       proton_Nproton->Fill(pair->d1_mNSigmaProton);
       proton_Nproton->Fill(pair->d2_mNSigmaProton);
 
-      proton_pt_NProton->Fill(pair->d1_mPt, pair->d1_mNSigmaProton);
-      proton_pt_NProton->Fill(pair->d2_mPt, pair->d2_mNSigmaProton);
+      proton_pt_NProton->Fill(pair->d1_mPt * cosh(pair->d1_mEta), pair->d1_mNSigmaProton);
+      proton_pt_NProton->Fill(pair->d2_mPt * cosh(pair->d1_mEta), pair->d2_mNSigmaProton);
     }
   } // loop on events
 
@@ -115,9 +115,16 @@ void nsigma_manual_p() {
   TGraphErrors *graph = new TGraphErrors(mean_values.size(), &pt_values[0],
                                          &mean_values[0], 0, &mean_errors[0]);
   graph->SetTitle(
-      "NSigmaProton Mean vs. Transverse Momentum; Pt(GeV); NSigmaProton Mean");
+      "NSigmaProton Mean vs. Momentum; p(GeV/c); NSigmaProton Mean");
   graph->SetMarkerSize(0.8);
   graph->SetMarkerStyle(20);
+  graph->GetXaxis()->SetTitleSize(0.05);
+  graph->GetXaxis()->CenterTitle();
+  graph->GetXaxis()->SetTitleOffset(0.8);
+  graph->GetYaxis()->SetTitleSize(0.05);
+  graph->GetYaxis()->CenterTitle();
+  graph->GetYaxis()->SetTitleOffset(0.8);
+
   graph->Draw("AP"); // Draw as points with axes
 
   // graphing the all momentum result
@@ -147,12 +154,12 @@ void nsigma_manual_p() {
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmaproton_mean, 0, nsigmaproton_mean, 1100);
+  TLine *mean_line = new TLine(nsigmaproton_mean, 0, nsigmaproton_mean, 1040);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmaproton_mean - nsigmaproton_error, 0,
-                       nsigmaproton_mean + nsigmaproton_error, 1100);
+                       nsigmaproton_mean + nsigmaproton_error, 1040);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //

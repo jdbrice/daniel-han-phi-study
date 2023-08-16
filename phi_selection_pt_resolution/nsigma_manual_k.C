@@ -45,7 +45,7 @@ void nsigma_manual_k() {
 
   TH2F *kaon_pt_NKaon =
       new TH2F("Kaon Candidates",
-               "Run 19 A+A N#sigmaKaon Kaon Candidates;P_{T};N#sigmaKaon", 100,
+               "Run 19 A+A N#sigmaKaon Kaon Candidates;p(GeV/c);N#sigmaKaon", 100,
                0.1, 0.4, 100, -3, 8);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
@@ -76,8 +76,8 @@ void nsigma_manual_k() {
       kaon_Nkaon->Fill(pair->d1_mNSigmaKaon);
       kaon_Nkaon->Fill(pair->d2_mNSigmaKaon);
 
-      kaon_pt_NKaon->Fill(pair->d1_mPt, pair->d1_mNSigmaKaon);
-      kaon_pt_NKaon->Fill(pair->d2_mPt, pair->d2_mNSigmaKaon);
+      kaon_pt_NKaon->Fill(pair->d1_mPt*cosh(pair->d1_mEta), pair->d1_mNSigmaKaon);
+      kaon_pt_NKaon->Fill(pair->d2_mPt*cosh(pair->d2_mEta), pair->d2_mNSigmaKaon);
     }
   } // loop on events
 
@@ -117,9 +117,15 @@ void nsigma_manual_k() {
   TGraphErrors *graph = new TGraphErrors(mean_values.size(), &pt_values[0],
                                          &mean_values[0], 0, &mean_errors[0]);
   graph->SetTitle(
-      "NSigmaKaon Mean vs. Transverse Momentum; Pt(GeV); NSigmaKaon Mean");
+      "NSigmaKaon Mean vs. Momentum; P(GeV/c); NSigmaKaon Mean");
   graph->SetMarkerSize(0.8);
   graph->SetMarkerStyle(20);
+  graph->GetXaxis()->SetTitleSize(0.05);
+  graph->GetXaxis()->CenterTitle();
+  graph->GetXaxis()->SetTitleOffset(0.8);
+  graph->GetYaxis()->SetTitleSize(0.05);
+  graph->GetYaxis()->CenterTitle();
+  graph->GetYaxis()->SetTitleOffset(0.8);
   graph->Draw("AP"); // Draw as points with axes
 
   // graphing the all momentum result
@@ -143,18 +149,19 @@ void nsigma_manual_k() {
   legend->AddEntry(meanBox, "All Momentum", "f");
   legend->Draw("same");
   makeCan();
+
   kaon_pt_NKaon->Draw("colz");
   makeCan();
   all_momentum->Draw("ep");
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmakaon_mean, 0, nsigmakaon_mean, 14000);
+  TLine *mean_line = new TLine(nsigmakaon_mean, 0, nsigmakaon_mean, 34);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmakaon_mean - nsigmakaon_error, 0,
-                       nsigmakaon_mean + nsigmakaon_error, 14000);
+                       nsigmakaon_mean + nsigmakaon_error, 34);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //

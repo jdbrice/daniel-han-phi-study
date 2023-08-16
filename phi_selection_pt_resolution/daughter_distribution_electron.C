@@ -36,28 +36,34 @@ void daughter_distribution_electron() {
       "Electron Candidates",
       "Run 19 A+A P_{T} Electron Candidates;P_{T}(GeV/c);counts", 100, 0., 0.8);
 
-  TH1F *electron_debug_pt = new TH1F(
-      "Electron Candidates P_{T} < 140 MeV",
-      "Run 19 A+A P_{T} Electron Candidates;P_{T}(GeV/c);counts", 100, 0.05, 0.14);
+  TH1F *electron_debug_pt =
+      new TH1F("Electron Candidates P_{T} < 140 MeV",
+               "Run 19 A+A P_{T} Electron Candidates;P_{T}(GeV/c);counts", 100,
+               0.05, 0.14);
 
   TH1F *electron_debug_eta =
       new TH1F("Electron Candidates P_{T} < 140 MeV",
                "Run 19 A+A #eta Electron Candidates;#eta;counts", 100, -2., 2.);
 
   TH1F *electron_debug_phi = new TH1F(
-      "Electron Candidates P_{T} < 140 MeV", "Run 19 A+A #phi Electron Candidates;#phi(rad);counts",
-      100, -3.15, 3.15);
+      "Electron Candidates P_{T} < 140 MeV",
+      "Run 19 A+A #phi Electron Candidates;#phi(rad);counts", 100, -3.15, 3.15);
 
-  TH1F *electron_eta =
-      new TH1F("Electron Candidates",
-               "Run 19 A+A #eta Electron Candidates;#eta;counts", 100, -2., 2.);
+  TH1F *electron_debug_Nelectron =
+      new TH1F("Electron Candidates P_{T} < 140 MeV",
+               "Run 19 A + A NSigmaElectron Electron Candidates", 100, -10, 10);
+
+          TH1F *electron_eta =
+              new TH1F("Electron Candidates",
+                       "Run 19 A+A #eta Electron Candidates;#eta;counts", 100,
+                       -2., 2.);
   TH1F *electron_phi = new TH1F(
-      "Electron Candidates", "Run 19 A+A #phi Electron Candidates;#phi(rad);counts",
-      100, -3.15, 3.15);
+      "Electron Candidates",
+      "Run 19 A+A #phi Electron Candidates;#phi(rad);counts", 100, -3.15, 3.15);
   TH1F *electron_Nelectron = new TH1F(
       "Electron Candidates",
-      "Run 19 A+A N#sigmaElectron Electron Candidates;N#sigmaElectron;counts", 100,
-      -6, 8);
+      "Run 19 A+A N#sigmaElectron Electron Candidates;N#sigmaElectron;counts",
+      100, -6, 8);
 
   TH1F *electron_Nkaon =
       new TH1F("Electron Cnadidates",
@@ -81,15 +87,16 @@ void daughter_distribution_electron() {
                "Run 19 A+A #phi Electron_plus Candidates;#phi(rad);counts", 100,
                -3.15, 3.15);
 
-  TH1F *electron_plus_Nelectron = new TH1F(
-      "electron_plus Candidates",
-      "Run 19 A+A N#sigmaelectron_plus electron Candidates;N#sigmaelectron;counts",
-      100, -6, 8);
+  TH1F *electron_plus_Nelectron =
+      new TH1F("electron_plus Candidates",
+               "Run 19 A+A N#sigmaelectron_plus electron "
+               "Candidates;N#sigmaelectron;counts",
+               100, -6, 8);
 
   TH1F *electron_plus_Nkaon = new TH1F(
       "Electron_plus Cnadidates",
-      "Run 19 A+A N#sigmaElectron_plus Electron Candidates;N#sigmaKaon;counts", 100,
-      0, 40);
+      "Run 19 A+A N#sigmaElectron_plus Electron Candidates;N#sigmaKaon;counts",
+      100, 0, 40);
 
   TH1F *Electron_minus_DCA =
       new TH1F("Electron_minus Candidates",
@@ -105,13 +112,14 @@ void daughter_distribution_electron() {
 
   TH1F *electron_minus_phi =
       new TH1F("Electron Candidates",
-               "Run 19 A+A #phi Electron_minus Candidates;#phi(rad);counts", 100,
-               -3.15, 3.15);
+               "Run 19 A+A #phi Electron_minus Candidates;#phi(rad);counts",
+               100, -3.15, 3.15);
 
-  TH1F *electron_minus_Nelectron = new TH1F(
-      "Electron_minus Candidates",
-      "Run 19 A+A N#sigmaElectron_minus Electron Candidates;N#sigmaElectron;counts",
-      100, -6, 8);
+  TH1F *electron_minus_Nelectron =
+      new TH1F("Electron_minus Candidates",
+               "Run 19 A+A N#sigmaElectron_minus Electron "
+               "Candidates;N#sigmaElectron;counts",
+               100, -6, 8);
 
   TH1F *electron_minus_Nkaon = new TH1F(
       "Electron_minus Cnadidates",
@@ -120,47 +128,46 @@ void daughter_distribution_electron() {
 
   TH1F *electron_pm_ratio =
       new TH1F("Electron Candidates",
-               "Run 19 A+A Charge Sum Electron Candidates;Charge Sum;counts", 27,
-               -2.2, 2.2);
+               "Run 19 A+A Charge Sum Electron Candidates;Charge Sum;counts",
+               27, -2.2, 2.2);
 
   // histogram for same charge
-  TH1F *epep_mass = new TH1F(
-      "#bar{e} #bar{e}",
-      "Run 19 A+A Invariant Mass #bar{e} #bar{e} ;Invariant Mass(GeV/c^2);counts",
-      100, 0.9, 2.0);
+  TH1F *epep_mass = new TH1F("#bar{e} #bar{e}",
+                             "Run 19 A+A Invariant Mass #bar{e} #bar{e} "
+                             ";Invariant Mass(GeV/c^2);counts",
+                             100, 0.9, 2.0);
 
   TH1F *epep_pt = new TH1F(
-      "#bar{e} #bar{e}", "Run 19 A+A P_{T} #bar{e} #bar{e} ;P_{T}(GeV/c);counts", 100,
-      0., 1.6);
+      "#bar{e} #bar{e}",
+      "Run 19 A+A P_{T} #bar{e} #bar{e} ;P_{T}(GeV/c);counts", 100, 0., 1.6);
 
-  TH1F *epep_eta = new TH1F(
-      "#bar{e} #bar{e} ", "Run 19 A+A #eta #bar{e} #bar{e} ;#eta;counts", 100, -4., 4.);
+  TH1F *epep_eta =
+      new TH1F("#bar{e} #bar{e} ",
+               "Run 19 A+A #eta #bar{e} #bar{e} ;#eta;counts", 100, -4., 4.);
 
-  TH1F *epep_phi =
-      new TH1F("#bar{e} #bar{e}", "Run 19 A+A #phi #bar{e} #bar{e};#phi(rad);counts", 100,
-               -3.15, 3.15);
+  TH1F *epep_phi = new TH1F("#bar{e} #bar{e}",
+                            "Run 19 A+A #phi #bar{e} #bar{e};#phi(rad);counts",
+                            100, -3.15, 3.15);
 
   TH1F *emem_mass = new TH1F("e e",
-                                 "Run 19 A+A Invariant Mass e e "
-                                 ";Invariant Mass(GeV/c^2);counts",
-                                 100, 0.9, 2.00);
+                             "Run 19 A+A Invariant Mass e e "
+                             ";Invariant Mass(GeV/c^2);counts",
+                             100, 0.9, 2.00);
 
   TH1F *emem_pt = new TH1F(
-      "e e", "Run 19 A+A P_{T} e e ;P_e z{T}(GeV/c);counts", 100,
-      0., 1.6);
+      "e e", "Run 19 A+A P_{T} e e ;P_e z{T}(GeV/c);counts", 100, 0., 1.6);
 
   TH1F *emem_eta =
-      new TH1F("e e ",
-               "Run 19 A+A #eta e e ;#eta;counts", 100, -4., 4.);
+      new TH1F("e e ", "Run 19 A+A #eta e e ;#eta;counts", 100, -4., 4.);
 
-  TH1F *emem_phi =
-      new TH1F("e e", "Run 19 A+A #phi e e ;#phi(rad);counts",
-               100, -3.15, 3.15);
+  TH1F *emem_phi = new TH1F("e e", "Run 19 A+A #phi e e ;#phi(rad);counts", 100,
+                            -3.15, 3.15);
 
-  TH1F *like_sign_mass = new TH1F("like_sign ",
-                                  "Run 19 A+A Invariant Mass Like Sign Electrons"
-                                  ";Invariant Mass(GeV/c^2);counts",
-                                  100, 0.9, 2.0);
+  TH1F *like_sign_mass =
+      new TH1F("like_sign ",
+               "Run 19 A+A Invariant Mass Like Sign Electrons"
+               ";Invariant Mass(GeV/c^2);counts",
+               100, 0.9, 2.0);
 
   TH1F *like_sign_pt = new TH1F(
       "like_sign ", "Run 19 A+A P_{T} Like Sign Electrons ;P_{T}(GeV/c);counts",
@@ -171,20 +178,19 @@ void daughter_distribution_electron() {
                100, -4., 4.);
 
   TH1F *like_sign_phi = new TH1F(
-      "like_sign ", "Run 19 A+A #phi Like Sign Electrons ;#phi(rad);counts", 100,
-      -3.15, 3.15);
-
+      "like_sign ", "Run 19 A+A #phi Like Sign Electrons ;#phi(rad);counts",
+      100, -3.15, 3.15);
 
   TH1F *reco_pair_mass = new TH1F("Reco Electron Pair",
                                   "Run 19 A+A Invariant Mass Reco Electron "
                                   "Pair;e e Invariant Mass(GeV/c^2);counts",
                                   100, 0.9, 2.0);
 
-  TH2F *reco_pair_mass_pt = new TH2F(
-      "Reco Electron Pair",
-      "Run 19 A+A Invariant Mass Reco Electron Pair and P_{T} Reco Electron Pair;ee"
-      "Invariant Mass(GeV/c^2);P_{T}",
-      100, 0.9, 2.0, 100, 0, 0.9);
+  TH2F *reco_pair_mass_pt = new TH2F("Reco Electron Pair",
+                                     "Run 19 A+A Invariant Mass Reco Electron "
+                                     "Pair and P_{T} Reco Electron Pair;ee"
+                                     "Invariant Mass(GeV/c^2);P_{T}",
+                                     100, 0.9, 2.0, 100, 0, 0.9);
 
   TH1F *reco_pair_pt = new TH1F(
       "Reco Electron Pair",
@@ -195,8 +201,8 @@ void daughter_distribution_electron() {
                "Run 19 A+A #eta Reco Electron Pair;#eta;counts", 100, -4., 4.);
 
   TH1F *reco_pair_phi = new TH1F(
-      "Reco Electron Pair", "Run 19 A+A #phi Reco Electron Pair;#phi(rad);counts",
-      100, -3.15, 3.15);
+      "Reco Electron Pair",
+      "Run 19 A+A #phi Reco Electron Pair;#phi(rad);counts", 100, -3.15, 3.15);
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -255,18 +261,19 @@ void daughter_distribution_electron() {
         electron_phi->Fill(pair->d1_mPhi);
         electron_phi->Fill(pair->d2_mPhi);
 
-        if(pair->d1_mPt < 0.14){
+        if (pair->d1_mPt < 0.14) {
           electron_debug_pt->Fill(pair->d1_mPt);
           electron_debug_eta->Fill(pair->d1_mEta);
           electron_debug_phi->Fill(pair->d1_mPhi);
+          electron_debug_Nelectron->Fill(pair->d1_mNSigmaElectron);
         }
 
-        if(pair->d2_mPt < 0.14){
+        if (pair->d2_mPt < 0.14) {
           electron_debug_pt->Fill(pair->d2_mPt);
           electron_debug_eta->Fill(pair->d2_mEta);
           electron_debug_phi->Fill(pair->d2_mPhi);
+          electron_debug_Nelectron->Fill(pair->d2_mNSigmaElectron);
         }
-
 
       } else if (pair->mChargeSum == 2) {
         electron_pm_ratio->Fill(pair->mChargeSum);
@@ -385,10 +392,12 @@ void daughter_distribution_electron() {
   gPad->Print("./Plots_sigma/Electrons/like_signs/electron_plus_phi.png");
   makeCan();
   electron_plus_Nkaon->Draw();
-  gPad->Print("./Plots_sigma/Electrons/like_signs/electron_plus_NSigmaKaon.png");
+  gPad->Print(
+      "./Plots_sigma/Electrons/like_signs/electron_plus_NSigmaKaon.png");
   makeCan();
   electron_plus_Nelectron->Draw();
-  gPad->Print("./Plots_sigma/Electrons/like_signs/electron_plus_NSigmaElectron.png");
+  gPad->Print(
+      "./Plots_sigma/Electrons/like_signs/electron_plus_NSigmaElectron.png");
 
   makeCan();
   Electron_minus_DCA->Draw();
@@ -404,10 +413,12 @@ void daughter_distribution_electron() {
   gPad->Print("./Plots_sigma/Electrons/like_signs/electron_minus_phi.png");
   makeCan();
   electron_minus_Nkaon->Draw();
-  gPad->Print("./Plots_sigma/Electrons/like_signs/electron_minus_NSigmaKaon.png");
+  gPad->Print(
+      "./Plots_sigma/Electrons/like_signs/electron_minus_NSigmaKaon.png");
   makeCan();
   electron_minus_Nelectron->Draw();
-  gPad->Print("./Plots_sigma/Electrons/like_signs/electron_minus_NSigmaElectron.png");
+  gPad->Print(
+      "./Plots_sigma/Electrons/like_signs/electron_minus_NSigmaElectron.png");
 
   makeCan();
   epep_pt->Draw();
@@ -450,9 +461,22 @@ void daughter_distribution_electron() {
   electron_debug_pt->Draw();
   gPad->Print("./Plots_sigma/Electrons/electron_debug_pt.png");
   makeCan();
-  electron_debug_eta->Draw();
+  TLegend *legend_2 = new TLegend(0.1,0.7,0.48,0.9);
+  legend_2->AddEntry(electron_eta, "All Electron Candidates");
+  legend_2->AddEntry(electron_debug_eta, "Electron Candidates P_{T} < 140 MeV");
+  electron_eta->Draw("pfc");
+  electron_debug_eta->Draw("pfc;same");
+  legend_2->Draw("same");
   gPad->Print("./Plots_sigma/Electrons/electron_debug_eta.png");
   makeCan();
   electron_debug_phi->Draw();
   gPad->Print("./Plots_sigma/Electrons/electron_debug_phi.png");
+  makeCan();
+  TLegend *legend = new TLegend(0.1,0.7,0.48,0.9);
+  legend->AddEntry(electron_Nelectron, "All Electron Candidates");
+  legend->AddEntry(electron_debug_Nelectron, "Electron Candidates P_{T} < 140 MeV");
+  electron_Nelectron->Draw("pfc");
+  electron_debug_Nelectron->Draw("pfc;same");
+  legend->Draw("same");
+  gPad->Print("./Plots_sigma/Electrons/electron_debug_NSigmaElectron.png");
 }

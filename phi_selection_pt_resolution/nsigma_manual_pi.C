@@ -75,8 +75,8 @@ void nsigma_manual_pi() {
       pion_Npion->Fill(pair->d1_mNSigmaPion);
       pion_Npion->Fill(pair->d2_mNSigmaPion);
 
-      pion_pt_NPion->Fill(pair->d1_mPt, pair->d1_mNSigmaPion);
-      pion_pt_NPion->Fill(pair->d2_mPt, pair->d2_mNSigmaPion);
+      pion_pt_NPion->Fill(pair->d1_mPt * cosh(pair->d1_mEta), pair->d1_mNSigmaPion);
+      pion_pt_NPion->Fill(pair->d2_mPt * cosh(pair->d2_mEta), pair->d2_mNSigmaPion);
     }
   } // loop on events
 
@@ -116,9 +116,17 @@ void nsigma_manual_pi() {
   TGraphErrors *graph = new TGraphErrors(mean_values.size(), &pt_values[0],
                                          &mean_values[0], 0, &mean_errors[0]);
   graph->SetTitle(
-      "NSigmaPion Mean vs. Transverse Momentum; Pt(GeV); NSigmaPion Mean");
+      "NSigmaPion Mean vs. Momentum; p(GeV/c); NSigmaPion Mean");
   graph->SetMarkerSize(0.8);
   graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(0.8);
+  graph->SetMarkerStyle(20);
+  graph->GetXaxis()->SetTitleSize(0.05);
+  graph->GetXaxis()->CenterTitle();
+  graph->GetXaxis()->SetTitleOffset(0.8);
+  graph->GetYaxis()->SetTitleSize(0.05);
+  graph->GetYaxis()->CenterTitle();
+  graph->GetYaxis()->SetTitleOffset(0.8);
   graph->Draw("AP"); // Draw as points with axes
 
   // graphing the all momentum result
@@ -148,12 +156,12 @@ void nsigma_manual_pi() {
   all_momentum_fit->SetLineColor(kRed);
   all_momentum_fit->Draw("same");
 
-  TLine *mean_line = new TLine(nsigmapion_mean, 0, nsigmapion_mean, 25000);
+  TLine *mean_line = new TLine(nsigmapion_mean, 0, nsigmapion_mean, 24000);
   mean_line->SetLineColor(kBlue);
   mean_line->Draw("same");
 
   TBox *box = new TBox(nsigmapion_mean - nsigmapion_error, 0,
-                       nsigmapion_mean + nsigmapion_error, 25000);
+                       nsigmapion_mean + nsigmapion_error, 24000);
   box->SetFillColor(kBlue);
   box->SetFillStyle(3004); // semi-transparent
   //
