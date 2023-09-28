@@ -1,0 +1,6 @@
+particleType    scatteringType    numEvent    crossSection
+Kaon            Coherent          10000       1.524mb
+Kaon            Incoherent        10000       931.008mb
+Pion            Coherent          10000       39.964mb
+Pion            Incoherent        10000       26.762mb
+epem            Inteference       10000       463.873

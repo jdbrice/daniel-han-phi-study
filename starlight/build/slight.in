@@ -21,7 +21,7 @@ PT_MAX = 3.0 #Maximum pT in GeV; ignored if CUT_PT=0
 CUT_ETA = 0 #Cut in pseudorapidity? (0 = no, 1 = yes)
 ETA_MIN = -10 #Minimum pseudorapidity; ignored if CUT_ETA=0
 ETA_MAX = 10 #Maximum pseudorapidity; ignored if CUT_ETA=0
-PROD_MODE = 2     #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), 4 = incoherent vector meson)
+PROD_MODE = 3     #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), 4 = incoherent vector meson)
 N_EVENTS = 10000   #Number of events
 PROD_PID = 333   #Channel of interest
 RND_SEED = 5574533 #Random number seed

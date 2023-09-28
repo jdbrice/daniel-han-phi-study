@@ -41,6 +41,8 @@ class Analyze
   TH1F *fPtKa_tpc_2;
   TH1F *fRapKa;      //Histogram of rapidity of kaons
   TH1F *fEtaKa;      //Histogram of rapidity of kaons
+  TH1F *fEtaPi;      //Histogram of rapidity of kaons
+  TH1F *fEtaEl;      //Histogram of rapidity of kaons
   TH1F *fInvMassKa;  //Histogram of ivariant mass of kaons
   TH1F *fAzimuthKa;  //Histogram of pt azimuthal angle of kaons
 

@@ -34,7 +34,7 @@ public:
   TFile *dEdx_file = new TFile("dEdx.root");
 
   double sigma_meson = 0.00025;
-  double sigma_electron  = 0.00008;
+  double sigma_electron  = 0.00006;
 
   // Root histogram for dEdxKaon using most probable value
   TH1D *dEdxKaon = (TH1D *)dEdx_file->Get("mpmK");

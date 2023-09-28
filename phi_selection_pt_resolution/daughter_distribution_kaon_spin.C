@@ -6,7 +6,6 @@
 #include "TFitResult.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TH3F.h"
 #include "TLegend.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
@@ -16,10 +15,9 @@
 #include <TH2.h>
 #include <TSystem.h>
 #include <TVirtualPad.h>
-#include <algorithm>
 #include <cmath>
-#include <map>
 #include <math.h>
+#include <vector>
 
 int ican = 0;
 void makeCan() {
@@ -41,11 +39,12 @@ double calc_Phi(TLorentzVector lv1, TLorentzVector lv2) {
   double p_cross_m = lv_sum.Px() * lv_diff.Py() - lv_sum.Py() * lv_diff.Px();
   double cosphi = p_dot_m / (lv_sum.Perp() * lv_diff.Perp());
   double phi = acos(cosphi);
-  // flip phi based on +- z direction of \vec{p} \cross \vec{m}
+  // flip phi based on right hand rule (negate if left-handed)
   phi = p_cross_m < 0 ? -phi : phi;
   return phi;
 }
 
+// return a normalized histogram by bin with cleared fit function
 TH1F *normalize_histogram(TH1 *histogram) {
   TH1F *normalized_hist = (TH1F *)histogram->Clone();
   normalized_hist->GetListOfFunctions()->Delete();
@@ -54,15 +53,21 @@ TH1F *normalize_histogram(TH1 *histogram) {
   return normalized_hist;
 }
 
-void change_bin_structure(TH1F *target, TH1F *temp) {
-
-  int nBins = temp->GetNbinsX();
-  double x_min = temp->GetXaxis()->GetXmin();
-  double x_max = temp->GetXaxis()->GetXmax();
-
-  target->SetBins(nBins, x_min, x_max);
+std::vector<TLorentzVector *>
+create_mixed_event_buffer(TLorentzVector &lv, int lv_index,
+                          std::vector<TLorentzVector *> d1_list,
+                          std::vector<TLorentzVector *> d2_list) {
+  std::vector<TLorentzVector*> mixed_event_buffer;
+  for (int i = 0; i < d1_list.size(); i++ ){
+    if (lv_index != i){
+      mixed_event_buffer.push_back(d1_list[i]);
+      mixed_event_buffer.push_back(d2_list[i]);
+    }
+  }
+  return mixed_event_buffer;
 }
 
+// fit function for calculating Fourier components of the observable phi
 double fit_function(double *x, double *par) {
   double fit_value = par[0] * (1 + par[1] * cos(x[0]) + par[2] * cos(2 * x[0]) +
                                par[3] * cos(3 * x[0]) + par[4] * cos(4 * x[0]));
@@ -70,34 +75,24 @@ double fit_function(double *x, double *par) {
 }
 
 void daughter_distribution_kaon_spin() {
-
   TH1F *phi_distribution_coherent =
       new TH1F("Coherent #phi Candidates",
                "Run 19 Au + Au #Delta#phi Coherent #phi Meson Candidates; "
                "#phi(rad); counts",
                12, -3.15, 3.15);
-
   TH1F *phi_distribution_incoherent =
       new TH1F("Incoherent #phi Candidates",
                "Run 19 Au + Au #Delta#phi Incoherent #phi Meson Candidates; "
                "#phi(rad); counts",
                12, -3.15, 3.15);
-
   TH1F *phi_distribution_mixed_fit =
       new TH1F("Run 19 Au + Au Mixed Events",
                "Run 19 Au + Au Mixed Event #Delta#Phi; #phi(rad); counts", 100,
                -3.15, 3.15);
-
   TH1F *phi_distribution_mixed =
       new TH1F("Run 19 Au + Au Mixed Events",
                "Run 19 Au + Au Mixed Event #Delta#Phi; #phi(rad); counts", 12,
                -3.15, 3.15);
-
-  TH2F *pt_two_phi = new TH2F("Run 19 Au + Au Mixed Event",
-                              "Run 19 Au + Au Mixed Event cos2#phi v.s. Pair "
-                              "P_{T};P_{T} (GeV/c);cos2#phi",
-                              10, 0., 0.5, 10, -50, 50);
-
   // Open the file containing the tree (INPUT data).
   TFile *myFile = TFile::Open("input.root");
 
@@ -148,8 +143,6 @@ void daughter_distribution_kaon_spin() {
       phi_distribution_coherent->Fill(phi);
       d1_list.push_back(lv1);
       d2_list.push_back(lv2);
-
-
     }
     if ((pair->d1_mNSigmaPion > 5.8 || pair->d1_mNSigmaPion < -4.2) &&
         (pair->d2_mNSigmaPion > 5.8 || pair->d2_mNSigmaPion < -4.2) &&
@@ -291,6 +284,7 @@ void daughter_distribution_kaon_spin() {
   TH1F *normalized_coherent = normalize_histogram(phi_distribution_coherent);
 
   TH1F *normalized_coherent_corrected = (TH1F *)normalized_coherent->Clone();
+
   normalized_coherent_corrected->Add(normalized_mixed, -1);
 
   makeCan();

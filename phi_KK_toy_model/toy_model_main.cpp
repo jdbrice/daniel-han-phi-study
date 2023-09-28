@@ -20,10 +20,10 @@
 thread_local TRandom3 rng_toy(0);
 
 int PHI_SAMPLE_SIZE = 1500;
-int PHI_INC_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int PHI_INC_SAMPLE_SIZE = 3 * PHI_SAMPLE_SIZE;
 int RHO_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
-int RHO_INC_SAMPLE_SIZE = RHO_SAMPLE_SIZE;
-int ELECTRON_SAMPLE_SIZE = 15 * PHI_SAMPLE_SIZE;
+int RHO_INC_SAMPLE_SIZE = 10 * PHI_SAMPLE_SIZE;
+int ELECTRON_SAMPLE_SIZE = 5* PHI_SAMPLE_SIZE;
 
 int main(int argc, char **argv)
 {
@@ -55,16 +55,16 @@ int main(int argc, char **argv)
     // create histogram to draw rc mass
     TH1F *parent_rc_mass_total = new TH1F(
         "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-        100, 0.9, 1.1);
+        100, 0.9, 1.4);
     TH1F *parent_rc_mass_mc_phi = new TH1F(
         "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-        100, 0.9, 1.1);
+        100, 0.9, 1.4);
     TH1F *parent_rc_mass_mc_rho = new TH1F(
         "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-        100, 0.9, 1.1);
+        100, 0.9, 1.4);
     TH1F *parent_rc_mass_mc_electron = new TH1F(
         "Combined Masses", "Toy Model Reco Mass;m_{K^+} + m_{K^-}(GeV);count",
-        100, 0.9, 1.1);
+        100, 0.9, 1.4);
 
     TH1F *nsigmapion =
         new TH1F("All Tracks", "NsigmaPion;NsigmaPion;count", 100, -4, 190);
@@ -81,6 +81,15 @@ int main(int argc, char **argv)
 
     TH1F *all_phi = new TH1F("All Tracks", "Toy Model All Tracks #phi;#phi;count",
                              100, -3.15, 3.15);
+  TH2F *all_pt_NPion =
+      new TH2F("All Tracks",
+               "ToyModel N#sigmaPion All Tracks;P_{T}(GeV/c);N#sigmaPion",
+               100, 0., 1.2, 200, -20, 80);
+
+  TH2F *all_pt_NKaon =
+      new TH2F("All Tracks",
+               "ToyModel N#sigmaKaon All Tracks;P_{T}(GeV/c);N#sigmaKaon",
+               100, 0., 1.2, 200, -60, 80);
 
     TH1F *kaon_pt =
         new TH1F("kaon Tracks", "Toy Model Kaon Candidate P_{T};P_{T}(GeV);count",
@@ -123,10 +132,13 @@ int main(int argc, char **argv)
         {
             all_pt->Fill(pt1);
             all_pt->Fill(pt2);
+            all_pt_NPion->Fill(pt1, nsigmapion1);
+            all_pt_NPion->Fill(pt2, nsigmapion2);
+            all_pt_NKaon->Fill(pt1, nsigmakaon1);
+            all_pt_NKaon->Fill(pt2, nsigmakaon2);
         }
 
-        if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
-            abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
+        if (abs(nsigmakaon1) < 5 && abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
         {
             kaon_pt->Fill(pt1);
             kaon_pt->Fill(pt2);
@@ -157,10 +169,13 @@ int main(int argc, char **argv)
         {
             all_pt->Fill(pt1);
             all_pt->Fill(pt2);
+            all_pt_NPion->Fill(pt1, nsigmapion1);
+            all_pt_NPion->Fill(pt2, nsigmapion2);
+            all_pt_NKaon->Fill(pt1, nsigmakaon1);
+            all_pt_NKaon->Fill(pt2, nsigmakaon2);
         }
 
-        if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
-            abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
+        if (abs(nsigmakaon1) < 5 && abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
         {
             kaon_pt->Fill(pt1);
             kaon_pt->Fill(pt2);
@@ -191,10 +206,13 @@ int main(int argc, char **argv)
         {
             all_pt->Fill(pt1);
             all_pt->Fill(pt2);
+            all_pt_NPion->Fill(pt1, nsigmapion1);
+            all_pt_NPion->Fill(pt2, nsigmapion2);
+            all_pt_NKaon->Fill(pt1, nsigmakaon1);
+            all_pt_NKaon->Fill(pt2, nsigmakaon2);
         }
 
-        if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
-            abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
+        if (abs(nsigmakaon1) < 5 && abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
         {
             kaon_pt->Fill(pt1);
             kaon_pt->Fill(pt2);
@@ -225,10 +243,13 @@ int main(int argc, char **argv)
         {
             all_pt->Fill(pt1);
             all_pt->Fill(pt2);
+            all_pt_NPion->Fill(pt1, nsigmapion1);
+            all_pt_NPion->Fill(pt2, nsigmapion2);
+            all_pt_NKaon->Fill(pt1, nsigmakaon1);
+            all_pt_NKaon->Fill(pt2, nsigmakaon2);
         }
 
-        if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
-            abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
+        if (abs(nsigmakaon1) < 5 && abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
         {
             kaon_pt->Fill(pt1);
             kaon_pt->Fill(pt2);
@@ -259,10 +280,13 @@ int main(int argc, char **argv)
         {
             all_pt->Fill(pt1);
             all_pt->Fill(pt2);
+            all_pt_NPion->Fill(pt1, nsigmapion1);
+            all_pt_NPion->Fill(pt2, nsigmapion2);
+            all_pt_NKaon->Fill(pt1, nsigmakaon1);
+            all_pt_NKaon->Fill(pt2, nsigmakaon2);
         }
 
-        if (abs(nsigmapion1) > 5 && abs(nsigmapion2) > 5 && abs(nsigmakaon1) < 5 &&
-            abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
+        if (abs(nsigmakaon1) < 5 && abs(nsigmakaon2) < 5 && pt1 > 0.06 && pt2 > 0.06)
         {
             kaon_pt->Fill(pt1);
             kaon_pt->Fill(pt2);
@@ -273,30 +297,30 @@ int main(int argc, char **argv)
 
     // drawing the result
     TApplication app("app", &argc, argv);
+  pid.draw_dEdx_blurred();
     TCanvas *canvas = new TCanvas("canvas", "canvas", 0, 0, 800, 600);
-    all_pt->Draw();
+    kaon_pt->Draw();
     TCanvas *canvas2 = new TCanvas("canvas2", "canvas2", 0, 0, 800, 600);
     kaon_pt->Draw();
-    // TCanvas *canvas3 = new TCanvas("canvas3", "canvas3", 0, 0, 800, 600);
-    // all_phi->Draw();
-    // TCanvas *canvas4 = new TCanvas("canvas4", "canvas4", 0, 0, 800, 600);
-    // // nsigmakaon->Draw();
-    // kaon_pt->Draw();
-    // TCanvas *canvas5 = new TCanvas("canvas5", "canvas5", 0, 0, 800, 600);
-    // kaon_eta->Draw();
-    // TCanvas *canvas6 = new TCanvas("canvas6", "canvas6", 0, 0, 800, 600);
-    // kaon_phi->Draw();
-    // parent_rc_mass_total->Draw("pfc");
-    // parent_rc_mass_mc_phi->Draw("same;pfc");
-    // parent_rc_mass_mc_rho->Draw("same;pfc");
-    // parent_rc_mass_mc_electron->Draw("same;pfc");
-    // auto legend = new TLegend(0.7, 0.55, 0.98, 0.75);
-    // legend->SetHeader("Reco Parent Mass");
-    // legend->AddEntry(parent_rc_mass_total, "Total Entries", "f");
-    // legend->AddEntry(parent_rc_mass_mc_phi, "MC #phi", "f");
-    // legend->AddEntry(parent_rc_mass_mc_rho, "MC #rho", "f");
-    // legend->AddEntry(parent_rc_mass_mc_electron, "MC electron pair", "f");
-    // legend->Draw();
+    TCanvas *canvas3 = new TCanvas("canvas3", "canvas3", 0, 0, 800, 600);
+    all_pt_NKaon->Draw("colz");
+    TCanvas *canvas4 = new TCanvas("canvas4", "canvas4", 0, 0, 800, 600);
+    all_pt_NPion->Draw("colz");
+    TCanvas *canvas5 = new TCanvas("canvas5", "canvas5", 0, 0, 800, 600);
+    kaon_eta->Draw();
+    TCanvas *canvas6 = new TCanvas("canvas6", "canvas6", 0, 0, 800, 600);
+    kaon_phi->Draw();
+    parent_rc_mass_total->Draw("pfc");
+    parent_rc_mass_mc_phi->Draw("same;pfc");
+    parent_rc_mass_mc_rho->Draw("same;pfc");
+    parent_rc_mass_mc_electron->Draw("same;pfc");
+    auto legend = new TLegend(0.7, 0.55, 0.98, 0.75);
+    legend->SetHeader("Reco Parent Mass");
+    legend->AddEntry(parent_rc_mass_total, "Total Entries", "f");
+    legend->AddEntry(parent_rc_mass_mc_phi, "MC #phi", "f");
+    legend->AddEntry(parent_rc_mass_mc_rho, "MC #rho", "f");
+    legend->AddEntry(parent_rc_mass_mc_electron, "MC electron pair", "f");
+    legend->Draw();
     canvas->Modified();
     canvas->Update();
     TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();

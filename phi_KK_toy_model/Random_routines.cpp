@@ -8,16 +8,16 @@
 #include <string>
 
 double pi = M_PI;
-double KAON_MASS = 0.493;
-double PION_MASS = 0.139;
-double ELECTRON_MASS = 0.000511;
+double KAON_MASS_RND = 0.493;
+double PION_MASS_RND = 0.139;
+double ELECTRON_MASS_RND = 0.000511;
 // hardcoded starlight histogram files
-TFile *kaon_file =
-    new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
+TFile *kaon_file_rnd =
+    new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon_co.root");
 TFile *kaon_inc_file =
     new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon_inco.root");
 TFile *pion_file =
-    new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion.root");
+    new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion_co.root");
 TFile *pion_inc_file =
     new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/pion_inco.root");
 TFile *electron_file =
@@ -59,7 +59,7 @@ Random_routines::get_slight_lorentz_vector(TFile *root_file,
     TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthKa");
     TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassKa");
     TH1F *pt_distr = (TH1F *)root_file->Get("PtKa");
-    TH1F *eta_distr = (TH1F *)root_file->Get("RapKa");
+    TH1F *eta_distr = (TH1F *)root_file->Get("EtaKa");
     rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
                             phi_distr->GetRandom(),
                             inv_mass_distr->GetRandom());
@@ -67,7 +67,7 @@ Random_routines::get_slight_lorentz_vector(TFile *root_file,
     TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthPi");
     TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassPi");
     TH1F *pt_distr = (TH1F *)root_file->Get("PtPi");
-    TH1F *eta_distr = (TH1F *)root_file->Get("RapPi");
+    TH1F *eta_distr = (TH1F *)root_file->Get("EtaPi");
     rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
                             phi_distr->GetRandom(),
                             inv_mass_distr->GetRandom());
@@ -75,7 +75,7 @@ Random_routines::get_slight_lorentz_vector(TFile *root_file,
     TH1F *phi_distr = (TH1F *)root_file->Get("AzimuthEl");
     TH1F *inv_mass_distr = (TH1F *)root_file->Get("InvMassEl");
     TH1F *pt_distr = (TH1F *)root_file->Get("PtEl");
-    TH1F *eta_distr = (TH1F *)root_file->Get("RapEl");
+    TH1F *eta_distr = (TH1F *)root_file->Get("EtaEl");
     rc_vector->SetPtEtaPhiM(pt_distr->GetRandom(), eta_distr->GetRandom(),
                             phi_distr->GetRandom(),
                             inv_mass_distr->GetRandom());
@@ -205,12 +205,12 @@ void Random_routines::trigger_two_body_decay(
   if (type == "kaon") {
     while (count < event_num) {
       TLorentzVector *mc_parent_ptr =
-          Random_routines::get_slight_lorentz_vector(kaon_file, "kaon");
+          Random_routines::get_slight_lorentz_vector(kaon_file_rnd, "kaon");
 
       mc_parent.push_back(mc_parent_ptr);
 
       std::vector<TLorentzVector *> daughter_list =
-          Random_routines::two_body_decay(mc_parent_ptr, KAON_MASS, KAON_MASS);
+          Random_routines::two_body_decay(mc_parent_ptr, KAON_MASS_RND, KAON_MASS_RND);
 
       mc_d1.push_back(daughter_list[0]);
       mc_d2.push_back(daughter_list[1]);
@@ -227,6 +227,12 @@ void Random_routines::trigger_two_body_decay(
       Random_routines::add_pt_percent_loss(d2_rc_ptr, 2.5);
       Random_routines::add_gaussian_pt_error(d1_rc_ptr, 0.04 * d1_rc_ptr->Pt());
       Random_routines::add_gaussian_pt_error(d2_rc_ptr, 0.04 * d2_rc_ptr->Pt());
+
+      // // DEBUG ONLY
+      // double rand_pt = rng.Uniform(0.06,0.4);
+      // d1_rc_ptr->SetPtEtaPhiM(rand_pt, d1_rc_ptr->Eta(), d1_rc_ptr->Phi(), d1_rc_ptr->M());
+      // double rand_pt_2 = rng.Uniform(0.06,0.4);
+      // d2_rc_ptr->SetPtEtaPhiM(rand_pt_2, d2_rc_ptr->Eta(), d2_rc_ptr->Phi(), d2_rc_ptr->M());
 
       rc_d1.push_back(d1_rc_ptr);
       rc_d2.push_back(d2_rc_ptr);
@@ -246,18 +252,18 @@ void Random_routines::trigger_two_body_decay(
       mc_parent.push_back(mc_parent_ptr);
 
       std::vector<TLorentzVector *> daughter_list =
-          Random_routines::two_body_decay(mc_parent_ptr, PION_MASS, PION_MASS);
+          Random_routines::two_body_decay(mc_parent_ptr, PION_MASS_RND, PION_MASS_RND);
 
       mc_d1.push_back(daughter_list[0]);
       mc_d2.push_back(daughter_list[1]);
 
       TLorentzVector *d1_rc_ptr = new TLorentzVector;
       d1_rc_ptr->SetPtEtaPhiM(daughter_list[0]->Pt(), daughter_list[0]->Eta(),
-                              daughter_list[0]->Phi(), KAON_MASS);
+                              daughter_list[0]->Phi(), KAON_MASS_RND);
 
       TLorentzVector *d2_rc_ptr = new TLorentzVector;
       d2_rc_ptr->SetPtEtaPhiM(daughter_list[1]->Pt(), daughter_list[1]->Eta(),
-                              daughter_list[1]->Phi(), KAON_MASS);
+                              daughter_list[1]->Phi(), KAON_MASS_RND);
 
       Random_routines::add_pt_percent_loss(d1_rc_ptr, 2.5);
       Random_routines::add_pt_percent_loss(d2_rc_ptr, 2.5);
@@ -282,18 +288,18 @@ void Random_routines::trigger_two_body_decay(
       mc_parent.push_back(mc_parent_ptr);
 
       std::vector<TLorentzVector *> daughter_list =
-          Random_routines::two_body_decay(mc_parent_ptr, ELECTRON_MASS, ELECTRON_MASS);
+          Random_routines::two_body_decay(mc_parent_ptr, ELECTRON_MASS_RND, ELECTRON_MASS_RND);
 
       mc_d1.push_back(daughter_list[0]);
       mc_d2.push_back(daughter_list[1]);
 
       TLorentzVector *d1_rc_ptr = new TLorentzVector;
       d1_rc_ptr->SetPtEtaPhiM(daughter_list[0]->Pt(), daughter_list[0]->Eta(),
-                              daughter_list[0]->Phi(), KAON_MASS);
+                              daughter_list[0]->Phi(), KAON_MASS_RND);
 
       TLorentzVector *d2_rc_ptr = new TLorentzVector;
       d2_rc_ptr->SetPtEtaPhiM(daughter_list[1]->Pt(), daughter_list[1]->Eta(),
-                              daughter_list[1]->Phi(), KAON_MASS);
+                              daughter_list[1]->Phi(), KAON_MASS_RND);
 
       Random_routines::add_pt_percent_loss(d1_rc_ptr, 2.5);
       Random_routines::add_pt_percent_loss(d2_rc_ptr, 2.5);
@@ -318,7 +324,7 @@ void Random_routines::trigger_two_body_decay(
       mc_parent.push_back(mc_parent_ptr);
 
       std::vector<TLorentzVector *> daughter_list =
-          Random_routines::two_body_decay(mc_parent_ptr, KAON_MASS, KAON_MASS);
+          Random_routines::two_body_decay(mc_parent_ptr, KAON_MASS_RND, KAON_MASS_RND);
 
       mc_d1.push_back(daughter_list[0]);
       mc_d2.push_back(daughter_list[1]);
@@ -355,18 +361,18 @@ void Random_routines::trigger_two_body_decay(
       mc_parent.push_back(mc_parent_ptr);
 
       std::vector<TLorentzVector *> daughter_list =
-          Random_routines::two_body_decay(mc_parent_ptr, PION_MASS, PION_MASS);
+          Random_routines::two_body_decay(mc_parent_ptr, PION_MASS_RND, PION_MASS_RND);
 
       mc_d1.push_back(daughter_list[0]);
       mc_d2.push_back(daughter_list[1]);
 
       TLorentzVector *d1_rc_ptr = new TLorentzVector;
       d1_rc_ptr->SetPtEtaPhiM(daughter_list[0]->Pt(), daughter_list[0]->Eta(),
-                              daughter_list[0]->Phi(), KAON_MASS);
+                              daughter_list[0]->Phi(), KAON_MASS_RND);
 
       TLorentzVector *d2_rc_ptr = new TLorentzVector;
       d2_rc_ptr->SetPtEtaPhiM(daughter_list[1]->Pt(), daughter_list[1]->Eta(),
-                              daughter_list[1]->Phi(), KAON_MASS);
+                              daughter_list[1]->Phi(), KAON_MASS_RND);
 
       Random_routines::add_pt_percent_loss(d1_rc_ptr, 2.5);
       Random_routines::add_pt_percent_loss(d2_rc_ptr, 2.5);

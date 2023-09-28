@@ -10,7 +10,7 @@
 #include <TTreeReader.h>
 
 // global rng
-thread_local TRandom3 rng_selection(0);
+TRandom3 rng_selection(0);
 
 // constructor and variable init
 Selector::Selector(double sigma_meson, double sigma_electron) {

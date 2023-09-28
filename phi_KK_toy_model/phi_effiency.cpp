@@ -29,7 +29,7 @@ double PHI_MAX = 2 * M_PI;
 int PHI_SAMPLE_SIZE = 4500000;
 
   TFile *kaon_file =
-      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon.root");
+      new TFile("/home/xihe/daniel-han-phi-study/starlight_hist/kaon_co.root");
 
 int main(int argc, char **argv) {
   // create vectors for parent vector and daughter vectors
@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
   std::vector<TLorentzVector *> daughter2_vector;
 
 
-  TH1F* phi_pt_rc_hist = new TH1F("Reco Effiency", "Reco Effiency;Phi P_T(GeV);Rate", 200, 0.0, 1. );
+  TH1F* phi_pt_rc_hist = new TH1F("Reco Effiency", "Reco Effiency;Phi P_T(GeV);Rate", 100, 0, 0.3 );
 
-  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 200, 0.0, 1.);
+  TH1F* phi_pt_mc_hist = new TH1F("rc_phi_pt", "RC Phi Transverse Momenntum; P_T(GeV);Counts", 100, 0, 0.3);
   // simulate the decay process for rho -> pi+ pi-
 
   // simualte decay process for phi -> K+ K-
@@ -59,14 +59,14 @@ int main(int argc, char **argv) {
 
     // blur the daughter particles by 2 percent to simulate actual particle
     // detector accuracy
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
-                                           0.04 * daughter_ptr_pair[0]->Pt());
-    Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
-                                           0.04 * daughter_ptr_pair[1]->Pt());
-
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3.);
-    Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3.);
-
+    // Random_routines::add_gaussian_pt_error(daughter_ptr_pair[0],
+    //                                        0.04 * daughter_ptr_pair[0]->Pt());
+    // Random_routines::add_gaussian_pt_error(daughter_ptr_pair[1],
+    //                                        0.04 * daughter_ptr_pair[1]->Pt());
+    //
+    // Random_routines::add_pt_percent_loss(daughter_ptr_pair[0],3.);
+    // Random_routines::add_pt_percent_loss(daughter_ptr_pair[1],3.);
+    //
     daughter1_vector.push_back(daughter_ptr_pair[0]);
     daughter2_vector.push_back(daughter_ptr_pair[1]);
 
@@ -74,16 +74,10 @@ int main(int argc, char **argv) {
   }
 
 
-  // create an instance of particle selector
-  Selector pid = Selector();
 
   // select daughter particle to be Kaon
   for (int i = 0; i < parent_vector.size(); i++) {
-    if (std::abs(pid.compute_NSigmaKaon(daughter1_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaKaon(daughter2_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) < 5. &&
-        std::abs(pid.compute_NSigmaPion(daughter1_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) > 5. &&
-        std::abs(pid.compute_NSigmaPion(daughter2_vector[i]->Pt(), pid.dEdxKaon, pid.sigma_meson)) > 5. && 
-        daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06)  {
+    if (daughter1_vector[i]->Pt() > 0.06 && daughter2_vector[i]->Pt() > 0.06)  {
       // reconstruct the dauther particles only if they are kaons.
       // This effectively selects phi
       TLorentzVector reconstructed_parent =
@@ -97,6 +91,8 @@ int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   TCanvas *canvas = new TCanvas("canvas", "canvas2", 0, 0, 800, 600);
   phi_pt_rc_hist->Draw();
+  TFile *file = new TFile("itpc_eff.root", "RECREATE");
+  phi_pt_rc_hist->Write();
   canvas->Modified();
   canvas->Update();
   TRootCanvas *root_canvas = (TRootCanvas *)canvas->GetCanvasImp();
