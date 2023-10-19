@@ -15,6 +15,7 @@
 
 thread_local TRandom3 rng_toy(0);
 
+double test = 0;
 double KAON_MASS = 0.493;
 double MUON_MASS = 0.105;
 double MUON_NUTRINO_MASS = KAON_MASS / 1000.;
