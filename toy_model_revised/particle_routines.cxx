@@ -15,11 +15,14 @@ std::shared_ptr<Particle> generateParticlePtEtaPhiM(int pdgCode, double pt, doub
 std::shared_ptr<Particle> generateParticleSlight(int pdgCode, TFile *slightFile) {
     // TODO: Implement the function
     return nullptr; // Placeholder return
+                    // 
+    //
 }
 
 double calculateNsigmaKaon(std::shared_ptr<Particle> target, TFile *dEdxFile) {
     // TODO: Implement the function
     return 0.0; // Placeholder return
+    
 }
 
 double calculateNsigmaPion(std::shared_ptr<Particle> target, TFile *dEdxFile) {
