@@ -15,7 +15,6 @@
 
 thread_local TRandom3 rng_toy(0);
 
-double test = 0;
 double KAON_MASS = 0.493;
 double MUON_MASS = 0.105;
 double MUON_NUTRINO_MASS = KAON_MASS / 1000.;
@@ -29,8 +28,7 @@ int K_SAMPLE_SIZE = 4500000;
 
 TRandom3 decay_rng;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   // generate parent Kaon particles
   std::vector<TLorentzVector *> kaon_list;
   std::vector<TLorentzVector *> muon_list;
@@ -70,15 +68,13 @@ int main(int argc, char **argv)
   std::vector<double> test_energy_difference;
 
   // create mc kaons
-  for (int i = 0; i < K_SAMPLE_SIZE; i++)
-  {
+  for (int i = 0; i < K_SAMPLE_SIZE; i++) {
     kaon_list.push_back(Random_routines::get_random_lorentz_vector(
         PT_MIN, PT_MAX, ETA_MIN, ETA_MAX, PHI_MIN, PHI_MAX, KAON_MASS));
   }
 
   // simulate the decay process of K->mu + v_mu
-  for (TLorentzVector *kaon_ptr : kaon_list)
-  {
+  for (TLorentzVector *kaon_ptr : kaon_list) {
     double decay_number = decay_rng.Uniform(); // branching ratio number
 
     kaon_pt_hist->Fill(
@@ -86,8 +82,7 @@ int main(int argc, char **argv)
             ->Pt()); // this histogram contains the kaon P_T for all mc Kaons.
 
     // simulate the branching probability
-    if (decay_number < 0.6356)
-    {
+    if (decay_number < 0.6356) {
 
       std::vector<TLorentzVector *> daughter_list =
           Random_routines::two_body_decay(kaon_ptr, MUON_MASS,
@@ -102,11 +97,11 @@ int main(int argc, char **argv)
       delta_phi_muon_pt->Fill(daughter_list[0]->Pt(),
                               kaon_ptr->DeltaPhi(*daughter_list[0]));
 
-      branched_kaon_pt_list.push_back(kaon_ptr->Pt()); // this list is only for kaons that branch into muon
+      branched_kaon_pt_list.push_back(
+          kaon_ptr->Pt()); // this list is only for kaons that branch into muon
       branched_kaon_energy_list.push_back(kaon_ptr->E());
 
-      if (daughter_list[0]->Pt() > 0.2)
-      {
+      if (daughter_list[0]->Pt() > 0.2) {
 
         delta_phi_tof->Fill(kaon_ptr->DeltaPhi(*daughter_list[0]));
 
@@ -117,13 +112,14 @@ int main(int argc, char **argv)
   }
 
   // select from the branched kaon pt such that the decayed muon has pt > 0.2
-  // Note that there is a index corresponance between muon_list and branched_kaon_pt_list
-  for (int i = 0; i < muon_list.size(); i++)
-  {
-    if (muon_list[i]->Pt() > 0.2)
-    {
+  // Note that there is a index corresponance between muon_list and
+  // branched_kaon_pt_list
+  for (int i = 0; i < muon_list.size(); i++) {
+    if (muon_list[i]->Pt() > 0.2) {
       TOF_trigger_rate->Fill(branched_kaon_pt_list[i]);
-      test_energy_difference.push_back(branched_kaon_energy_list[i] - muon_list[i]->E() - nutrino_list[i]->E());
+      test_energy_difference.push_back(branched_kaon_energy_list[i] -
+                                       muon_list[i]->E() -
+                                       nutrino_list[i]->E());
     }
   }
 
