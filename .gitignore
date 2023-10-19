@@ -4,3 +4,4 @@
  *.pcm
  *.html
  *.x
+ .clangd
