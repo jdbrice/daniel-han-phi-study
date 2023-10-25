@@ -1,15 +1,15 @@
 // include header files
 #include "FemtoPairFormat.h"
-#include "Math/Vector4D.h"
-#include "TCanvas.h"
-#include "TGraphAsymmErrors.h"
 #include "TEfficiency.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "TH1F.h"
 #include "TLorentzVector.h"
 #include "TSystem.h"
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
+#include "root/Math/Vector4D.h"
+#include "root/TCanvas.h"
 #include <Math/Vector4Dfwd.h>
 #include <TH1.h>
 #include <TLegend.h>
@@ -32,17 +32,17 @@ void makeCan(bool logz = false) {
   can->SetRightMargin(0.03);
 }
 
+void GraphToHist(TGraphAsymmErrors *graph, TH1F *hist);
+
 double total_eff;
 
-TH1F *effPt =
-    new TH1F("Selected/All probes", "All Probes Reco P_T", 10, 0., 2.);
-TH1F *effM = new TH1F("Selected/All Probes", "All Probes Reco M", 10, 1., 1.04);
-TH1F *effEta =
-    new TH1F("Selected/All Probes", "All Probes Reco Eta", 10, -2, 2);
+TH1F *effPt = new TH1F("eff_pt", "All Probes Reco P_T", 10, 0., 2.);
+TH1F *effM = new TH1F("eff_mass", "All Probes Reco M", 10, 1., 1.04);
+TH1F *effEta = new TH1F("eff_eta", "All Probes Reco Eta", 10, -2, 2);
 
-TH1F *recoPt = new TH1F("All probes", "All Probes Reco P_T", 10, 0., 2.);
-TH1F *recoM = new TH1F("All Probes", "All Probes Reco M", 10, 1., 1.04);
-TH1F *recoEta = new TH1F("All Probes", "All Probes Reco Eta", 10, -2, 2);
+TH1F *recoPt = new TH1F("eff_pt", "All Probes Reco P_T", 10, 0., 2.);
+TH1F *recoM = new TH1F("eff_mass", "All Probes Reco M", 10, 1., 1.04);
+TH1F *recoEta = new TH1F("eff_eta", "All Probes Reco Eta", 10, -2, 2);
 TH1F *dEdxProbe = new TH1F("All Probes", "All Probes dE/dx", 10, -50, 30);
 TH1F *recoPtProbeCut =
     new TH1F("Selected Probes", "Selected Probes Reco P_T", 10, 0., 2.);
@@ -54,6 +54,8 @@ TH1F *recoEtaProbeCut =
 void PidEff() {
   // loading run 19 pairdst file
   TFile *myFile = TFile::Open("~/Documents/Research Data/Run_19_Au_Au.root");
+
+  TFile *output_file = new TFile("PidEff.root", "Recreate");
 
   // This setup the reader, access the data
   TTreeReader myReader("PairDst", myFile);
@@ -138,7 +140,7 @@ void PidEff() {
   ptEff->Draw("ap");
   gPad->Update();
   makeCan();
-  TGraphAsymmErrors* ptEffGraph = ptEff->GetPaintedGraph();
+  TGraphAsymmErrors *ptEffGraph = ptEff->GetPaintedGraph();
   ptEffGraph->SetMinimum(-0.2);
   ptEffGraph->Draw("ap");
   makeCan();
@@ -149,6 +151,14 @@ void PidEff() {
   mEff->Draw("ap");
 
   total_eff = recoEtaProbeCut->GetEntries() / recoEta->GetEntries();
+
+  GraphToHist(ptEffGraph, effEta);
+
+  ptEff->Write();
+  mEff->Write();
+  etaEff->Write();
+
+  output_file->Close();
 
   std::cout << "total effiency is " << total_eff << std::endl;
 }

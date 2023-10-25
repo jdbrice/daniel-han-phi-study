@@ -37,7 +37,7 @@ void makeCan(bool logz = false) {
     can->SetLogz(1); // Set Z-axis to logarithmic scale
   }
 }
-
+TFile * output_hist = new TFile("kaonDistribution.root","Recreate");
 void daughter_distribution_kaon() {
 
   // histograms for all tracks

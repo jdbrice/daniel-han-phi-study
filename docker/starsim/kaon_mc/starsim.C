@@ -57,7 +57,8 @@ Int_t NextEvent(FILE *filelist) {
   // Vertex line
   fscanf(filelist, "%s %lf %lf %lf %lf %d %d %d %d", linelabel, &x1, &x2, &x3,
          &x4, &i1, &i2, &i3, &nvtx);
-  // std::cout << linelabel << "  " << x1 << "  " << x2 << "  " << x3 << "  " << x4
+  // std::cout << linelabel << "  " << x1 << "  " << x2 << "  " << x3 << "  " <<
+  // x4
   //          << "  " << i1 << "  " << i2 << "  " << i3 << "  " << nvtx
   //          << std::endl;
   if (ntrk != nvtx)
@@ -114,9 +115,9 @@ void command(TString cmd) {
   geant_maker->Do(cmd);
 }
 // ----------------------------------------------------------------------------
-void trig(FILE* my_file, Int_t n = 1) {
+void trig(FILE *my_file, Int_t n = 1) {
   double mass;
-  // loop through slight events 
+  // loop through slight events
   for (Int_t i = 0; i < n; i++) {
     // for each event, return how many tracks
     const int ntracks = NextEvent(my_file);
@@ -141,7 +142,7 @@ void trig(FILE* my_file, Int_t n = 1) {
       double pz = part->Pz();
 
       // case for K+
-      if (idpart == 321){
+      if (idpart == 321) {
         StarGenParticle *kaon_plus = kinematics->AddParticle("K+");
         kaon_plus->SetPx(px);
         kaon_plus->SetPy(py);
@@ -149,7 +150,7 @@ void trig(FILE* my_file, Int_t n = 1) {
         kaon_plus->SetEnergy(energy);
       }
       // case for K-
-      else if (idpart == -321){ 
+      else if (idpart == -321) {
         StarGenParticle *kaon_minus = kinematics->AddParticle("K-");
         kaon_minus->SetPx(px);
         kaon_minus->SetPy(py);
@@ -164,92 +165,92 @@ void trig(FILE* my_file, Int_t n = 1) {
     chain->Make();
   }
 }
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  void Kinematics() {
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Kinematics() {
 
-    //  gSystem->Load( "libStarGeneratorPoolPythia6_4_23.so" );
-    gSystem->Load("libKinematics.so");
-    kinematics = new StarKinematics();
+  //  gSystem->Load( "libStarGeneratorPoolPythia6_4_23.so" );
+  gSystem->Load("libKinematics.so");
+  kinematics = new StarKinematics();
 
-    _primary->AddGenerator(kinematics);
+  _primary->AddGenerator(kinematics);
+}
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void starsim(Int_t nevents = 100, Int_t rngSeed = 1234) {
+  FILE *my_file = OpenFile("slight.out");
+  gROOT->SetMacroPath(
+      ".:/star-sw/StRoot/macros:./StRoot/macros:./StRoot/macros/graphics:./"
+      "StRoot/macros/analysis:./StRoot/macros/test:./StRoot/macros/"
+      "examples:./StRoot/macros/html:./StRoot/macros/qa:./StRoot/macros/"
+      "calib:./StRoot/macros/mudst:/afs/rhic.bnl.gov/star/packages/DEV/"
+      "StRoot/macros:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/"
+      "graphics:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/analysis:/"
+      "afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/test:/afs/"
+      "rhic.bnl.gov/star/packages/DEV/StRoot/macros/examples:/afs/"
+      "rhic.bnl.gov/star/packages/DEV/StRoot/macros/html:/afs/rhic.bnl.gov/"
+      "star/packages/DEV/StRoot/macros/qa:/afs/rhic.bnl.gov/star/packages/"
+      "DEV/StRoot/macros/calib:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/"
+      "macros/mudst:/afs/rhic.bnl.gov/star/ROOT/36/5.34.38/"
+      ".sl73_x8664_gcc485/rootdeb/macros:/afs/rhic.bnl.gov/star/ROOT/36/"
+      "5.34.38/.sl73_x8664_gcc485/rootdeb/tutorials");
+  gSystem->Load("libStarRoot.so");
+  gROOT->ProcessLine(".L bfc.C");
+  {
+    TString simple = "y2018a geant gstar usexgeom agml ";
+    bfc(0, simple);
   }
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  void starsim(Int_t nevents = 100, Int_t rngSeed = 1234) {
-    FILE *my_file = OpenFile("slight.out");
-    gROOT->SetMacroPath(
-        ".:/star-sw/StRoot/macros:./StRoot/macros:./StRoot/macros/graphics:./"
-        "StRoot/macros/analysis:./StRoot/macros/test:./StRoot/macros/"
-        "examples:./StRoot/macros/html:./StRoot/macros/qa:./StRoot/macros/"
-        "calib:./StRoot/macros/mudst:/afs/rhic.bnl.gov/star/packages/DEV/"
-        "StRoot/macros:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/"
-        "graphics:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/analysis:/"
-        "afs/rhic.bnl.gov/star/packages/DEV/StRoot/macros/test:/afs/"
-        "rhic.bnl.gov/star/packages/DEV/StRoot/macros/examples:/afs/"
-        "rhic.bnl.gov/star/packages/DEV/StRoot/macros/html:/afs/rhic.bnl.gov/"
-        "star/packages/DEV/StRoot/macros/qa:/afs/rhic.bnl.gov/star/packages/"
-        "DEV/StRoot/macros/calib:/afs/rhic.bnl.gov/star/packages/DEV/StRoot/"
-        "macros/mudst:/afs/rhic.bnl.gov/star/ROOT/36/5.34.38/"
-        ".sl73_x8664_gcc485/rootdeb/macros:/afs/rhic.bnl.gov/star/ROOT/36/"
-        "5.34.38/.sl73_x8664_gcc485/rootdeb/tutorials");
-    gSystem->Load("libStarRoot.so");
-    gROOT->ProcessLine(".L bfc.C");
-    {
-      TString simple = "y2018a geant gstar usexgeom agml ";
-      bfc(0, simple);
-    }
 
-    gSystem->Load("libVMC.so");
+  gSystem->Load("libVMC.so");
 
-    gSystem->Load("StarGeneratorUtil.so");
-    gSystem->Load("StarGeneratorEvent.so");
-    gSystem->Load("StarGeneratorBase.so");
+  gSystem->Load("StarGeneratorUtil.so");
+  gSystem->Load("StarGeneratorEvent.so");
+  gSystem->Load("StarGeneratorBase.so");
 
-    gSystem->Load("libMathMore.so");
-    gSystem->Load("xgeometry.so");
+  gSystem->Load("libMathMore.so");
+  gSystem->Load("xgeometry.so");
 
-    // Setup RNG seed and map all ROOT TRandom here
-    StarRandom::seed(rngSeed);
-    StarRandom::capture();
+  // Setup RNG seed and map all ROOT TRandom here
+  StarRandom::seed(rngSeed);
+  StarRandom::capture();
 
-    //
-    // Create the primary event generator and insert it
-    // before the geant maker
-    //
-    //  StarPrimaryMaker *
-    _primary = new StarPrimaryMaker();
-    {
-      _primary->SetFileName("kinematics.starsim.root");
-      chain->AddBefore("geant", _primary);
-    }
-
-    Kinematics();
-
-    //
-    // Initialize primary event generator and all sub makers
-    //
-    _primary->Init();
-  _primary->SetSigma( 0.1, 0.1, 0.1 ); // 1mm x 1mm x 1mm smearing at the vertex
-  _primary->SetVertex(0.1, 0.1, 0.0 );
-    //
-    // Setup geometry and set starsim to use agusread for input
-    //
-    // geometry("y2012");
-    command("gkine -4 0");
-    command("gfile o kinematics.starsim.fzd");
-
-    //
-    // Setup PT and ETA distributions
-    //
-
-    //
-    // Trigger on nevents
-    //
-    trig(my_file, nevents);
-
-    command("call agexit"); // Make sure that STARSIM exits properly
+  //
+  // Create the primary event generator and insert it
+  // before the geant maker
+  //
+  //  StarPrimaryMaker *
+  _primary = new StarPrimaryMaker();
+  {
+    _primary->SetFileName("kinematics.starsim.root");
+    chain->AddBefore("geant", _primary);
   }
-  // ----------------------------------------------------------------------------
+
+  Kinematics();
+
+  //
+  // Initialize primary event generator and all sub makers
+  //
+  _primary->Init();
+  _primary->SetSigma(0.1, 0.1, 0.1); // 1mm x 1mm x 1mm smearing at the vertex
+  _primary->SetVertex(0.1, 0.1, 0.0);
+  //
+  // Setup geometry and set starsim to use agusread for input
+  //
+  // geometry("y2012");
+  command("gkine -4 0");
+  command("gfile o kinematics.starsim.fzd");
+
+  //
+  // Setup PT and ETA distributions
+  //
+
+  //
+  // Trigger on nevents
+  //
+  trig(my_file, nevents);
+
+  command("call agexit"); // Make sure that STARSIM exits properly
+}
+
