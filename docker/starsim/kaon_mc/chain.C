@@ -17,8 +17,8 @@ void chain() {
   gROOT->LoadMacro("bfc.C");
 
   bfc(100,
-      "y2019a fzin tpcX UseXgeom iTpcIT CorrX AgML tpcDB TpcHitMover Idst tags "
-      "cmudst Tree  picoDst ITTF BAna iTpcIT VFMCE emcDY2 epdHit trgd "
+      "y2019a fzin UseXgeom tpcX iTpcIT CorrX AgML tpcdb TpcHitMover TpcFastSim Idst tags "
+      "cmudst Tree  picoDst ITTF BAna  VFMCE emcDY2 epdHit trgd "
       "ZDCvtx analysis picoWrite StiCA BEmcChkStat CorrY PicoVtxDefault",
       "sim.fzd");
 

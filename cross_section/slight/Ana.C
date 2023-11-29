@@ -7,6 +7,6 @@
 
 void Ana()
 {
-  Analyze a("slight_incoherent.out", 10000);
+  Analyze a("rho_coherent.out", 10000);
   a.doAnalysis();
 }

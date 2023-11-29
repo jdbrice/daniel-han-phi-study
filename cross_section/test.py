@@ -20,6 +20,7 @@ def plot_histogram(filename, hist_name=None):
     
     # Access the histogram
     histogram = file[hist_name]
+
     
     # Get the histogram data
     values, edges = histogram.to_numpy()

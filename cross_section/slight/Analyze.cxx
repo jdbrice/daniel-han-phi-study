@@ -76,7 +76,7 @@ Analyze::Analyze(TString infile, Int_t nEvents) :
   
   fRapEl = new TH1F("RapEl", "Rapidity e+/e-", 200, -5, 5);
   fRapMu = new TH1F("RapMu", "Rapidity mu+/mu-", 200, -10, 10);
-  fRapPi = new TH1F("RapPi", "Rapidity pi+/pi-", 200, -5., 5.);
+  fRapPi = new TH1F("RapPi", "Rapidity pi+/pi-", 500, -5., 5.);
   fRapKa = new TH1F("RapKa", "Rapidity k+/k-", 200, -5., 5.);
 
   fEtaKa = new TH1F("EtaKa", "Eta k+/k-", 200, -8., 8.);
