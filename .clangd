@@ -1,3 +1,4 @@
 CompileFlags:
   Add: 
     - '-I/usr/include/root'
+    - '-I/opt/homebrew/include/root/'
